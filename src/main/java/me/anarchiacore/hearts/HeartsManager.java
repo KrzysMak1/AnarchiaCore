@@ -14,11 +14,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -49,10 +51,11 @@ public class HeartsManager implements Listener {
             dataStore.setHearts(uuid, hearts);
             dataStore.save();
             applyMaxHealth(player, hearts);
-            player.setHealth(player.getMaxHealth());
+            applyMaxHealthNextTick(player, hearts, true);
         } else {
             hearts = dataStore.getHearts(uuid, configManager.getDefaultHearts());
             applyMaxHealth(player, hearts);
+            applyMaxHealthNextTick(player, hearts, false);
         }
     }
 
@@ -66,10 +69,18 @@ public class HeartsManager implements Listener {
             dataStore.setHearts(uuid, hearts);
             dataStore.save();
             applyMaxHealth(player, hearts);
+            applyMaxHealthNextTick(player, hearts, false);
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("hearts", String.valueOf(hearts));
             messageService.send(player, plugin.getConfig().getString("messages.heartLostOnDeath"), placeholders);
         }
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        int hearts = dataStore.getHearts(player.getUniqueId(), configManager.getDefaultHearts());
+        applyMaxHealthNextTick(player, hearts, true);
     }
 
     @EventHandler
@@ -99,6 +110,7 @@ public class HeartsManager implements Listener {
         dataStore.setHearts(uuid, hearts);
         dataStore.save();
         applyMaxHealth(player, hearts);
+        applyMaxHealthNextTick(player, hearts, false);
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("hearts", String.valueOf(hearts));
         messageService.send(player, plugin.getConfig().getString("messages.heartUsed"), placeholders);
@@ -134,6 +146,21 @@ public class HeartsManager implements Listener {
         if (player.getHealth() > maxHealth) {
             player.setHealth(maxHealth);
         }
+    }
+
+    private void applyMaxHealthNextTick(Player player, int hearts, boolean setFullHealth) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (!player.isOnline()) {
+                    return;
+                }
+                applyMaxHealth(player, hearts);
+                if (setFullHealth) {
+                    player.setHealth(player.getMaxHealth());
+                }
+            }
+        }.runTaskLater(plugin, 1L);
     }
 
     public NamespacedKey getHeartKey() {
