@@ -21,6 +21,7 @@ blockedEndCrystalDimensions:
 trash:
   title: "Kosz"
   rows: 5
+  clearMessage: "{prefix}<red>Usunięto itemy z kosza.</red>"
 
 customItems:
   items:

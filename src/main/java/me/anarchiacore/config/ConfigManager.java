@@ -6,8 +6,10 @@ import me.anarchiacore.hearts.AnarchiczneSerceDefinition;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.*;
 
 public class ConfigManager {
@@ -18,6 +20,7 @@ public class ConfigManager {
     private List<World.Environment> blockedCrystalDimensions = new ArrayList<>();
     private String trashTitle;
     private int trashRows;
+    private String trashClearedMessage;
     private AnarchiczneSerceDefinition serceDefinition;
     private CustomItemsConfig customItemsConfig;
 
@@ -40,6 +43,7 @@ public class ConfigManager {
         }
         trashTitle = plugin.getConfig().getString("trash.title", "Kosz");
         trashRows = plugin.getConfig().getInt("trash.rows", 5);
+        trashClearedMessage = plugin.getConfig().getString("trash.clearMessage");
         serceDefinition = loadSerceDefinition();
         customItemsConfig = loadCustomItems();
     }
@@ -76,7 +80,33 @@ public class ConfigManager {
 
     private CustomItemsConfig loadCustomItems() {
         ConfigurationSection section = plugin.getConfig().getConfigurationSection("customItems");
-        return new CustomItemsConfig(section);
+        Map<String, ConfigurationSection> eventItemSections = loadEventItems();
+        return new CustomItemsConfig(section, eventItemSections);
+    }
+
+    private Map<String, ConfigurationSection> loadEventItems() {
+        Map<String, ConfigurationSection> sections = new LinkedHashMap<>();
+        File itemsDir = new File(plugin.getDataFolder(), "configs/STORMITEMY/items");
+        if (!itemsDir.exists() || !itemsDir.isDirectory()) {
+            return sections;
+        }
+        File[] files = itemsDir.listFiles((dir, name) -> name.toLowerCase(Locale.ROOT).endsWith(".yml"));
+        if (files == null) {
+            return sections;
+        }
+        for (File file : files) {
+            YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+            if (yaml.getKeys(false).isEmpty()) {
+                continue;
+            }
+            String key = yaml.getKeys(false).iterator().next();
+            ConfigurationSection section = yaml.getConfigurationSection(key);
+            if (section == null) {
+                continue;
+            }
+            sections.put(key, section);
+        }
+        return sections;
     }
 
     public int getDefaultHearts() {
@@ -101,6 +131,10 @@ public class ConfigManager {
 
     public int getTrashRows() {
         return trashRows;
+    }
+
+    public String getTrashClearedMessage() {
+        return trashClearedMessage;
     }
 
     public AnarchiczneSerceDefinition getSerceDefinition() {

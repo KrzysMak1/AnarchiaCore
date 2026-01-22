@@ -11,6 +11,7 @@ import me.anarchiacore.trash.TrashManager;
 import me.anarchiacore.util.EndCrystalBlocker;
 import me.anarchiacore.util.MiniMessageUtil;
 import me.anarchiacore.util.ResourceExporter;
+import me.anarchiacore.util.ZipExtractor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
@@ -34,6 +35,14 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     @Override
     public void onEnable() {
         saveDefaultConfig();
+        ResourceExporter exporter = new ResourceExporter(this);
+        exporter.exportAlways("bundles/dream-antylogout-10-beta3jar-e28960d6.zip", "dream-antylogout-10-beta3jar-e28960d6.zip");
+        exporter.exportAlways("bundles/stormitemy_115-1jar-3723efab.zip", "stormitemy_115-1jar-3723efab.zip");
+
+        ZipExtractor zipExtractor = new ZipExtractor(this);
+        zipExtractor.extractAlways("configs/Dream-AntyLogout.zip", new java.io.File(getDataFolder(), "configs/Dream-AntyLogout"));
+        zipExtractor.extractAlways("configs/STORMITEMY.zip", new java.io.File(getDataFolder(), "configs/STORMITEMY"));
+
         configManager = new ConfigManager(this);
         configManager.reload();
         messageService = new MessageService(configManager);
@@ -52,10 +61,6 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         Objects.requireNonNull(getCommand("anarchiacore")).setExecutor(this);
         Objects.requireNonNull(getCommand("anarchiacore")).setTabCompleter(this);
         Objects.requireNonNull(getCommand("kosz")).setExecutor(new TrashCommand(trashManager, messageService, this));
-
-        ResourceExporter exporter = new ResourceExporter(this);
-        exporter.exportAlways("bundles/dream-antylogout-10-beta3jar-e28960d6.zip", "dream-antylogout-10-beta3jar-e28960d6.zip");
-        exporter.exportAlways("bundles/stormitemy_115-1jar-3723efab.zip", "stormitemy_115-1jar-3723efab.zip");
 
         combatLogManager.start();
     }
@@ -94,6 +99,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
     private void reloadAll(CommandSender sender) {
         configManager.reload();
+        dataStore.reload();
         messageService.send(sender, getConfig().getString("messages.reloadDone"));
     }
 
@@ -222,7 +228,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return true;
         }
         if (args[0].equalsIgnoreCase("list")) {
-            String items = String.join(", ", configManager.getCustomItemsConfig().getItemIds());
+            String items = String.join(", ", configManager.getCustomItemsConfig().getAllItemIds());
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("items", items);
             messageService.send(sender, getConfig().getString("messages.customItems.list"), placeholders);
@@ -253,7 +259,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return List.of("give", "list");
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("customitems") && args[1].equalsIgnoreCase("give")) {
-            return new ArrayList<>(configManager.getCustomItemsConfig().getItemIds());
+            return new ArrayList<>(configManager.getCustomItemsConfig().getAllItemIds());
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("customitems") && args[1].equalsIgnoreCase("give")) {
             List<String> names = new ArrayList<>();

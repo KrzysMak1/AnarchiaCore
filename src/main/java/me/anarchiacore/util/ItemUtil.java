@@ -88,6 +88,19 @@ public final class ItemUtil {
         return item;
     }
 
+    public static ItemStack applyUnbreakable(ItemStack item, boolean unbreakable) {
+        if (item == null) {
+            return null;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return item;
+        }
+        meta.setUnbreakable(unbreakable);
+        item.setItemMeta(meta);
+        return item;
+    }
+
     public static Enchantment parseEnchantment(String key) {
         if (key == null) {
             return null;
