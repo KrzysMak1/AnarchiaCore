@@ -82,7 +82,10 @@ public class CombatLogManager implements Listener {
         }
         boolean killOnLogout = plugin.getConfig().getBoolean("combatlog.killOnLogout", true);
         if (killOnLogout && player.getGameMode() != GameMode.CREATIVE) {
-            player.damage(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue());
+            var maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
+            if (maxHealth != null) {
+                player.damage(maxHealth.getValue());
+            }
         }
         String message = plugin.getConfig().getString("messages.combatlog.logoutPunish");
         if (message != null) {
