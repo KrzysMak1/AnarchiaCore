@@ -1,0 +1,13 @@
+name: AnarchiaCore
+main: me.anarchiacore.AnarchiaCorePlugin
+version: 1.0.0
+api-version: 1.21
+softdepend: [WorldGuard]
+commands:
+  anarchiacore:
+    aliases: [acore, anarchia]
+  kosz:
+    aliases: [trash, bin]
+permissions:
+  anarchiacore.admin:
+    default: op

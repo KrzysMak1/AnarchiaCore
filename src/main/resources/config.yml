@@ -1,0 +1,108 @@
+defaultHearts: 30
+maxHearts: 40
+
+anarchiczneSerce:
+  material: GUNPOWDER
+  meta:
+    display-name: "<red>Anarchiczne Serce</red>"
+    lore:
+      - "<gray>Użyj, aby zwiększyć liczbę serc o </gray><red>+1</red><gray>.</gray>"
+      - "<gray>Limit: </gray><red>{maxHearts}</red><gray>.</gray>"
+    enchantments:
+      minecraft:density: 1
+    flags:
+      - HIDE_ENCHANTS
+      - HIDE_ATTRIBUTES
+anarchiczneSerceCustomModelData: 0
+
+blockedEndCrystalDimensions:
+  - NETHER
+
+trash:
+  title: "Kosz"
+  rows: 5
+
+customItems:
+  items:
+    bombardaMaxima:
+      material: FIRE_CHARGE
+      customModelData: 0
+      meta:
+        display-name: "<red>Bombarda Maxima</red>"
+        lore:
+          - "<gray>Rzuć, aby wywołać potężny wybuch.</gray>"
+    turboTrap:
+      material: IRON_TRAPDOOR
+      customModelData: 0
+      meta:
+        display-name: "<gold>Turbo Trap</gold>"
+        lore:
+          - "<gray>Stawia natychmiast pułapkę.</gray>"
+    dynamit:
+      material: TNT
+      customModelData: 0
+      meta:
+        display-name: "<red>Dynamit</red>"
+        lore:
+          - "<gray>Ustawia ładunek wybuchowy.</gray>"
+    totemUaskawienia:
+      material: TOTEM_OF_UNDYING
+      customModelData: 0
+      meta:
+        display-name: "<green>Totem Ułaskawienia</green>"
+        lore:
+          - "<gray>Ratuje przed karą combatloga.</gray>"
+  bombardaMaxima:
+    speed: 1.5
+    power: 4.0
+    lifeTimeTicks: 60
+    breakBlocks: true
+    setFire: false
+  dynamit:
+    fuseTicks: 40
+    power: 4.0
+    breakBlocks: true
+  turboTrap:
+    blocks:
+      - "0,0,0:IRON_BARS"
+      - "1,0,0:IRON_BARS"
+      - "-1,0,0:IRON_BARS"
+      - "0,0,1:IRON_BARS"
+      - "0,0,-1:IRON_BARS"
+      - "0,1,0:IRON_BARS"
+  worldguard:
+    enabled: true
+    allowAllEventItemsRegions: []
+    allowEventItemsExceptExplosivesRegions: []
+
+combatlog:
+  tagDurationSeconds: 15
+  killOnLogout: true
+
+messages:
+  prefix: "<dark_gray>[</dark_gray><red>Anarchia</red><dark_gray>] </dark_gray><gray>"
+  noPermission: "{prefix}<red>Brak uprawnień.</red>"
+  reloadDone: "{prefix}<green>Przeładowano config.</green>"
+  giveUsage: "{prefix}<red>Użycie: /anarchiacore heart give <player> [amount]</red>"
+  setItemUsage: "{prefix}<red>Użycie: /anarchiacore heart setitem (trzymaj item w ręce)</red>"
+  setItemDone: "{prefix}<green>Zapisano definicję anarchicznego serca z trzymanego przedmiotu.</green>"
+  notAPlayer: "{prefix}<red>Ta komenda jest tylko dla gracza.</red>"
+  heartUsed: "{prefix}<green>Zwiększono serca do: </green><yellow>{hearts}</yellow><red>❤</red>"
+  heartMax: "{prefix}<red>Masz już maksymalną liczbę serc: </red><yellow>{maxHearts}</yellow><red>❤</red>"
+  heartLostOnDeath: "{prefix}<red>Straciłeś 1 serce za śmierć. Masz teraz: </red><yellow>{hearts}</yellow><red>❤</red>"
+  crystalBlocked: "{prefix}<red>Nie można stawiać kryształów Endu w tym wymiarze.</red>"
+  trashOpened: "{prefix}<gray>Otworzono kosz. Itemy zostaną usunięte po zamknięciu.</gray>"
+  trashCleared: "{prefix}<red>Usunięto itemy z kosza.</red>"
+  combatlog:
+    tagged: "{prefix}<red>Jesteś w combatlogu.</red>"
+    logoutPunish: "{prefix}<red>Wylogowałeś się podczas walki.</red>"
+    spawned: "{prefix}<green>Totem ułaskawił Cię, przeniesiono na spawn.</green>"
+  customItems:
+    giveUsage: "{prefix}<red>Użycie: /anarchiacore customitems give <item> [player]</red>"
+    invalidPlayer: "{prefix}<red>Nie znaleziono gracza.</red>"
+    notFound: "{prefix}<red>Nie znaleziono itemu: </red><yellow>{item}</yellow>"
+    give: "{prefix}<green>Dano item </green><yellow>{item}</yellow><green> graczowi </green><yellow>{player}</yellow><green>.</green>"
+    list: "{prefix}<gray>Dostępne itemy: </gray><yellow>{items}</yellow>"
+    explosivesBlocked: "{prefix}<red>W tym regionie nie można używać Bombardy Maxima ani dynamitu.</red>"
+    regionBlocked: "{prefix}<red>Nie możesz użyć tego itemu w tym regionie.</red>"
+    noSpace: "{prefix}<red>Brak miejsca na postawienie Turbo Trapa.</red>"
