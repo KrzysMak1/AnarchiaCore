@@ -23,59 +23,6 @@ trash:
   rows: 5
   clearMessage: "{prefix}<red>Usunięto itemy z kosza.</red>"
 
-customItems:
-  items:
-    bombardaMaxima:
-      material: FIRE_CHARGE
-      customModelData: 0
-      meta:
-        display-name: "<red>Bombarda Maxima</red>"
-        lore:
-          - "<gray>Rzuć, aby wywołać potężny wybuch.</gray>"
-    turboTrap:
-      material: IRON_TRAPDOOR
-      customModelData: 0
-      meta:
-        display-name: "<gold>Turbo Trap</gold>"
-        lore:
-          - "<gray>Stawia natychmiast pułapkę.</gray>"
-    dynamit:
-      material: TNT
-      customModelData: 0
-      meta:
-        display-name: "<red>Dynamit</red>"
-        lore:
-          - "<gray>Ustawia ładunek wybuchowy.</gray>"
-    totemUaskawienia:
-      material: TOTEM_OF_UNDYING
-      customModelData: 0
-      meta:
-        display-name: "<green>Totem Ułaskawienia</green>"
-        lore:
-          - "<gray>Ratuje przed karą combatloga.</gray>"
-  bombardaMaxima:
-    speed: 1.5
-    power: 4.0
-    lifeTimeTicks: 60
-    breakBlocks: true
-    setFire: false
-  dynamit:
-    fuseTicks: 40
-    power: 4.0
-    breakBlocks: true
-  turboTrap:
-    blocks:
-      - "0,0,0:IRON_BARS"
-      - "1,0,0:IRON_BARS"
-      - "-1,0,0:IRON_BARS"
-      - "0,0,1:IRON_BARS"
-      - "0,0,-1:IRON_BARS"
-      - "0,1,0:IRON_BARS"
-  worldguard:
-    enabled: true
-    allowAllEventItemsRegions: []
-    allowEventItemsExceptExplosivesRegions: []
-
 combatlog:
   tagDurationSeconds: 15
   killOnLogout: true
