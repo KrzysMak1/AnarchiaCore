@@ -49,6 +49,22 @@ public class WorldGuardIntegration {
         return RegionResult.NO_RULES;
     }
 
+    public boolean isInRegions(Location location, Set<String> regionIds) {
+        if (plugin.getServer().getPluginManager().getPlugin("WorldGuard") == null) {
+            return false;
+        }
+        RegionManager manager = WorldGuard.getInstance().getPlatform().getRegionContainer().get(BukkitAdapter.adapt(location.getWorld()));
+        if (manager == null) {
+            return false;
+        }
+        ApplicableRegionSet set = manager.getApplicableRegions(BukkitAdapter.asBlockVector(location));
+        if (set == null || set.size() == 0) {
+            return false;
+        }
+        Set<String> normalized = regionIds.stream().map(id -> id.toLowerCase(Locale.ROOT)).collect(Collectors.toSet());
+        return set.getRegions().stream().anyMatch(region -> normalized.contains(region.getId().toLowerCase(Locale.ROOT)));
+    }
+
     private boolean containsAny(Set<String> regionIds, List<String> allowed) {
         if (allowed == null || allowed.isEmpty()) {
             return false;

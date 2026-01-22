@@ -12,6 +12,7 @@ public record CustomItemDefinition(
         List<String> lore,
         Map<String, Integer> enchantments,
         List<String> flags,
-        int customModelData
+        int customModelData,
+        boolean unbreakable
 ) {
 }

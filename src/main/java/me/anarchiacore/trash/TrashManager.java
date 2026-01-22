@@ -41,7 +41,10 @@ public class TrashManager implements Listener {
         }
         event.getInventory().clear();
         if (event.getPlayer() instanceof Player player) {
-            messageService.send(player, plugin.getConfig().getString("messages.trashCleared"));
+            String clearMessage = configManager.getTrashClearedMessage();
+            if (clearMessage != null && !clearMessage.isBlank()) {
+                messageService.send(player, clearMessage);
+            }
         }
     }
 
