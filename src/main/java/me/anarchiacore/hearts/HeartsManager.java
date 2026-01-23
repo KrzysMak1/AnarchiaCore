@@ -46,17 +46,21 @@ public class HeartsManager implements Listener {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
         int hearts;
+        boolean setFullHealth;
         if (!dataStore.hasHearts(uuid)) {
             hearts = configManager.getDefaultHearts();
-            dataStore.setHearts(uuid, hearts);
-            dataStore.save();
-            applyMaxHealth(player, hearts);
-            applyMaxHealthNextTick(player, hearts, true);
+            setFullHealth = true;
         } else {
             hearts = dataStore.getHearts(uuid, configManager.getDefaultHearts());
-            applyMaxHealth(player, hearts);
-            applyMaxHealthNextTick(player, hearts, false);
+            setFullHealth = false;
         }
+        int clampedHearts = clampHearts(hearts);
+        if (clampedHearts != hearts || !dataStore.hasHearts(uuid)) {
+            dataStore.setHearts(uuid, clampedHearts);
+            dataStore.save();
+        }
+        applyMaxHealth(player, clampedHearts);
+        applyMaxHealthNextTick(player, clampedHearts, setFullHealth);
     }
 
     @EventHandler
@@ -79,8 +83,15 @@ public class HeartsManager implements Listener {
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        int hearts = dataStore.getHearts(player.getUniqueId(), configManager.getDefaultHearts());
-        applyMaxHealthNextTick(player, hearts, true);
+        UUID uuid = player.getUniqueId();
+        int hearts = dataStore.getHearts(uuid, configManager.getDefaultHearts());
+        int clampedHearts = clampHearts(hearts);
+        if (clampedHearts != hearts) {
+            dataStore.setHearts(uuid, clampedHearts);
+            dataStore.save();
+        }
+        applyMaxHealth(player, clampedHearts);
+        applyMaxHealthNextTick(player, clampedHearts, true);
     }
 
     @EventHandler
@@ -146,6 +157,12 @@ public class HeartsManager implements Listener {
         if (player.getHealth() > maxHealth) {
             player.setHealth(maxHealth);
         }
+    }
+
+    private int clampHearts(int hearts) {
+        int minHearts = configManager.getDefaultHearts();
+        int maxHearts = configManager.getMaxHearts();
+        return Math.min(maxHearts, Math.max(minHearts, hearts));
     }
 
     private void applyMaxHealthNextTick(Player player, int hearts, boolean setFullHealth) {
