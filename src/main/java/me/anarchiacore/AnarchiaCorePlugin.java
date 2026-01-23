@@ -5,6 +5,7 @@ import me.anarchiacore.config.ConfigManager;
 import me.anarchiacore.config.MessageService;
 import me.anarchiacore.customitems.CustomItemsManager;
 import me.anarchiacore.customitems.stormitemy.Main;
+import me.anarchiacore.customitems.stormitemy.StormItemyConfigInstaller;
 import me.anarchiacore.customitems.stormitemy.core.B;
 import me.anarchiacore.hearts.HeartsManager;
 import me.anarchiacore.storage.DataStore;
@@ -35,6 +36,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private CombatLogManager combatLogManager;
     private Main stormItemyMain;
     private B stormItemyInitializer;
+    private StormItemyConfigInstaller stormItemyConfigInstaller;
 
     @Override
     public void onEnable() {
@@ -55,6 +57,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         trashManager = new TrashManager(this, configManager, messageService);
         customItemsManager = new CustomItemsManager(this, configManager, messageService);
         combatLogManager = new CombatLogManager(this, messageService, dataStore, customItemsManager);
+
+        stormItemyConfigInstaller = new StormItemyConfigInstaller(this);
+        stormItemyConfigInstaller.installMissing();
 
         getServer().getPluginManager().registerEvents(heartsManager, this);
         getServer().getPluginManager().registerEvents(trashManager, this);
@@ -139,6 +144,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         dataStore.reload();
         if (combatLogManager != null) {
             combatLogManager.reload();
+        }
+        if (stormItemyConfigInstaller != null) {
+            stormItemyConfigInstaller.installMissing();
         }
         messageService.send(sender, getConfig().getString("messages.reloadDone"));
     }

@@ -1,0 +1,39 @@
+# === Konfiguracja przedmiotu 'Totem ułaskawienia' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Totem ułaskawienia'.
+
+totem:
+  material: TOTEM_OF_UNDYING
+  name: '&5&lTotem ułaskawienia'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu halloween (2023)'
+  - '&r'
+  - '&8 » &7Trzymając go po śmierci,'
+  - '&8 » &7nie stracisz swoich przedmiotów!'
+  - '&r'
+  customModelData: 1
+  enchantments:
+  - ''
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  animation:
+    enabled: true
+    effects:
+    - REGENERATION:2:100
+    - ABSORPTION:1:100
+    - FIRE_RESISTANCE:0:800
+  messages:
+    consumer:
+      title: ''
+      subtitle: ''
+      chatMessage: ''
+  sounds:
+    use:
+      enabled: true
+      sound: ITEM_TOTEM_USE
+      volume: 1.0
+      pitch: 1.0
