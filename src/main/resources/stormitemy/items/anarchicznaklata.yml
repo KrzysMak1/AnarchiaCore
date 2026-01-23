@@ -1,0 +1,13 @@
+# === Konfiguracja przedmiotu 'Anarchiczna klata' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anarchiczna klata'.
+
+anarchicznaklata:
+  material: NETHERITE_CHESTPLATE
+  name: '&4Anarchiczna klata'
+  lore: []
+  customModelData: 0
+  enchantments:
+  - PROTECTION_ENVIRONMENTAL:5
+  - DURABILITY:5
+  flags: []
+  unbreakable: false

@@ -1,0 +1,42 @@
+# === Konfiguracja księgi 'Otrucie przeciwnika 1' ===
+# Opis: Plik konfiguracyjny określa właściwości zaklętej księgi.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {TARGET}      - nazwa gracza, który został uderzony
+
+name: '&eZaklęta książka'
+chance: 10.0
+cooldown: 20
+allowedItems:
+- sword
+lore:
+- '&7Otrucie przeciwnika I'
+- '&7'
+- '&2&lZaklęcie specjalne!'
+- '&7Może zostać nałożony na &amiecz&7!'
+- '&7Masz szansę, że gracz którego uderzysz'
+- '&7otrzyma efekt trucizny I.'
+- '&7'
+glow: true
+customModelData: 1
+messages:
+  attacker:
+    title: '&2ZAKLĘCIE TRUCIZNY'
+    subtitle: '&aOtrułeś &7gracza &f{TARGET}&7!'
+    chat: ''
+  target:
+    title: '&2ZAKLĘCIE TRUCIZNY'
+    subtitle: '&7Zostałeś &cotruty &7przez &f{PLAYER}&7!'
+    chat: ''
+effects:
+- duration: 5
+  icon: true
+  amplifier: 0
+  ambient: false
+  type: POISON
+  particles: true
+sound:
+  volume: 1.0
+  sound: entity.witch.throw
+  pitch: 1.0
+  enabled: true

@@ -1,0 +1,13 @@
+# === Konfiguracja przedmiotu 'Anarchiczny hełm II' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anarchiczny hełm II'.
+
+anarchicznyhelmii:
+  material: NETHERITE_HELMET
+  name: '&4Anarchiczny hełm II'
+  lore: []
+  customModelData: 1
+  enchantments:
+  - PROTECTION_ENVIRONMENTAL:6
+  - DURABILITY:6
+  flags: []
+  unbreakable: false

@@ -1,0 +1,13 @@
+# === Konfiguracja przedmiotu 'Anarchiczne buty II' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anarchiczne buty II'.
+
+anarchiczne_buty_ii:
+  material: NETHERITE_BOOTS
+  name: '&4Anarchiczne buty II'
+  lore: []
+  customModelData: 1
+  enchantments:
+  - PROTECTION_ENVIRONMENTAL:6
+  - DURABILITY:6
+  flags: []
+  unbreakable: false
