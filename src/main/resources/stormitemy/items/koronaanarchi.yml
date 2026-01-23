@@ -1,0 +1,60 @@
+# === Konfiguracja przedmiotu 'Korona anarchii' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Korona anarchii'.
+
+korona:
+  material: GOLDEN_HELMET
+  name: '&6Korona ANARCHII'
+  lore:
+  - '&r'
+  - '&8» &eTen przedmiot jest wyjątkowy!'
+  - '&8» &7Na serwerze znajduje się tylko jedna'
+  - '&8» &7taka korona! Która nigdy nie zostanie'
+  - '&8» &7zniszczona.'
+  - '&r'
+  - '&8» &eZalety przedmiotu:'
+  - '&f  Stałe efekty:'
+  - '&8  - &fSzybkość II'
+  - '&8  - &fOdporność na ogień I'
+  - '&8  - &fSiła II'
+  - '&8  - &fOdporność III'
+  - '&8  - &fSzczęście I'
+  - '&r'
+  customModelData: 1
+  enchantments:
+  - AQUA_AFFINITY:1
+  - MENDING:1
+  - PROJECTILE_PROTECTION:4
+  - THORNS:3
+  - CURSE_OF_VANISHING:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  - HIDE_UNBREAKABLE
+  unbreakable: true
+  vanishOnDeath: true
+  effects:
+  - duration: 140
+    particles: false
+    amplifier: 1
+    type: SPEED
+    ambient: false
+  - duration: 140
+    particles: false
+    amplifier: 0
+    type: FIRE_RESISTANCE
+    ambient: false
+  - duration: 140
+    particles: false
+    amplifier: 1
+    type: INCREASE_DAMAGE
+    ambient: false
+  - duration: 140
+    particles: false
+    amplifier: 2
+    type: DAMAGE_RESISTANCE
+    ambient: false
+  - duration: 140
+    particles: false
+    amplifier: 0
+    type: LUCK
+    ambient: false

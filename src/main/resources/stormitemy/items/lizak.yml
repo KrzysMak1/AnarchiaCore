@@ -1,0 +1,25 @@
+# === Konfiguracja przedmiotu 'Lizak' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Lizak'.
+
+lizak:
+  material: ALLIUM
+  name: '&d&lLizak'
+  lore:
+  - '&8 » &7Przedmiot zdobyty w &fdzień dziecka&7.'
+  - '&8 » &7Trzymaj go w ręce aby otrzymać:'
+  - '&8  - &fEfekt SIŁY 1'
+  - '&r'
+  customModelData: 1
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  effects:
+  - duration: 40
+    particles: false
+    amplifier: 0
+    type: INCREASE_DAMAGE
+    ambient: false

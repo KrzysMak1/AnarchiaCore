@@ -1,0 +1,41 @@
+# === Konfiguracja przedmiotu 'Marchewkowy miecz' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Marchewkowy miecz'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+#   {ATTACKER}      - nazwa gracza, który uderzył
+#   {TARGET}       - nazwa gracza, który został trafiony
+
+marchewkowymiecz:
+  material: GOLDEN_SWORD
+  name: '&6Marchewkowy Miecz'
+  lore:
+  - '&r'
+  - '&8 » &7Dzięki niemu możesz &bzamrozić &7przeciwnika'
+  - '&8 » &7po &cuderzeniu &7na &asekundę&7!'
+  - '&r'
+  customModelData: 1
+  cooldown: 30
+  effect:
+    duration: 1
+  enchantments:
+  - DAMAGE_ALL:3
+  - DURABILITY:3
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    attackerTitle: '&6MARCHEWKOWY MIECZ'
+    attackerSubtitle: '&7Zostałeś zamrożony przez &f{TARGET}&7!'
+    attacker: ''
+    targetTitle: '&6MARCHEWKOWY MIECZ'
+    targetSubtitle: '&7Zamroziłeś przeciwnika &f{ATTACKER}&7!'
+    target: ''
+    cooldown: ''
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

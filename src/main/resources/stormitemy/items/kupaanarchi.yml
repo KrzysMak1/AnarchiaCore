@@ -1,0 +1,26 @@
+# === Konfiguracja przedmiotu 'Kupa anarchii' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Kupa anarchii'.
+
+kupaAnarchi:
+  material: GRAY_DYE
+  name: '&8&lKupa ANARCHI'
+  lore:
+  - '&7Nic nie daje ale stworzył ją'
+  - '&7pan &fdexsi66&7!'
+  - '&r'
+  - '&cTen przedmiot nie nadaje &4SIŁKI II,'
+  - '&6Ostateczna &n&lOFERTA&6!!!'
+  customModelData: 1
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  effects:
+  - duration: 40
+    particles: false
+    amplifier: 1
+    type: INCREASE_DAMAGE
+    ambient: false
