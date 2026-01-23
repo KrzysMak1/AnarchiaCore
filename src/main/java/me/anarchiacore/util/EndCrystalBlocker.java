@@ -36,7 +36,7 @@ public class EndCrystalBlocker implements Listener {
             return;
         }
         World world = event.getClickedBlock().getWorld();
-        if (configManager.getBlockedCrystalDimensions().contains(world.getEnvironment())) {
+        if (configManager.isCrystalBlocked(world)) {
             event.setCancelled(true);
             messageService.send(event.getPlayer(), plugin.getConfig().getString("messages.crystalBlocked"));
         }
@@ -48,7 +48,7 @@ public class EndCrystalBlocker implements Listener {
             return;
         }
         World world = event.getBlock().getWorld();
-        if (configManager.getBlockedCrystalDimensions().contains(world.getEnvironment())) {
+        if (configManager.isCrystalBlocked(world)) {
             event.setCancelled(true);
         }
     }
