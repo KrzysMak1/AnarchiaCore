@@ -1,0 +1,85 @@
+Summary for /storage/emulated/0/Documents/jadec/sources/stormitemy_115-1jar-3723efab/jar-files/0.jar
+Decompiled with CFR 0.152
+
+
+pl.ziffy_.STORMITEMY.Main
+----------------------------
+
+onCommand(org.bukkit.command.CommandSender org.bukkit.command.Command java.lang.String java.lang.String[] )
+  Exception : ob.f0$e
+
+
+pl.ziffy_.STORMITEMY.commands.A
+----------------------------
+
+A(java.lang.String java.lang.String[] )
+  Exception : ob.f0$e
+A(org.bukkit.command.CommandSender java.lang.String[] )
+  Exception : ob.f0$e
+
+
+pl.ziffy_.STORMITEMY.commands.F
+----------------------------
+
+onCommand(org.bukkit.command.CommandSender org.bukkit.command.Command java.lang.String java.lang.String[] )
+  Exception : ob.f0$e
+
+
+pl.ziffy_.STORMITEMY.commands.G
+----------------------------
+
+A(org.bukkit.entity.Player org.bukkit.command.CommandSender java.lang.String[] )
+  Exception : ob.f0$e
+
+
+pl.ziffy_.STORMITEMY.config.B
+----------------------------
+
+B(java.lang.String )
+  Exception : ob.f0$e
+
+
+pl.ziffy_.STORMITEMY.listeners.A
+----------------------------
+
+A(org.bukkit.entity.Player org.bukkit.entity.LivingEntity java.util.Map<java.lang.String, java.lang.Object> org.bukkit.event.entity.EntityDamageByEntityEvent )
+  Exception : ob.f0$e
+A(org.bukkit.entity.Player org.bukkit.entity.LivingEntity java.util.Map<java.lang.String, java.lang.Object> )
+  Exception : ob.f0$e
+B(org.bukkit.entity.Player java.util.Map<java.lang.String, java.lang.Object> )
+  Exception : ob.f0$e
+A(org.bukkit.entity.Player java.util.Map<java.lang.String, java.lang.Object> )
+  Exception : ob.f0$e
+
+
+pl.ziffy_.STORMITEMY.listeners.E
+----------------------------
+
+B(org.bukkit.entity.Player java.util.UUID java.lang.String )
+  Exception : ob.f0$e
+D(java.lang.String )
+  Exception : ob.f0$e
+A(java.util.Map<java.lang.String, java.lang.Object> java.lang.String )
+  Exception : ob.f0$e
+
+
+pl.ziffy_.STORMITEMY.messages.B
+----------------------------
+
+B(java.lang.String )
+  Exception : java.lang.NullPointerException: Attempt to invoke virtual method 'kc.o kc.a.d(kc.r)' on a null object reference
+A(java.lang.String )
+  Exception : ob.f0$e
+isPluginItem(java.lang.String )
+  Exception : ob.f0$e
+
+
+pl.ziffy_.STORMITEMY.ui.gui.D
+----------------------------
+
+B(java.lang.String )
+  Exception : ob.f0$e
+C(java.lang.String )
+  Exception : ob.f0$e
+A(java.lang.String boolean )
+  Exception : ob.f0$e

@@ -4,6 +4,8 @@ import me.anarchiacore.combatlog.CombatLogManager;
 import me.anarchiacore.config.ConfigManager;
 import me.anarchiacore.config.MessageService;
 import me.anarchiacore.customitems.CustomItemsManager;
+import me.anarchiacore.customitems.stormitemy.Main;
+import me.anarchiacore.customitems.stormitemy.core.B;
 import me.anarchiacore.hearts.HeartsManager;
 import me.anarchiacore.storage.DataStore;
 import me.anarchiacore.trash.TrashCommand;
@@ -31,6 +33,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private TrashManager trashManager;
     private CustomItemsManager customItemsManager;
     private CombatLogManager combatLogManager;
+    private Main stormItemyMain;
+    private B stormItemyInitializer;
 
     @Override
     public void onEnable() {
@@ -62,6 +66,28 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         Objects.requireNonNull(getCommand("anarchiacore")).setTabCompleter(this);
         Objects.requireNonNull(getCommand("kosz")).setExecutor(new TrashCommand(trashManager, messageService, this));
 
+        stormItemyMain = new Main(this);
+        stormItemyMain.onEnable();
+        stormItemyInitializer = stormItemyMain.getInitializer();
+        int stormListeners = 0;
+        if (stormItemyInitializer != null) {
+            List<org.bukkit.event.Listener> listeners = stormItemyInitializer.getListeners();
+            stormListeners = listeners.size();
+            for (org.bukkit.event.Listener listener : listeners) {
+                getServer().getPluginManager().registerEvents(listener, this);
+            }
+            if (stormItemyInitializer.getMenuCommand() != null) {
+                Objects.requireNonNull(getCommand("menuprzedmioty")).setExecutor(stormItemyInitializer.getMenuCommand());
+            }
+        }
+        Objects.requireNonNull(getCommand("stormitemy")).setExecutor(stormItemyMain);
+        Objects.requireNonNull(getCommand("stormitemy")).setTabCompleter(stormItemyMain);
+
+        int stormCommands = stormItemyInitializer != null && stormItemyInitializer.getMenuCommand() != null ? 2 : 1;
+        int stormConfigs = stormItemyInitializer != null ? stormItemyInitializer.getLoadedConfigCount() : 0;
+        getLogger().info("StormItemy integrated: source; registered listeners: " + stormListeners
+            + "; commands: " + stormCommands + "; configs loaded: " + stormConfigs);
+
         combatLogManager.start();
     }
 
@@ -69,6 +95,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     public void onDisable() {
         if (combatLogManager != null) {
             combatLogManager.stop();
+        }
+        if (stormItemyMain != null) {
+            stormItemyMain.onDisable();
         }
     }
 

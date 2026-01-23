@@ -8,6 +8,10 @@ commands:
     aliases: [acore, anarchia]
   kosz:
     aliases: [trash, bin]
+  stormitemy:
+    aliases: [stormitems]
+  menuprzedmioty:
+    aliases: [przedmioty]
 permissions:
   anarchiacore.admin:
     default: op
