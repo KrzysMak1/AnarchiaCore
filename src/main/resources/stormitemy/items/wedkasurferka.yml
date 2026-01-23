@@ -1,0 +1,41 @@
+# === Konfiguracja przedmiotu 'Wędka surferka' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Wędka surferka'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+
+wedkasurferka:
+  material: FISHING_ROD
+  name: '&bWędka surferka'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu wakacyjnego (2024)'
+  - '&r'
+  - '&8 » &7Ta &aniezwykła &7wędka zapewnia ci'
+  - '&8 » &7zdumiewającą zdolność przyciągania się'
+  - '&8 » &7do &bbloków &7i &dgraczy&7, tworząc zupełnie'
+  - '&8 » &7nowe możliwości eksploracji i walki!'
+  - '&r'
+  customModelData: 1
+  cooldown: 15
+  enchantments:
+  - DURABILITY:3
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  knockback:
+    forward: 4.0
+    upward: 1.5
+  messages:
+    title: '&bWĘDKA SURFERKA'
+    subtitle: '&7Użyłeś &fwędki surferka&7!'
+    chatMessage: ''
+    cooldown: ''
+  sounds:
+    use:
+      enabled: true
+      sound: ENTITY_FISHING_BOBBER_RETRIEVE
+      volume: 1.0
+      pitch: 1.2

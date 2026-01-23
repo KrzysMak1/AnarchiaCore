@@ -1,0 +1,36 @@
+# === Konfiguracja przedmiotu 'Plecak Drakuli' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Plecak Drakuli'.
+
+plecakdrakuli:
+  material: RED_BUNDLE
+  name: '&c&lPlecak Drakuli'
+  lore:
+  - '&7'
+  - '&8 » &7Przedmiot z &fwydarzenia halloween 2025&7!'
+  - '&7'
+  - '&8 » &7&7Otwiera przenośny &dplecak &7na &e5 slotów&7.'
+  - '&8 » &7Zawartość zapisywana jest w &dtym egzemplarzu&7.'
+  - '&8 » &7Edytowanie zawartości podczas &cwalki &7jest zablokowane.'
+  - '&8 » &7Przedmiot &anie traci się po śmierci&7.'
+  - '&7'
+  customModelData: 1
+  enchantments: []
+  flags:
+  - HIDE_ATTRIBUTES
+  unbreakable: false
+  combat:
+    enabled: true
+    cooldown_seconds: 30
+    can_put_items_in_combat: false
+    can_take_items_in_combat: true
+  sounds:
+    open:
+      enabled: true
+      sound: BLOCK_CHEST_OPEN
+      volume: 0.5
+      pitch: 1.2
+    close:
+      enabled: true
+      sound: BLOCK_CHEST_CLOSE
+      volume: 0.5
+      pitch: 1.2

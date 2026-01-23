@@ -1,0 +1,52 @@
+# === Konfiguracja przedmiotu 'Śnieżynka' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Śnieżynka'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {SHOOTER} - nazwa gracza, który rzucił przedmiot
+#   {TARGET}  - nazwa gracza, który został trafiony
+
+sniezynka:
+  material: SNOWBALL
+  name: '&bŚnieżynka'
+  lore:
+  - '&7'
+  - '&8 » &7Przedmiot z &fwydarzenia mikołajkowego 2025&7!'
+  - '&7'
+  - '&8 » &7Rzuć w gracza, aby go &bzamrozić &7na krótką chwilę.'
+  - '&8 » &7Możesz ją &fzdobyć &7poprzez &ezabijanie bałwanków'
+  - '&8 » &7albo &ekopiąc bloki&7.'
+  - '&7'
+  - '&8 » &4⚠ &cPo zakończeniu wydarzenia przedmiot'
+  - '&8 » &ctraci swoje specjalne możliwości!'
+  - '&7'
+  customModelData: 1
+  cooldown: 1
+  freezeDuration: 10
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    shooter:
+      title: '&b&lŚNIEŻYNKA'
+      subtitle: '&7Zamroziłeś gracza &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&b&lŚNIEŻYNKA'
+      subtitle: '&7Zostałeś zamrożony przez &f{SHOOTER}&7!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    throw:
+      enabled: true
+      sound: ENTITY_SNOWBALL_THROW
+      volume: 1.0
+      pitch: 1.2
+    freeze:
+      enabled: true
+      sound: BLOCK_GLASS_BREAK
+      volume: 1.0
+      pitch: 1.5

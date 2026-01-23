@@ -1,0 +1,91 @@
+# === Konfiguracja przedmiotu 'Cudowna Latarnia' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Cudowna Latarnia'.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}  - nazwa gracza używającego przedmiotu
+#   {TIME}    - pozostały czas działania (w sekundach)
+
+cudownalatarnia:
+  material: BEACON
+  name: '&d&lCudowna Latarnia'
+  cooldown: 120
+  lore:
+  - '&7'
+  - '&8 » &7Przedmiot z &fświątecznego wydarzenia 2025&7!'
+  - '&7'
+  - '&8 » &7Po postawieniu otrzymujesz:'
+  - '&8 » &dRegeneracje V &8(20s)'
+  - '&8 » &eAbsorbcje VI &8(10s)'
+  - '&8 » & &8(10s)'
+  - '&7'
+  - '&8 » &7Fontanna pozostanie przez &f30 sekund&7.'
+  - '&8 » &7Efekty działają w zasięgu &f30 kratek&7.'
+  - '&8 » &7Zniszczenie fontanny usuwa efekty.'
+  - '&7'
+  customModelData: 0
+  enchantments: []
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  effect:
+    duration: 30
+    radius: 30
+  effects:
+  - amplifier: 4
+    type: REGENERATION
+    duration: 400
+  - amplifier: 5
+    type: ABSORPTION
+    duration: 200
+  - amplifier: 1
+    type: INCREASE_DAMAGE
+    duration: 200
+  messages:
+    placed:
+      title: '&d&lCUDOWNA LATARNIA'
+      subtitle: '&7Efekty działają w zasięgu &f30 kratek&7!'
+    enter:
+      title: '&d&lCUDOWNA LATARNIA'
+      subtitle: '&7Wchodzisz w zasięg &flatarni&7!'
+    exit:
+      title: '&d&lCUDOWNA LATARNIA'
+      subtitle: '&7Wychodzisz z zasięgu &flatarni&7!'
+    destroyed:
+      title: '&d&lCUDOWNA LATARNIA'
+      subtitle: '&fLatarnia &7została zniszczona!'
+    ended:
+      title: '&d&lLATARNIA WYGASŁA'
+      subtitle: '&7Czas działania &flatarni &7dobiegł końca!'
+  bossbar:
+    enabled: true
+    title: '&5Cudowna Latarnia aktywna! &8({TIME}s&8)'
+    color: PINK
+    style: SEGMENTED_10
+  sounds:
+    enabled: true
+    activation:
+      sound: BLOCK_BEACON_ACTIVATE
+      volume: 1.0
+      pitch: 1.2
+    enter:
+      sound: BLOCK_BEACON_AMBIENT
+      volume: 0.8
+      pitch: 1.5
+    exit:
+      sound: BLOCK_BEACON_DEACTIVATE
+      volume: 0.8
+      pitch: 0.8
+    destroyed:
+      sound: ENTITY_GENERIC_EXPLODE
+      volume: 1.0
+      pitch: 1.5
+    ended:
+      sound: BLOCK_BEACON_DEACTIVATE
+      volume: 1.0
+      pitch: 1.0
+  particles:
+    enabled: true
+    dust_color_r: 255
+    dust_color_g: 150
+    dust_color_b: 200
+    dust_size: 1.5
+    ambient_dust_size: 0.8
