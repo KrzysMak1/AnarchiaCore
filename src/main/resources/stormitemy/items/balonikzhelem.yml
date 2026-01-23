@@ -1,0 +1,43 @@
+# === Konfiguracja przedmiotu 'Balonik z helem' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Balonik z helem'.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}  - nazwa gracza używającego przedmiotu
+
+balonikzhelem:
+  material: PLAYER_HEAD
+  value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGY4NTUyMmVlODE1ZDExMDU4N2ZmZmM3NDExM2Y0MTlkOTI5NTk4ZTI0NjNiOGNlOWQzOWNhYTlmYjZmZjVhYiJ9fX0=
+  active_balloon_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTFiZTQ0ZTg0ZjAxMmY0M2ZhODExNzI3ZDJkNzQ2YTEwYjc1ZGQ5MjQzNzZkZDgwZmJjYjE3NzY4M2QzNTNjZSJ9fX0=
+  name: '&3&lBalonik z helem'
+  lore:
+  - '&7'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fDnia Dziecka 2025&7!'
+  - '&7'
+  - '&8 » &7Po aktywacji unosi się, niszcząc'
+  - '&8 » &7wszystkie bloki znajdujące się nad nim.'
+  - '&7'
+  customModelData: 811
+  cooldown: 60
+  unbreakable: false
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  - HIDE_UNBREAKABLE
+  maxHeight: 256
+  messages:
+    spawn:
+      title: '&3&lBALONIK Z HELEM'
+      subtitle: '&7Twój balonik zaczął unosić się w &fpowietrze&7!'
+      chatMessage: ''
+  balloon:
+    blocksBeforePop: 30
+    speedBlocksPerSecond: 3
+    updateTickRate: 2
+  noDestroyRegions: []
+  preventRegionDestruction: true
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

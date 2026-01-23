@@ -1,0 +1,49 @@
+# === Konfiguracja przedmiotu 'Arcus Magnus' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Arcus Magnus'.
+# Dostępne placeholdery:
+#   {SHOOTER} - nazwa gracza, który strzelił
+#   {TARGET}  - nazwa gracza, który został trafiony
+#   {DAMAGE}  - ilość zadanych serc (np. 0.5, 1, 2, 4, 8)
+
+arcus_magnus:
+  material: BOW
+  name: '&a&lArcus Magnus'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu halloween (2024)'
+  - '&r'
+  - '&8 » &7Łuk, który pozwala na'
+  - '&8 » &eniszczycielskie &7combo!'
+  - '&8 » &7Po trafieniu przeciwnika'
+  - '&8 » &7zadajesz mu &cogromne obrażenia&7, które'
+  - '&8 » &7zwiększają się z każdym trafieniem!'
+  - '&r'
+  customModelData: 5324
+  enchantments: []
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: false
+  messages:
+    shooter:
+      title: '&a&lARCUS MAGNUS'
+      subtitle: '&7Zadałeś &4{DAMAGE}❤ &7obrażeń graczowi &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&a&lARCUS MAGNUS'
+      subtitle: '&7Otrzymałeś &4{DAMAGE}❤ &7obrażeń od gracza &f{SHOOTER}&7!'
+      chatMessage: ''
+  damage:
+    first: 0.5
+    second: 1.0
+    third: 2.0
+    fourth: 4.0
+    fifth: 8.0
+  combo_duration: 4000
+  bossbar:
+    color: RED
+    style: SOLID
+    title: '&aArcus Magnus &7ma aktywne &eCOMBO&7! Traf przeciwnika w czasie &a{TIME}ms
+      &7aby zadać mu &c{DAMAGE}❤'

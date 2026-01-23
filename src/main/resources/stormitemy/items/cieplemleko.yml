@@ -1,0 +1,49 @@
+# === Konfiguracja przedmiotu 'Ciepłe mleko' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Ciepłe mleko'.
+
+cieplemleko:
+  material: BOWL
+  name: '&9&lCiepłe mleko'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu świątecznego (2024)'
+  - '&r'
+  - '&8 » &7Po wypiciu usuwa wszystkie'
+  - '&8 » &cnegatywne efekty&7! Również posiada'
+  - '&8 » &7mechanike stakowania!'
+  - '&r'
+  customModelData: 43634712
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: false
+  cooldown: 40
+  negativeEffects:
+  - BLINDNESS
+  - NAUSEA
+  - POISON
+  - SLOWNESS
+  - MINING_FATIGUE
+  - WEAKNESS
+  - WITHER
+  - HUNGER
+  - BAD_OMEN
+  - UNLUCK
+  - DARKNESS
+  - LEVITATION
+  messages:
+    consumer:
+      title: '&9&lCIEPŁE MLEKO'
+      subtitle: '&7Twoje negatywne efekty &fzniknęły&7!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

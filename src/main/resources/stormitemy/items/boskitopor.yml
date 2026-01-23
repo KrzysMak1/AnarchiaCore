@@ -1,0 +1,68 @@
+# === Konfiguracja przedmiotu 'Boski topór' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Boski topór'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+#   {PLAYER}      - nazwa gracza, który uderzył
+
+boskitopor:
+  material: IRON_AXE
+  name: '&b&lBoski topór'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &fspecjalnego wydarzenia (2025)'
+  - '&r'
+  - '&8 » &7Po kliknięciu prawym przyciskiem'
+  - '&8 » &7aktywujesz &epotężną fale uderzeniową'
+  - '&8 » &7która zapewnia Tobie &cnieśmiertelność&7!'
+  - '&r'
+  customModelData: 3462232
+  cooldown: 60
+  enchantments:
+  - DURABILITY:3
+  - EFFICIENCY:2
+  flags:
+  - HIDE_ATTRIBUTES
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_POTION_EFFECTS
+  - HIDE_DESTROYS
+  - HIDE_PLACED_ON
+  messages:
+    consumer:
+      title: '&b&lBOSKI TOPÓR'
+      subtitle: '&7Aktywowałeś przedmiot &fboski topór&7!'
+      chatMessage: ''
+    target:
+      title: '&b&lBOSKI TOPÓR'
+      subtitle: '&7Gracz &f{PLAYER} &7aktywował &fboski topór&7!'
+      chatMessage: ''
+    cooldown: ''
+  invulnerability:
+    duration: 3
+  particleEffects:
+    explosion:
+      type: EXPLOSION_LARGE
+      count: 10
+    flame:
+      type: FLAME
+      count: 20
+      offset:
+        x: 1
+        y: 2
+        z: 1
+    circle:
+      type: CRIT_MAGIC
+      delay: 5
+      duration: 3
+      radius: 1.5
+      angleStep: 20
+  pushEffect:
+    radius: 5.0
+    verticalBoost: 0.2
+    minForce: 1.0
+    maxForce: 3.0
+  sound:
+    type: ENTITY_ENDER_DRAGON_AMBIENT
+    volume: 1.0
+    pitch: 0.5

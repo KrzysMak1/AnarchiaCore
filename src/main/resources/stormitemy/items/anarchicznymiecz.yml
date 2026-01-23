@@ -1,0 +1,13 @@
+# === Konfiguracja przedmiotu 'Anarchiczny miecz' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anarchiczny miecz'.
+
+anarchicznymiecz:
+  material: NETHERITE_SWORD
+  name: '&4Anarchiczny miecz'
+  lore: []
+  customModelData: 0
+  enchantments:
+  - FIRE_ASPECT:2
+  - DAMAGE_ALL:6
+  flags: []
+  unbreakable: false

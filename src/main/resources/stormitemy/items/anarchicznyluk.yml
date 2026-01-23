@@ -1,0 +1,15 @@
+# === Konfiguracja przedmiotu 'Anarchiczny łuk' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anarchiczny łuk'.
+
+anarchicznyluk:
+  material: BOW
+  name: '&4Anarchiczny łuk'
+  lore: []
+  customModelData: 0
+  enchantments:
+  - ARROW_FIRE:1
+  - ARROW_DAMAGE:6
+  - ARROW_KNOCKBACK:3
+  - DURABILITY:5
+  flags: []
+  unbreakable: false
