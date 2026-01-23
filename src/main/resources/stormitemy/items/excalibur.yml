@@ -1,0 +1,41 @@
+excalibur:
+  material: NETHERITE_SWORD
+  name: '&e&lExcalibur'
+  lore:
+  - '&r'
+  - '&8» &7Jest to przedmiot zdobyty z'
+  - '&8» &fwydarzenia wakacyjnego 2024&7!'
+  - '&r'
+  - '&8» &7Aktualnie zabójstw: &f{KILLS}'
+  - '&8» {PROGRESS_BAR}'
+  - '&r'
+  - '&8» &7Zapełnienie paska zapewnia'
+  - '&8» &7Ci &f12 punktów obrażeń&7, co'
+  - '&8» &7jest równoznaczne z &eostrością {MAX_SHARPNESS}&7!'
+  - '&r'
+  customModelData: 5
+  maxSharpness: 7
+  requiredKills: 1000
+  startSharpness: 6
+  enchantments:
+  - DURABILITY:3
+  - FIRE_ASPECT:2
+  flags: []
+  unbreakable: false
+  messages:
+    attacker:
+      title: '&e&lEXCALIBUR'
+      subtitle: '&7Ulepszono miecz na &fwyższy poziom&7!'
+      chatMessage: ''
+    cooldown: ''
+  progressBar:
+    totalBars: 10
+    filledChar: '&a&m-'
+    emptyChar: '&f&m-'
+    suffix: ' &r &e%.1f%%'
+  sounds:
+    enabled: false
+    upgrade:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

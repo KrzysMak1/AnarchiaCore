@@ -1,0 +1,52 @@
+# === Konfiguracja przedmiotu 'Łuk kupidyna' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Łuk kupidyna'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {SHOOTER} - nazwa gracza, który strzelił
+#   {TARGET}  - nazwa gracza, który został trafiony
+
+luk_kupidyna:
+  material: BOW
+  name: '&4Łuk kupidyna'
+  lore:
+  - '&r'
+  - '&5&lSpecjalny przedmiot!'
+  - '&7Masz szanse, że trafiony przez'
+  - '&7Ciebie gracz zostanie &doślepiony&7!'
+  - '&r'
+  customModelData: 1
+  cooldown: 30
+  chance: 30
+  effectDuration: 5
+  enchantments:
+  - ARROW_FIRE:1
+  - ARROW_DAMAGE:4
+  - DURABILITY:3
+  - ARROW_INFINITE:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    shooter:
+      title: '&4ŁUK KUPIDYNA'
+      subtitle: '&7Oślepiłeś gracza &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&4ŁUK KUPIDYNA'
+      subtitle: '&7Zostałeś oślepiony przez &f{SHOOTER}&7!'
+      chatMessage: ''
+    cooldown: ''
+  effects:
+  - ambient: false
+    duration: 5
+    particles: false
+    amplifier: 0
+    type: BLINDNESS
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

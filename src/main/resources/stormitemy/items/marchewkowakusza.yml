@@ -1,0 +1,46 @@
+# === Konfiguracja przedmiotu 'Marchewkowa kusza' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Marchewkowa kusza'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+#   {SHOOTER}      - nazwa gracza, który uderzył
+#   {TARGET}       - nazwa gracza, który został trafiony
+
+marchewkowakusza:
+  material: CROSSBOW
+  name: '&6&lMarchewkowa kusza'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z &fwielkanocnego'
+  - '&8 » &fwydarzenia &7z &e2024 roku&7!'
+  - '&r'
+  - '&8 » &7Ta &aniezwykła &7kusza zapewnia ci'
+  - '&8 » &7zdumiewającą zdolność przyciągania'
+  - '&8 » &7do siebie &egraczy&7, tworząc zupełnie'
+  - '&8 » &7nowe możliwości eksploracji i walki!'
+  - '&r'
+  customModelData: 1
+  cooldown: 60
+  enchantments:
+  - QUICK_CHARGE:1
+  - PIERCING:2
+  - UNBREAKING:3
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    shooter:
+      title: '&6&lMARCHEWKOWA KUSZA'
+      subtitle: '&7Przyciągnąłeś do siebie &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&6&lMARCHEWKOWA KUSZA'
+      subtitle: '&7Zostałeś przyciągnięty przez &f{SHOOTER}&7!'
+      chatMessage: ''
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0
