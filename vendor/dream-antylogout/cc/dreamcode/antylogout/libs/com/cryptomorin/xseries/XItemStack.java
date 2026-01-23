@@ -1129,10 +1129,11 @@ public final class XItemStack
                         }
                         final EquipmentSlot slot = (section.getString("slot") != null) ? ((EquipmentSlot)Enums.getIfPresent((Class)EquipmentSlot.class, section.getString("slot")).or((Object)EquipmentSlot.HAND)) : null;
                         String attrName = section.getString("name");
-                        if (attrName == null) {
-                            attrName = UUID.randomUUID().toString().toLowerCase(Locale.ENGLISH);
+                        String modifierKey = this.createModifierKey(attribute, attrName);
+                        if (this.hasModifier((Attribute)((XModule<XForm, Attribute>)attributeInst.get()).get(), modifierKey)) {
+                            continue;
                         }
-                        final AttributeModifier modifier = XAttribute.createModifier(attrName, section.getDouble("amount"), (AttributeModifier.Operation)Enums.getIfPresent((Class)AttributeModifier.Operation.class, section.getString("operation")).or((Object)AttributeModifier.Operation.ADD_NUMBER), slot);
+                        final AttributeModifier modifier = XAttribute.createModifier(modifierKey, section.getDouble("amount"), (AttributeModifier.Operation)Enums.getIfPresent((Class)AttributeModifier.Operation.class, section.getString("operation")).or((Object)AttributeModifier.Operation.ADD_NUMBER), slot);
                         this.meta.addAttributeModifier((Attribute)((XModule<XForm, Attribute>)attributeInst.get()).get(), modifier);
                     }
                 }
@@ -1140,6 +1141,60 @@ public final class XItemStack
             if (!this.meta.getItemFlags().isEmpty() && XReflection.supports(1, 20, 6) && !this.meta.hasAttributeModifiers()) {
                 this.meta.addAttributeModifier((Attribute)((XModule<XForm, Attribute>)XAttribute.ATTACK_DAMAGE).get(), XAttribute.createModifier("xseries:itemflagdummy", 0.0, AttributeModifier.Operation.MULTIPLY_SCALAR_1, null));
             }
+        }
+
+        private String createModifierKey(String attribute, @Nullable String attrName) {
+            String base = (attrName == null || attrName.isBlank()) ? ("attribute_" + attribute.toLowerCase(Locale.ENGLISH)) : attrName.toLowerCase(Locale.ENGLISH);
+            if (base.contains(":")) {
+                return base;
+            }
+            return "anarchiacore:" + base;
+        }
+
+        private boolean hasModifier(Attribute attribute, String modifierKey) {
+            final java.util.Collection<AttributeModifier> modifiers = this.meta.getAttributeModifiers(attribute);
+            if (modifiers == null || modifiers.isEmpty()) {
+                return false;
+            }
+            for (final AttributeModifier modifier : modifiers) {
+                final String existingKey = this.extractModifierKey(modifier);
+                if (existingKey != null && existingKey.equalsIgnoreCase(modifierKey)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Nullable
+        private String extractModifierKey(AttributeModifier modifier) {
+            try {
+                java.lang.reflect.Method getKey = AttributeModifier.class.getMethod("getKey", new Class[0]);
+                Object key = getKey.invoke((Object)modifier, new Object[0]);
+                if (key instanceof NamespacedKey) {
+                    return ((NamespacedKey)key).toString();
+                }
+            }
+            catch (ReflectiveOperationException ignored) {
+            }
+            try {
+                java.lang.reflect.Method getName = AttributeModifier.class.getMethod("getName", new Class[0]);
+                Object name = getName.invoke((Object)modifier, new Object[0]);
+                if (name instanceof String) {
+                    return (String)name;
+                }
+            }
+            catch (ReflectiveOperationException ignored) {
+            }
+            try {
+                java.lang.reflect.Method getUniqueId = AttributeModifier.class.getMethod("getUniqueId", new Class[0]);
+                Object id = getUniqueId.invoke((Object)modifier, new Object[0]);
+                if (id instanceof UUID) {
+                    return id.toString();
+                }
+            }
+            catch (ReflectiveOperationException ignored) {
+            }
+            return null;
         }
         
         private void legacySpawnEgg() {
