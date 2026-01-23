@@ -88,7 +88,15 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         getLogger().info("StormItemy integrated: source; registered listeners: " + stormListeners
             + "; commands: " + stormCommands + "; configs loaded: " + stormConfigs);
 
-        combatLogManager.start();
+        try {
+            combatLogManager.start();
+            int combatLogCommands = 2;
+            getLogger().info("CombatLog integrated: listeners=" + combatLogManager.getListenerCount()
+                + ", commands=" + combatLogCommands + ", tasks=" + combatLogManager.getActiveTaskCount());
+        } catch (Exception ex) {
+            getLogger().severe("CombatLog failed to start: " + ex.getMessage());
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -129,6 +137,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private void reloadAll(CommandSender sender) {
         configManager.reload();
         dataStore.reload();
+        if (combatLogManager != null) {
+            combatLogManager.reload();
+        }
         messageService.send(sender, getConfig().getString("messages.reloadDone"));
     }
 
@@ -219,6 +230,16 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             sender.sendMessage("Wyczyszczono tag combatlog.");
             return true;
         }
+        if (args[0].equalsIgnoreCase("status") && args.length >= 2) {
+            Player target = Bukkit.getPlayerExact(args[1]);
+            if (target == null) {
+                sender.sendMessage("Gracz offline.");
+                return true;
+            }
+            boolean inCombat = combatLogManager.isInCombat(target.getUniqueId());
+            sender.sendMessage("Status combatlog: " + (inCombat ? "W walce" : "Poza walka"));
+            return true;
+        }
         return false;
     }
 
@@ -291,6 +312,16 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return new ArrayList<>(configManager.getCustomItemsConfig().getAllItemIds());
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("customitems") && args[1].equalsIgnoreCase("give")) {
+            List<String> names = new ArrayList<>();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                names.add(player.getName());
+            }
+            return names;
+        }
+        if (args.length == 2 && args[0].equalsIgnoreCase("combatlog")) {
+            return List.of("clear", "status");
+        }
+        if (args.length == 3 && args[0].equalsIgnoreCase("combatlog")) {
             List<String> names = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 names.add(player.getName());
