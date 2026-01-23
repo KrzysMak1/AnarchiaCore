@@ -17,7 +17,8 @@ public class ConfigManager {
     private int defaultHearts;
     private int maxHearts;
     private String prefix;
-    private List<World.Environment> blockedCrystalDimensions = new ArrayList<>();
+    private Set<World.Environment> blockedCrystalDimensions = new LinkedHashSet<>();
+    private Set<String> blockedCrystalWorldNames = new LinkedHashSet<>();
     private String trashTitle;
     private int trashRows;
     private String trashClearedMessage;
@@ -33,12 +34,20 @@ public class ConfigManager {
         defaultHearts = plugin.getConfig().getInt("defaultHearts", 30);
         maxHearts = plugin.getConfig().getInt("maxHearts", 40);
         prefix = plugin.getConfig().getString("messages.prefix", "");
-        blockedCrystalDimensions = new ArrayList<>();
+        blockedCrystalDimensions = new LinkedHashSet<>();
+        blockedCrystalWorldNames = new LinkedHashSet<>();
         for (String envName : plugin.getConfig().getStringList("blockedEndCrystalDimensions")) {
+            if (envName == null) {
+                continue;
+            }
+            String token = envName.trim();
+            if (token.isEmpty()) {
+                continue;
+            }
             try {
-                blockedCrystalDimensions.add(World.Environment.valueOf(envName.toUpperCase(Locale.ROOT)));
+                blockedCrystalDimensions.add(World.Environment.valueOf(token.toUpperCase(Locale.ROOT)));
             } catch (IllegalArgumentException ex) {
-                plugin.getLogger().warning("Nieznany wymiar dla blockedEndCrystalDimensions: " + envName);
+                blockedCrystalWorldNames.add(token.toLowerCase(Locale.ROOT));
             }
         }
         trashTitle = plugin.getConfig().getString("trash.title", "Kosz");
@@ -121,8 +130,19 @@ public class ConfigManager {
         return prefix;
     }
 
-    public List<World.Environment> getBlockedCrystalDimensions() {
-        return Collections.unmodifiableList(blockedCrystalDimensions);
+    public Set<World.Environment> getBlockedCrystalDimensions() {
+        return Collections.unmodifiableSet(blockedCrystalDimensions);
+    }
+
+    public Set<String> getBlockedCrystalWorldNames() {
+        return Collections.unmodifiableSet(blockedCrystalWorldNames);
+    }
+
+    public boolean isCrystalBlocked(World world) {
+        if (blockedCrystalDimensions.contains(world.getEnvironment())) {
+            return true;
+        }
+        return blockedCrystalWorldNames.contains(world.getName().toLowerCase(Locale.ROOT));
     }
 
     public String getTrashTitle() {
