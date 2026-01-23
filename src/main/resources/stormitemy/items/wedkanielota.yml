@@ -1,0 +1,91 @@
+# === Konfiguracja przedmiotu 'Wędka nielota' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Wędka nielota'.
+#
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {TARGET}  - nazwa gracza trafionego
+#   {SHOOTER} - nazwa gracza używającego przedmiotu
+#
+# UWAGA: maxEffectDuration może wynosić maksymalnie 15 sekund (1-15s).
+
+wedkanielota:
+  material: FISHING_ROD
+  name: '&5&lWędka nielota'
+  lore:
+  - '&r'
+  - '&8 » &7Wędka nielota była do zdobycia'
+  - '&8 » &7w &f2024 roku &7podczas &adnia dziecka&7.'
+  - '&r'
+  - '&8 » &7Po złapaniu gracza na haczyk'
+  - '&8 » &7nie może on odlecieć &delytrą&7!'
+  - '&r'
+  customModelData: 2
+  cooldown: 30
+  distanceThreshold: 30.0
+  maxEffectDuration: 15
+  bossbar:
+    enabled: true
+    title: '&cPosiadasz klątwe! Nie możesz latać przez &e{TIME}&c!'
+    color: RED
+    style: SOLID
+  enchantments: []
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    shooter:
+      activate:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&7Zablokowałeś latanie graczowi &f{TARGET}&7!'
+        chatMessage: ''
+      cancel:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&7Odblokowałeś latanie &feltrą&7!'
+        chatMessage: ''
+      distance:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&7Efekt zdjęty z powodu zbyt dużej odległości!'
+        chatMessage: ''
+      timeout:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&7Efekt wygasł po upływie czasu!'
+        chatMessage: ''
+      noTarget:
+        title: ''
+        subtitle: ''
+        chatMessage: ''
+    target:
+      activate:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&f{SHOOTER}&7 zablokował ci latanie!'
+        chatMessage: ''
+      glideBlocked:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&7Masz zablokowane latanie przez &f{SHOOTER}&7!'
+        chatMessage: ''
+      cancel:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&7Blokada została elytry &fusunięta&7!'
+        chatMessage: ''
+      distance:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&7Blokada elytry zdjęta z powodu zbyt dużej odległości!'
+        chatMessage: ''
+      timeout:
+        title: '&5&lWĘDKA NIELOTA'
+        subtitle: '&7Blokada elytry wygasła po upływie czasu!'
+        chatMessage: ''
+    cooldown: ''
+  sounds:
+    activate:
+      enabled: true
+      sound: ENTITY_FISHING_BOBBER_THROW
+      volume: 1.0
+      pitch: 0.8
+    block:
+      enabled: true
+      sound: ENTITY_ELDER_GUARDIAN_CURSE
+      volume: 0.8
+      pitch: 1.0

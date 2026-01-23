@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -21,6 +22,10 @@ public class ZipExtractor {
     }
 
     public void extractAlways(String resourcePath, File outputDir) {
+        extractAlways(resourcePath, outputDir, entryName -> true);
+    }
+
+    public void extractAlways(String resourcePath, File outputDir, Predicate<String> shouldExtract) {
         if (!shouldExtract(outputDir)) {
             return;
         }
@@ -41,6 +46,9 @@ public class ZipExtractor {
                 while ((entry = zipInput.getNextEntry()) != null) {
                     String entryName = stripLeadingFolder(entry.getName(), outputDir.getName());
                     if (entryName.isBlank()) {
+                        continue;
+                    }
+                    if (!shouldExtract.test(entryName)) {
                         continue;
                     }
                     File target = new File(outputDir, entryName);

@@ -1,0 +1,50 @@
+# === Konfiguracja przedmiotu 'Siekiera grincha' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Siekiera grincha'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {DAMAGE}      - obrażenia zadane umiejętnością
+
+siekieragrincha:
+  material: GOLDEN_AXE
+  name: '&2Siekiera Grincha'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu świątecznego (2023)'
+  - '&r'
+  - '&8 » &7Po &auderzeniu &7strzela &fpiorun'
+  - '&8 » &7w przeciwnika zadając mu &c30%&7 jego'
+  - '&8 » &7aktualnego zdrowia jako obrażenia,'
+  - '&8 » &7oraz wywołując &fefekt wizualny&7!'
+  - '&8 » &7Umiejętność &7działa raz na 1 minutę.'
+  - '&r'
+  customModelData: 1
+  cooldown: 60
+  damage:
+    enabled: true
+    percentage: 30
+  enchantments:
+  - DURABILITY:3
+  - EFFICIENCY:5
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    attacker:
+      title: '&2SIEKIERA GRINCHA'
+      subtitle: '&7Uderzyłeś &f{player} &7siekierą &agrincha&7! (&c-{damage} HP&7)'
+      chatMessage: ''
+    victim:
+      title: '&2SIEKIERA GRINCHA'
+      subtitle: '&7Zostałeś &fuderzony &7siekierą &agrincha&7! (&c-{damage} HP&7)'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    hit:
+      enabled: true
+      sound: ENTITY_LIGHTNING_BOLT_THUNDER
+      volume: 1.0
+      pitch: 1.2

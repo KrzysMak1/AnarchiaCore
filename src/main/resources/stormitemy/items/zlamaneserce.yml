@@ -1,0 +1,52 @@
+# === Konfiguracja przedmiotu 'Złamane serce' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Złamane serce'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+#   {SHOOTER}      - nazwa gracza, który użył przedmiotu
+#   {TARGET}       - nazwa gracza, który został trafiony
+
+zlamaneserce:
+  material: PURPLE_DYE
+  name: '&5&lZłamane serce'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu walentynkowego (2025)'
+  - '&r'
+  - '&8 » &7Uderz nim w przeciwnika, aby'
+  - '&8 » &7złamać jego &dserduszko&7!'
+  - '&r'
+  customModelData: 56463534
+  cooldown: 40
+  unbreakable: true
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  - HIDE_UNBREAKABLE
+  effects:
+  - duration: 200
+    particles: false
+    amplifier: 1
+    type: SLOW_FALLING
+    ambient: false
+  - duration: 200
+    particles: false
+    amplifier: 1
+    type: SLOW
+    ambient: false
+  messages:
+    shooter:
+      title: '&5&lZŁAMANE SERCE'
+      subtitle: '&7Złamałeś serce graczowi &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&5&lZŁAMANE SERCE'
+      subtitle: '&7Twoje serce zostało złamane przez &f{SHOOTER}&7!'
+      chatMessage: ''
+    region: '&cNie możesz użyć tego przedmiotu w tym regionie!'
+  sounds:
+    hit:
+      enabled: true
+      sound: BLOCK_GLASS_BREAK
+      volume: 1.0
+      pitch: 1.5

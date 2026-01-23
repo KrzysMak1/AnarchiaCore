@@ -1,0 +1,60 @@
+# === Konfiguracja przedmiotu 'Sakiewka dropu' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Sakiewka dropu'.
+
+sakiewkaDropu:
+  material: RABBIT_FOOT
+  name: '&a&lSakiewka dropu'
+  lore:
+  - '&7'
+  - '&8 » &7Posiadając ten przedmiot w'
+  - '&8 » &7ekwipunku po &czabiciu &7dowolnego'
+  - '&8 » &fgracza &7jego przedmioty trafiają'
+  - '&8 » &7do twojej &asakiewki&7!'
+  - '&7'
+  - '&8 » &eKliknij PRAWYM, aby otworzyć sakiewkę!'
+  - '&7'
+  customModelData: 1
+  enchantments: []
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  gui:
+    title: '&8Sakiewka dropu'
+    size: 6
+  button:
+    slot: 49
+    material: LIME_DYE
+    name: '&aWypłać wszystko'
+    lore:
+    - '&8 » &7Kliknij, aby odebrać przedmioty!'
+  exit:
+    slot: 53
+    material: BARRIER
+    name: '&cWyjście'
+    lore:
+    - '&8 » &7Kliknij, aby zamknąć sakiewkę!'
+  messages:
+    retrieval:
+      title: '&a&lSAKIEWKA DROPU'
+      subtitle: '&7Odebrałeś wszystkie dropy do &fEQ&7!'
+      chatMessage: ''
+  sounds:
+    open:
+      enabled: true
+      sound: BLOCK_CHEST_OPEN
+      volume: 0.5
+      pitch: 1.2
+    close:
+      enabled: true
+      sound: BLOCK_CHEST_CLOSE
+      volume: 0.5
+      pitch: 1.2
+    collect:
+      enabled: true
+      sound: ENTITY_ITEM_PICKUP
+      volume: 0.5
+      pitch: 1.0
+  storage:
+    mode: legacy

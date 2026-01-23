@@ -1,0 +1,50 @@
+# === Konfiguracja przedmiotu 'Spleśniała kanapka' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Spleśniała kanapka'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+#   {SHOOTER}      - nazwa gracza, który użył przedmiotu
+#   {TARGET}       - nazwa gracza, który został trafiony
+
+splesnialakanapka:
+  material: POISONOUS_POTATO
+  name: '&2&lSpleśniała kanapka'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty z'
+  - '&8 » &fwydarzenia szkolnego 2024&7!'
+  - '&r'
+  - '&8 » &7Po uderzeniu przeciwnika'
+  - '&8 » &7zarazisz go &achorobą&7!'
+  - '&r'
+  customModelData: 53
+  cooldown: 120
+  unbreakable: true
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  - HIDE_UNBREAKABLE
+  messages:
+    shooter:
+      title: '&2&lSPLEŚNIAŁA KANAPKA'
+      subtitle: '&7Zaraziłeś gracza &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&2&lSPLEŚNIAŁA KANAPKA'
+      subtitle: '&7Zostałeś zarażony przez &F{SHOOTER}&7!'
+      chatMessage: ''
+    consume:
+      title: '&2&lAKTYWOWANO'
+      subtitle: '&7Przedmiot został użyty!'
+      chatMessage: '&7Nałożono efekty konsumpcji.'
+  effects:
+  - duration: 600
+    particles: false
+    amplifier: 0
+    ambient: false
+    type: GLOWING
+  sounds:
+    hit:
+      enabled: true
+      sound: ENTITY_ZOMBIE_INFECT
+      volume: 1.0
+      pitch: 1.0

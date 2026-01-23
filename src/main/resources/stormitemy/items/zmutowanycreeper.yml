@@ -1,0 +1,44 @@
+zmutowanycreeper:
+  material: CREEPER_SPAWN_EGG
+  name: '&a&lJajko zmutowanego creepera'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fspecjalnego wydarzenia marcowego (2025)'
+  - '&r'
+  - '&8 » &7Prawym kliknięciem w jajko przywołuje ono'
+  - '&8 » &fpotężnego&7 creepera, który po &cwybuchu'
+  - '&8 » &7zadaje &eogromne &7obrażenia.'
+  - '&r'
+  customModelData: 12345
+  cooldown: 60
+  unbreakable: true
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  - HIDE_UNBREAKABLE
+  creeper:
+    name: '&2Zainfekowany Creeper'
+    poweredChance: 100
+    aggressiveToOwner: false
+    explosionRadius: 5.0
+  messages:
+    spawn: ''
+    despawn: '&8» &7Twój &2Zmutowany Creeper &7zniknął po wejściu do regionu bezpiecznego!'
+    target:
+      title: '&a&lZMUTOWANY CREEPER'
+      subtitle: '&7Straciłeś &f50% &7swojego zdrowia!'
+      chat: ''
+  noDestroyRegions: []
+  preventRegionDestruction: true
+  sounds:
+    spawn:
+      enabled: true
+      sound: ENTITY_CREEPER_PRIMED
+      volume: 1.0
+      pitch: 0.8
+    explode:
+      enabled: true
+      sound: ENTITY_GENERIC_EXPLODE
+      volume: 1.5
+      pitch: 0.8
