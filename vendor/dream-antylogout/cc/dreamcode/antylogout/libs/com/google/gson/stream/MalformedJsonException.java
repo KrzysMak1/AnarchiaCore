@@ -1,0 +1,20 @@
+package cc.dreamcode.antylogout.libs.com.google.gson.stream;
+
+import java.io.IOException;
+
+public final class MalformedJsonException extends IOException
+{
+    private static final long serialVersionUID = 1L;
+    
+    public MalformedJsonException(final String msg) {
+        super(msg);
+    }
+    
+    public MalformedJsonException(final String msg, final Throwable throwable) {
+        super(msg, throwable);
+    }
+    
+    public MalformedJsonException(final Throwable throwable) {
+        super(throwable);
+    }
+}
