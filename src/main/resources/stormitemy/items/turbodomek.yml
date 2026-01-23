@@ -1,0 +1,40 @@
+# === Konfiguracja przedmiotu 'Turbo-Domek' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu 'Turbo-Domek'.
+
+turbodomek:
+  material: EGG
+  name: '&a&lTurbo-Domek'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fWielkanocnego Wydarzenia 2025&7!'
+  - '&r'
+  - '&8 » &7Podczas wystrzelenia turbo-domek&7'
+  - '&8 » &fbudujesz prostą pułapkę&7 w miejscu ekspozji!'
+  - '&r'
+  customModelData: 51
+  cooldown: 120
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  animation:
+    enabled: true
+    min_delay: 100
+    max_delay: 250
+    particles: true
+    sound:
+      enabled: true
+      type: BLOCK_WOOD_PLACE
+      volume: 1.0
+      pitch: 0.8
+  messages:
+    shooter:
+      title: '&a&lTURBO-DOMEK'
+      subtitle: '&7Stworzyłeś &fdomek&7!'
+      chatMessage: ''
+    cooldown: ''
+  noPlaceRegions: []

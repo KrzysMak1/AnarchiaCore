@@ -1,0 +1,51 @@
+# === Konfiguracja przedmiotu 'Rozgotowana kukurydza' ===
+# Opis: Plik konfiguracyjny określa właściwości eventowego przedmiotu 'Rozgotowana kukurydza'.
+# Dostępne zmienne (placeholdery):
+#   {TIME} - pozostały czas cooldownu (w sekundach)
+#   {PLAYER} - nazwa gracza, który użył przedmiotu
+
+rozgotowanakukurydza:
+  material: BLAZE_ROD
+  name: '&a&lRozgotowana kukurydza'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty z'
+  - '&8 » &fwydarzenia wakacyjnego 2024&7!'
+  - '&r'
+  - '&8 » &7Wystrzeliwuje magiczny pocisk,'
+  - '&8 » &7który niszczy zbroję oraz zadaje'
+  - '&8 » &7obrażenia w miejscu wybuchu.'
+  - '&r'
+  customModelData: 1
+  cooldown: 60
+  enchantments: []
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  explosionPower: 4
+  createFire: false
+  noDestroyRegions:
+  - pvp
+  preventRegionDestruction: true
+  protectedBlocks:
+  - BEDROCK
+  pvpWorlds:
+  - mapapvp
+  messages:
+    shooter:
+      title: '&a&lROZGOTOWANA KUKURYDZA'
+      subtitle: '&7Wystrzeliłeś &fpocisk&7!'
+    cooldown: ''
+  sounds:
+    shoot:
+      enabled: true
+      sound: ENTITY_BLAZE_SHOOT
+      volume: 1.0
+      pitch: 1.0
+    explode:
+      enabled: true
+      sound: ENTITY_GENERIC_EXPLODE
+      volume: 1.0
+      pitch: 1.0

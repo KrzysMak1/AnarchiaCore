@@ -1,0 +1,22 @@
+# === Konfiguracja przedmiotu 'Rózga' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Rózga'.
+
+rozga:
+  material: STICK
+  name: '&6Rózga'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przetmiot z:'
+  - '&8 » &feventu świąteczego (2023)'
+  - '&r'
+  - '&8 » &cOdrzuca &7z potęzną siłą'
+  - '&8 » &7niegrzecznych graczy!'
+  - '&r'
+  customModelData: 1
+  enchantments:
+  - KNOCKBACK:4
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: false

@@ -1,0 +1,104 @@
+# === Konfiguracja przedmiotu 'Wyrzutnia Hydro Klatki' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Wyrzutnia Hydro Klatki'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {PLAYER}  - nazwa gracza
+
+wyrzutnia_hydro_klatki:
+  material: BLAZE_ROD
+  name: '&3&lWyrzutnia Hydro Klatki'
+  lore:
+  - '&7'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fwydarzenia wakacyjnego 2025&7!'
+  - '&7'
+  - '&8 » &7Po użyciu wystrzeliwuje pocisk, który'
+  - '&8 » &7tworzy &3wodną klatkę&7 uwięziającą'
+  - '&8 » &7przeciwników w miejscu!'
+  - '&7'
+  customModelData: 2
+  cooldown: 60
+  enchantments:
+  - DURABILITY:3
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  cage:
+    radius: 8
+    duration: 15
+    wall_thickness: 1
+    block_mappings:
+      external_wall: BLUE_GLAZED_TERRACOTTA
+      leaves: BLUE_TERRACOTTA
+      wood: BUBBLE_CORAL_BLOCK
+      default: LIGHT_BLUE_TERRACOTTA
+    allow_elytra: false
+    allow_block_placing: false
+    block_teleport: false
+  projectile:
+    speed: 1.5
+    gravity: true
+  messages:
+    shoot:
+      title: '&3&lWYRZUTNIA HYDRO KLATKI'
+      subtitle: '&7Wystrzeliwujesz &bwodny pocisk&7!'
+      chatMessage: ''
+    cage_created:
+      title: '&3&lHYDRO KLATKA'
+      subtitle: '&7Utworzono &bwodną klatkę&7!'
+      chatMessage: ''
+    cage_expired:
+      title: '&3&lHYDRO KLATKA'
+      subtitle: '&7Twoja klatka &bwygasła&7!'
+      chatMessage: ''
+    cooldown: ''
+    cannot_break_cage:
+      title: ''
+      subtitle: '&cNie możesz zniszczyć granicy &4podwodnej klatki&c!'
+      chatMessage: '&cNie możesz zniszczyć bloków &4Hydro Klatki&c!'
+    cannot_break_cage_outside:
+      title: ''
+      subtitle: '&cNie możesz niszczyć &4Hydro Klatki&c z zewnątrz!'
+      chatMessage: '&cNie możesz niszczyć hydroklatki z zewnątrz!'
+    elytra_blocked:
+      title: ''
+      subtitle: '&cNie możesz latać &4elytrą&c w hydroklatce!'
+      chatMessage: ''
+    cannot_use_nether: '&cNie możesz używać Wyrzutni Hydro Klatki w &4Netherze&c!'
+    cannot_use_end: '&cNie możesz używać Wyrzutni Hydro Klatki w &4Endzie&c!'
+    teleport_blocked: '&cNie można się teleportować z &4Hydro Klatki&c!'
+    teleport_into_cage_blocked: '&cNie można się teleportować do &4Hydro Klatki&c!'
+    chorus_fruit_blocked: '&cNie można używać &4Chorus Fruit&c w Hydro Klatce!'
+    dragon_sword_blocked: '&cNie można używać &4Smoczego Miecza&c w Hydro Klatce!'
+    no_teleport_subtitle: '&cNie można się teleportować!'
+    cannot_place_block:
+      title: ''
+      subtitle: '&cNie możesz stawiać bloków w &4Hydro Klatce&c!'
+      chatMessage: ''
+  bossbar:
+    title: '&bHydro Klatka'
+    color: AQUA
+    style: SOLID
+  dimensions:
+    allow_nether: false
+    allow_end: true
+  noDestroyRegions: []
+  preventRegionDestruction: true
+  sounds:
+    shoot:
+      enabled: true
+      sound: ENTITY_BLAZE_SHOOT
+      volume: 1.0
+      pitch: 0.8
+    cage_create:
+      enabled: true
+      sound: BLOCK_CONDUIT_ACTIVATE
+      volume: 1.0
+      pitch: 1.0
+    cage_expire:
+      enabled: true
+      sound: BLOCK_CONDUIT_DEACTIVATE
+      volume: 1.0
+      pitch: 1.0

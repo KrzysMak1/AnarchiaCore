@@ -1,0 +1,35 @@
+zajeczymiecz:
+  material: NETHERITE_SWORD
+  name: '&3&lZajęczy miecz'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z &fwydarzenia'
+  - '&8 » &fwielkanocnego &7z &f2024 roku&7.'
+  - '&r'
+  - '&8 » &7Po uderzeniu przeciwnika blokuje'
+  - '&8 » &7możliwość skakania na &f4 sekundy&7!'
+  - '&r'
+  customModelData: 2
+  cooldown: 40
+  enchantments:
+  - DAMAGE_ALL:6
+  - FIRE_ASPECT:2
+  flags: []
+  unbreakable: false
+  jumpDisableDuration: 4
+  messages:
+    shooter:
+      title: '&3&lZAJĘCZY MIECZ'
+      subtitle: '&7Zablokowałeś skakanie &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&3&lZAJĘCZY MIECZ'
+      subtitle: '&f{SHOOTER} &7zablokował Ci skakanie!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    hit:
+      enabled: true
+      sound: ENTITY_RABBIT_HURT
+      volume: 1.0
+      pitch: 1.0

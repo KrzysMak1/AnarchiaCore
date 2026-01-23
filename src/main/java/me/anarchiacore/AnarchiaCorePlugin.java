@@ -47,7 +47,11 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
         ZipExtractor zipExtractor = new ZipExtractor(this);
         zipExtractor.extractAlways("configs/Dream-AntyLogout.zip", new java.io.File(getDataFolder(), "configs/Dream-AntyLogout"));
-        zipExtractor.extractAlways("configs/STORMITEMY.zip", new java.io.File(getDataFolder(), "configs/STORMITEMY"));
+        zipExtractor.extractAlways(
+            "configs/STORMITEMY.zip",
+            new java.io.File(getDataFolder(), "configs/STORMITEMY"),
+            entryName -> !entryName.endsWith(".schem") && !entryName.endsWith("data.db")
+        );
 
         configManager = new ConfigManager(this);
         configManager.reload();

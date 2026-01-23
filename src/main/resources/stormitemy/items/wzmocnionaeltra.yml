@@ -1,0 +1,43 @@
+# === Konfiguracja przedmiotu 'Wzmocniona elytra' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu 'Wzmocniona elytra'.
+# Dostępne zmienne (placeholdery):
+#   {PERCENTAGE}   - aktualny procent naładowania
+#   {PLAYER}       - nazwa gracza
+#   {ATTACKER}     - nazwa atakującego gracza
+#   {TARGET}       - nazwa trafionego gracza
+
+wzmocnionaeltra:
+  material: ELYTRA
+  name: '&5&lWzmocniona elytra'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fWielkanocnego Wydarzenia 2025&7!'
+  - '&r'
+  - '&8 » &7Po naładowaniu eletry do &f100%&7, zyskujesz'
+  - '&8 » &cpotężną moc&7, która przy uderzeniu w ziemie'
+  - '&8 » &7zadaje stałe &c8 HP &7obrażeń wszystkim graczom'
+  - '&8 » &7w promieniu &f5 bloków&7! Bloki wylatują w powietrze!'
+  - '&r'
+  customModelData: 10000
+  enchantments:
+  - DURABILITY:3
+  - PROTECTION_FALL:4
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: false
+  chargeRate: 0.15
+  actionBarMessage: '&bWzmocniona elytra &fzaładowana w &3{PERCENTAGE}%'
+  landingRadius: 5.0
+  damage: 20.0
+  blockAnimationCount: 5
+  blockAnimationHeight: 4.0
+  spawnProtectionRadius: 150.0
+  attackerTitle: '&5&lWZMOCNIONA ELYTRA'
+  attackerSubtitle: '&7Trafiłeś &f{COUNT}&7 graczy elytrą!'
+  targetTitle: '&5&lWZMOCNIONA ELYTRA'
+  targetSubtitle: '&f{ATTACKER} &7uderzył Cię wzmocnioną elytrą!'
+  noDestroyRegions: []
+  preventRegionDestruction: true

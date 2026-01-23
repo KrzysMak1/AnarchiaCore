@@ -1,0 +1,74 @@
+# === Konfiguracja przedmiotu 'Trójząb Posejdona' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Trójząb Posejdona'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {PLAYER}  - nazwa gracza
+#   {DAMAGE}  - wartość zadanych obrażeń
+
+trojzab_posejdona:
+  material: BOW
+  name: '&3&lTrójząb posejdona'
+  lore:
+  - '&7'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &feventu wakacyjnego 2025&7!'
+  - '&7'
+  - '&8 » &7Po rzuceniu trójzębem w miejsce'
+  - '&8 » &7uderzenia &buderza piorun&7, który'
+  - '&8 » &7zadaje obrażenia i odpycha'
+  - '&8 » &7pobliskich przeciwników!'
+  - '&7'
+  - '&8 » &7Klikając &fSHIFT &7mozesz się'
+  - '&8 » &7wystrzelić w dowolnym miejscu!'
+  - '&7'
+  customModelData: 6000
+  cooldown: 30
+  enchantments:
+  - ARROW_INFINITE:1
+  - DURABILITY:3
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  lightning:
+    enabled: true
+  aoe:
+    radius: 8
+    damage: 15.0
+  knockback:
+    strength: 2.5
+  riptide:
+    enabled: true
+    strength: 3.0
+    upwardBoost: 1.5
+  messages:
+    shoot:
+      title: '&3&lTRÓJZĄB POSEJDONA'
+      subtitle: '&7Wystrzelono &btrójząb &7z mocą posejdona!'
+      chatMessage: ''
+    hit:
+      title: '&3&lTRÓJZĄB POSEJDONA'
+      subtitle: '&7Trójząb uderzył z &fmocą pioruna&7!'
+      chatMessage: ''
+    riptide:
+      title: '&3&lTRÓJZĄB POSEJDONA'
+      subtitle: '&7Wystrzelono się w &fpowietrze&7!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    shoot:
+      enabled: true
+      sound: ITEM_TRIDENT_THROW
+      volume: 1.0
+      pitch: 1.0
+    hit:
+      enabled: true
+      sound: ENTITY_LIGHTNING_BOLT_THUNDER
+      volume: 1.0
+      pitch: 1.2
+    riptide:
+      enabled: true
+      sound: ITEM_TRIDENT_RIPTIDE_3
+      volume: 1.0
+      pitch: 1.0

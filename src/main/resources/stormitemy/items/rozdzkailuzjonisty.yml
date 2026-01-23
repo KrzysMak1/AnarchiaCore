@@ -1,0 +1,66 @@
+# === Konfiguracja przedmiotu 'Różdżka iluzjonisty' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Różdżka iluzjonisty'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+#   {PLAYER}      - nazwa gracza, który użył przedmiotu
+
+rozdzka_iluzjonisty:
+  material: GOLDEN_HOE
+  name: '&5&lRóżdżka iluzjonisty'
+  lore:
+  - '&7'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fwydarzenia cyrkowego 2025&7!'
+  - '&7'
+  - '&8 » &7LPM: przywołuje &dSzczęki Evokera'
+  - '&8 » &7atakujące przeciwników na wprost.'
+  - '&7'
+  - '&8 » &7PPM: &dznikasz na &e4s &7i tworzysz'
+  - '&8 » &dprawdziwego bota &7który biega przed siebie!'
+  - '&7'
+  customModelData: 1
+  leftClickCooldown: 60
+  rightClickCooldown: 120
+  enchantments: []
+  flags:
+  - HIDE_ATTRIBUTES
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_POTION_EFFECTS
+  - HIDE_DESTROYS
+  - HIDE_PLACED_ON
+  unbreakable: true
+  evokerFangs:
+    waves: 5
+    fangsPerWave: 3
+    distanceBetweenWaves: 2.0
+    damage: 8.0
+    delayBetweenWaves: 5
+  invisibility:
+    duration: 4
+  clone:
+    runDuration: 4
+    speed: 0.3
+  messages:
+    evokerFangs:
+      title: '&5&lRÓŻDŻKA ILUZJONISTY'
+      subtitle: '&7Przywołałeś &dSzczęki Evokera&7!'
+      chatMessage: ''
+    invisibility:
+      title: '&5&lRÓŻDŻKA ILUZJONISTY'
+      subtitle: '&7Stałeś się &dniewidzialny&7!'
+      chatMessage: ''
+    cooldown:
+      leftClick: ''
+      rightClick: ''
+  sounds:
+    lpm:
+      enabled: true
+      sound: ENTITY_ILLUSIONER_CAST_SPELL
+      volume: 1.0
+      pitch: 1.0
+    ppm:
+      enabled: true
+      sound: ENTITY_ILLUSIONER_PREPARE_BLINDNESS
+      volume: 1.0
+      pitch: 1.2

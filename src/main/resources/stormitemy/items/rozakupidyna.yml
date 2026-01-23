@@ -1,0 +1,30 @@
+# === Konfiguracja przedmiotu 'Róża kupidyna' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Róża kupidyna'.
+
+rozaKupidyna:
+  material: POPPY
+  name: '&c&lRóża kupidyna'
+  lore:
+  - '&8 » &7Przedmiot zdobyty w &fwalentynki w 2024 roku&7!'
+  - '&8 » &7Trzymaj go w ręce aby otrzymać:'
+  - '&8  - &fEfekt odporności 1'
+  - '&8  - &fEfekt regeneracji 1'
+  customModelData: 1
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  effects:
+  - duration: 40
+    particles: false
+    amplifier: 0
+    type: DAMAGE_RESISTANCE
+    ambient: false
+  - duration: 40
+    particles: false
+    amplifier: 0
+    type: REGENERATION
+    ambient: false

@@ -1,0 +1,37 @@
+# === Konfiguracja przedmiotu 'Smoczy miecz' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Smoczy miecz'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+
+smoczymiecz:
+  material: NETHERITE_SWORD
+  name: '&d&lSmoczy miecz'
+  lore:
+  - '&r'
+  - '&8 » &7Posiada on możliwość strzelania'
+  - '&8 » &dperłami kresu&7!'
+  - '&r'
+  customModelData: 1
+  cooldown: 80
+  enchantments:
+  - FIRE_ASPECT:2
+  - LOOTING:3
+  - MENDING:1
+  - DAMAGE_ALL:6
+  - DURABILITY:3
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    title: '&d&lSMOCZY MIECZ'
+    subtitle: '&7Użyłeś &fsmoczego miecza&7!'
+    chatMessage: ''
+    cooldown: ''
+  sounds:
+    use:
+      enabled: true
+      sound: ENTITY_ENDER_PEARL_THROW
+      volume: 1.0
+      pitch: 1.0

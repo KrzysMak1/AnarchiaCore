@@ -1,0 +1,45 @@
+# === Konfiguracja przedmiotu 'Wampirze jabłko' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Wampirze jabłko'.
+
+wampirzejablko:
+  material: ENCHANTED_GOLDEN_APPLE
+  name: '&c&lWampirze jabłko'
+  lore:
+  - ''
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu halloween (2024)'
+  - ''
+  - '&8 » &7Po zjedzeniu otrzymujesz na'
+  - '&8 » &7krótki czas efekt &csiły II&7!'
+  - ''
+  customModelData: 5324
+  cooldown: 15
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  effects:
+  - amplifier: 1
+    type: REGENERATION
+    duration: 600
+  - amplifier: 0
+    type: FIRE_RESISTANCE
+    duration: 6000
+  - amplifier: 0
+    type: DAMAGE_RESISTANCE
+    duration: 6000
+  - amplifier: 3
+    type: ABSORPTION
+    duration: 2400
+  - amplifier: 1
+    type: INCREASE_DAMAGE
+    duration: 60
+  messages:
+    consumer:
+      title: '&c&lWAMPIRZE JABŁKO'
+      subtitle: '&7Dostałeś efekt &fsiły 2&7!'
+      chatMessage: ''
+    cooldown: ''

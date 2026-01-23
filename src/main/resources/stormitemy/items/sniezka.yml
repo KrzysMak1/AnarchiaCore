@@ -1,0 +1,48 @@
+# === Konfiguracja przedmiotu 'Śnieżka' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Śnieżka'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {SHOOTER} - nazwa gracza, który rzucił przedmiot
+#   {TARGET}  - nazwa gracza, który został trafiony
+
+sniezka:
+  material: SNOWBALL
+  name: '&fŚnieżka'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu świątecznego (2023)'
+  - '&r'
+  - '&8 » &7Po trafieniu &ezamieniasz się'
+  - '&8 » &7z przeciwnikiem miejscem!'
+  - '&r'
+  customModelData: 0
+  cooldown: 50
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    shooter:
+      title: '&f&lŚNIEŻKA'
+      subtitle: '&7Zamieniłeś się miejscem z &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&f&lŚNIEŻKA'
+      subtitle: '&7Zamieniłeś się miejscem z &f{SHOOTER}&7!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    throw:
+      enabled: true
+      sound: ENTITY_SNOWBALL_THROW
+      volume: 1.0
+      pitch: 1.0
+    swap:
+      enabled: true
+      sound: ENTITY_ENDERMAN_TELEPORT
+      volume: 1.0
+      pitch: 1.2

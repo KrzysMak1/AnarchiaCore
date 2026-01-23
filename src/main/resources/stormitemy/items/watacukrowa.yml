@@ -1,0 +1,58 @@
+# === Konfiguracja przedmiotu 'Wata cukrowa' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Wata cukrowa'.
+
+watacukrowa:
+  material: PINK_DYE
+  name: '&b&lWata cukrowa'
+  lore:
+  - '&7'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fwydarzenia cyrkowego 2025&7!'
+  - '&7'
+  - '&8 » &7Po użyciu rozpoczyna &dnaprawę &7jednego'
+  - '&8 » &7z elementów twojej zbroi do &apełnej trwałości&7!'
+  - '&7'
+  customModelData: 1
+  cooldown: 20
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  messages:
+    success:
+      title: '&b&lWATA CUKROWA'
+      subtitle: '&7Naprawiono przedmiot &f{ITEM}&7!'
+      chatMessage: ''
+    fullarmor:
+      title: '&b&lWATA CUKROWA'
+      subtitle: '&7Twoja zbroja jest &fjuż naprawiona&7!'
+      chatMessage: ''
+    noarmor:
+      title: '&b&lWATA CUKROWA'
+      subtitle: '&7Nie masz na sobie &fżadnej&7 zbroi!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    success:
+      enabled: true
+      sound: ENTITY_PLAYER_LEVELUP
+      volume: 1.0
+      pitch: 1.2
+    fullarmor:
+      enabled: true
+      sound: ENTITY_VILLAGER_NO
+      volume: 0.8
+      pitch: 1.0
+    noarmor:
+      enabled: true
+      sound: ENTITY_VILLAGER_NO
+      volume: 0.8
+      pitch: 0.8
+    use:
+      enabled: true
+      sound: ENTITY_GENERIC_EAT
+      volume: 1.0
+      pitch: 1.5

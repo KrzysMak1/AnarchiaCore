@@ -1,0 +1,54 @@
+# === Konfiguracja przedmiotu 'Przeterminowany trunek' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Przeterminowany trunek'.
+
+przeterminowany_trunek:
+  material: HONEY_BOTTLE
+  name: '&2&lPrzeterminowany trunek'
+  lore:
+  - ''
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fwydarzenia pirackiego 2025&7!'
+  - ''
+  - '&8 » &7Po rzuceniu na ziemię, uwalnia &emgiełkę&7, która'
+  - '&8 » &7nakłada &atruciznę &7i &fspowolnienie'
+  - '&8 » &7na pobliskich graczy przez &ckilkadziesiąt &7sekund.'
+  - ''
+  customModelData: 4325325
+  cooldown: 120
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: false
+  glow: true
+  throw:
+    velocity: 1.2
+    sound:
+      enabled: true
+      sound: ENTITY_SPLASH_POTION_THROW
+      volume: 1.0
+      pitch: 0.8
+  area:
+    radius: 4.5
+    duration: 30
+    sound:
+      enabled: true
+      sound: ENTITY_SPLASH_POTION_BREAK
+      volume: 1.0
+      pitch: 0.8
+  effects:
+  - amplifier: 4
+    type: POISON
+    duration: 1
+  - amplifier: 4
+    type: SLOW
+    duration: 1
+  particles:
+    amount: 30
+  messages:
+    activation:
+      title: '&2&lPRZETERMINOWANY TRUNEK'
+      subtitle: '&7Rzuciłeś &fprzeterminowany trunek&7!'
+    cooldown: ''
