@@ -1,0 +1,49 @@
+# === Konfiguracja przedmiotu 'Olaf' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Olaf'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {SHOOTER} - nazwa gracza, który rzucił przedmiot
+#   {TARGET}  - nazwa gracza, który został trafiony
+#   {HITS_LEFT} - ilość uderzeń do zbicia bałwana
+#   {HITS_TOTAL} - początkowa ilość uderzeń do zbicia
+
+olaf:
+  material: EGG
+  name: '&b&lOlaf'
+  lore:
+  - '&7'
+  - '&8 » &7Przedmiot z &fświątecznego wydarzenia 2025&7!'
+  - '&7'
+  - '&8 » &7Po trafieniu przeciwnika przywoła'
+  - '&8 » &bbałwana Olafa&7, który &czasłoni mu widok&7!'
+  - '&7'
+  customModelData: 889
+  cooldown: 30
+  hitsToBreak: 3
+  hitCooldown: 0.3
+  maxDuration: 10
+  snowmanOffset: 0.4
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  snowmanName: '&b☃ Olaf &8(&f{HITS_LEFT}&8/&f{HITS_TOTAL}&8)'
+  messages:
+    shooter:
+      title: '&b&lOLAF'
+      subtitle: '&7Przywołałeś Olafa na gracza &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&b&lOLAF'
+      subtitle: '&7Bałwan &fOlaf &7zasłonił Ci widok!'
+      chatMessage: ''
+    freed:
+      title: '&b&lOLAF'
+      subtitle: '&7Udało Ci się zbić &fbałwana&7!'
+    cooldown: ''
+    progress:
+      title: '&b&lOLAF'
+      subtitle: '&7Uderzeń do zbicia &f{HITS_LEFT}&7/&f{HITS_TOTAL}&7!'

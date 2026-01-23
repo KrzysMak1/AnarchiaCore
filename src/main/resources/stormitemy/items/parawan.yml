@@ -1,0 +1,43 @@
+# === Konfiguracja przedmiotu 'Parawan' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Parawan'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}         - pozostały czas cooldownu (w sekundach)
+#   {ATTACKER}      - nazwa gracza, który uderzył
+
+parawan:
+  material: FEATHER
+  name: '&e&lParawan'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty z'
+  - '&8 » &fwydarzenia wakacyjnego 2024&7!'
+  - '&r'
+  - '&8 » &7Po użyciu tego przedmiotu odrzuca'
+  - '&8 » &7wszystkich przeciwników w okolicy!'
+  - '&r'
+  customModelData: 1
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  cooldown: 50
+  push_strength: 2.0
+  messages:
+    attacker:
+      title: '&e&lPARAWAN'
+      subtitle: '&7Odrzuciłeś graczy w &fokolicy&7!'
+      chatMessage: ''
+    target:
+      title: '&e&lPARAWAN'
+      subtitle: '&7Zostałeś odrzucony przez &f{ATTACKER}&7!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0
