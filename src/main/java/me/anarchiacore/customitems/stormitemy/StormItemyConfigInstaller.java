@@ -29,11 +29,8 @@ public class StormItemyConfigInstaller {
     }
 
     public int installMissing() {
-        List<String> resources = listResourcePaths();
-        if (resources.isEmpty()) {
-            return 0;
-        }
         File targetRoot = new File(plugin.getDataFolder(), TARGET_ROOT);
+        List<String> resources = listResourcePaths();
         int copied = 0;
         for (String relativePath : resources) {
             File target = new File(targetRoot, relativePath);
@@ -57,7 +54,25 @@ public class StormItemyConfigInstaller {
                 plugin.getLogger().warning("Nie można skopiować zasobu " + resourcePath + ": " + e.getMessage());
             }
         }
+        ensureDatabaseFile(targetRoot);
         return copied;
+    }
+
+    private void ensureDatabaseFile(File targetRoot) {
+        File databaseFile = new File(targetRoot, "data.db");
+        if (databaseFile.exists()) {
+            return;
+        }
+        File parent = databaseFile.getParentFile();
+        if (parent != null && !parent.exists() && !parent.mkdirs()) {
+            plugin.getLogger().warning("Nie można utworzyć katalogu: " + parent.getAbsolutePath());
+            return;
+        }
+        try {
+            Files.createFile(databaseFile.toPath());
+        } catch (IOException e) {
+            plugin.getLogger().warning("Nie można utworzyć pliku bazy danych: " + e.getMessage());
+        }
     }
 
     private List<String> listResourcePaths() {

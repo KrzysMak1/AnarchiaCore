@@ -1,0 +1,14 @@
+# === Konfiguracja przedmiotu 'Anarchiczny kilof' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anarchiczny kilof'.
+
+anarchicznykilof:
+  material: NETHERITE_PICKAXE
+  name: '&4Anarchiczny kilof'
+  lore: []
+  customModelData: 0
+  enchantments:
+  - DIG_SPEED:10
+  - LOOT_BONUS_BLOCKS:5
+  - DURABILITY:5
+  flags: []
+  unbreakable: false

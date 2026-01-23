@@ -1,0 +1,13 @@
+# === Konfiguracja przedmiotu 'Anarchiczna klata II' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anarchiczna klata II'.
+
+anarchiczna_klata_ii:
+  material: NETHERITE_CHESTPLATE
+  name: '&4Anarchiczna klata II'
+  lore: []
+  customModelData: 1
+  enchantments:
+  - PROTECTION_ENVIRONMENTAL:6
+  - DURABILITY:6
+  flags: []
+  unbreakable: false

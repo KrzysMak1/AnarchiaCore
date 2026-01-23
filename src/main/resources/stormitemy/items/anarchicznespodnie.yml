@@ -1,0 +1,13 @@
+# === Konfiguracja przedmiotu 'Anarchiczne spodnie' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anarchiczne spodnie'.
+
+anarchicznespodnie:
+  material: NETHERITE_LEGGINGS
+  name: '&4Anarchiczne spodnie'
+  lore: []
+  customModelData: 0
+  enchantments:
+  - PROTECTION_ENVIRONMENTAL:5
+  - DURABILITY:5
+  flags: []
+  unbreakable: false
