@@ -1,0 +1,42 @@
+# === Konfiguracja księgi 'Spowolnienie I' ===
+# Opis: Plik konfiguracyjny określa właściwości zaklętej księgi.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {TARGET}      - nazwa gracza, który został uderzony
+
+name: '&eZaklęta książka'
+chance: 3.0
+cooldown: 60
+allowedItems:
+- sword
+lore:
+- '&7Spowolnienie I'
+- '&7'
+- '&2&lZaklęcie specjalne!'
+- '&7Może zostać nałożony na &amiecz&7!'
+- '&7Masz szansę, że gracz, którego uderzysz'
+- '&7otrzyma efekt spowolnienia I.'
+- '&7'
+glow: true
+customModelData: 7
+messages:
+  attacker:
+    title: '&8ZAKLĘCIE SPOWOLNIENIA'
+    subtitle: '&cSpowolniłeś &7gracza &f{TARGET}&7!'
+    chat: ''
+  target:
+    title: '&8ZAKLĘCIE SPOWOLNIENIA'
+    subtitle: '&7Zostałeś &cspowolniony &7przez &f{PLAYER}&7!'
+    chat: ''
+effects:
+- duration: 5
+  icon: true
+  amplifier: 0
+  ambient: false
+  type: SLOW
+  particles: true
+sound:
+  volume: 1.0
+  sound: entity.slime.squish
+  pitch: 0.5
+  enabled: true

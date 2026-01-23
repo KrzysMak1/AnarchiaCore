@@ -1,0 +1,43 @@
+# === Konfiguracja księgi 'Wytrzymałość I' ===
+# Opis: Plik konfiguracyjny określa właściwości zaklętej księgi.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {TARGET}      - nazwa gracza, który został uderzony
+
+name: '&eZaklęta książka'
+chance: 0.0
+cooldown: 0
+allowedItems:
+- helmet
+- chestplate
+- leggings
+- boots
+- sword
+- pickaxe
+- axe
+- shovel
+- hoe
+lore:
+- '&7Wytrzymałość I'
+- '&7'
+- '&2&lZaklęcie specjalne!'
+- '&7Może zostać nałożony na &auzbrojenie&7!'
+- '&7Spowalnia niszczenie się zbroi!'
+- '&7'
+glow: true
+customModelData: 9
+messages:
+  attacker:
+    title: '&2ZAKLĘCIE TRUCIZNY'
+    subtitle: '&aOtrułeś &7gracza &f{TARGET}&7!'
+    chat: ''
+  target:
+    title: '&2ZAKLĘCIE TRUCIZNY'
+    subtitle: '&7Zostałeś &cotruty &7przez &f{PLAYER}&7!'
+    chat: ''
+  title: ''
+  subtitle: ''
+  chat: ''
+effects: []
+wytrzymalosc:
+  reduction_percent: 50
