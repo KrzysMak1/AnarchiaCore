@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.*;
 
 public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, TabCompleter {
@@ -60,7 +61,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         heartsManager = new HeartsManager(this, configManager, messageService, dataStore);
         trashManager = new TrashManager(this, configManager, messageService);
         customItemsManager = new CustomItemsManager(this, configManager, messageService);
-        combatLogManager = new CombatLogManager(this, messageService, dataStore, customItemsManager);
+        File combatLogConfig = new File(getDataFolder(), "configs/Dream-AntyLogout/config.yml");
+        File combatLogMessage = new File(getDataFolder(), "configs/Dream-AntyLogout/message.yml");
+        combatLogManager = new CombatLogManager(this, combatLogConfig, combatLogMessage);
 
         stormItemyConfigInstaller = new StormItemyConfigInstaller(this);
         stormItemyConfigInstaller.installMissing();
@@ -123,6 +126,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (args.length == 0) {
             return false;
         }
+        if (args[0].equalsIgnoreCase("combatlog")) {
+            return handleCombatlogCommand(sender, Arrays.copyOfRange(args, 1, args.length));
+        }
         if (!sender.hasPermission("anarchiacore.admin")) {
             messageService.send(sender, getConfig().getString("messages.noPermission"));
             return true;
@@ -133,9 +139,6 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         }
         if (args[0].equalsIgnoreCase("heart")) {
             return handleHeartCommand(sender, Arrays.copyOfRange(args, 1, args.length));
-        }
-        if (args[0].equalsIgnoreCase("combatlog")) {
-            return handleCombatlogCommand(sender, Arrays.copyOfRange(args, 1, args.length));
         }
         if (args[0].equalsIgnoreCase("customitems")) {
             return handleCustomItemsCommand(sender, Arrays.copyOfRange(args, 1, args.length));
@@ -229,30 +232,10 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     }
 
     private boolean handleCombatlogCommand(CommandSender sender, String[] args) {
-        if (args.length == 0) {
+        if (combatLogManager == null) {
             return false;
         }
-        if (args[0].equalsIgnoreCase("clear") && args.length >= 2) {
-            Player target = Bukkit.getPlayerExact(args[1]);
-            if (target == null) {
-                messageService.send(sender, "Gracz offline.");
-                return true;
-            }
-            combatLogManager.clearCombat(target.getUniqueId());
-            messageService.send(sender, "Wyczyszczono tag combatlog.");
-            return true;
-        }
-        if (args[0].equalsIgnoreCase("status") && args.length >= 2) {
-            Player target = Bukkit.getPlayerExact(args[1]);
-            if (target == null) {
-                messageService.send(sender, "Gracz offline.");
-                return true;
-            }
-            boolean inCombat = combatLogManager.isInCombat(target.getUniqueId());
-            messageService.send(sender, "Status combatlog: " + (inCombat ? "W walce" : "Poza walka"));
-            return true;
-        }
-        return false;
+        return combatLogManager.handleCommand(sender, args);
     }
 
     private boolean handleCustomItemsCommand(CommandSender sender, String[] args) {
@@ -330,15 +313,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             }
             return names;
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("combatlog")) {
-            return List.of("clear", "status");
-        }
-        if (args.length == 3 && args[0].equalsIgnoreCase("combatlog")) {
-            List<String> names = new ArrayList<>();
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                names.add(player.getName());
-            }
-            return names;
+        if (args.length >= 2 && args[0].equalsIgnoreCase("combatlog") && combatLogManager != null) {
+            return combatLogManager.tabComplete(Arrays.copyOfRange(args, 1, args.length));
         }
         return Collections.emptyList();
     }
