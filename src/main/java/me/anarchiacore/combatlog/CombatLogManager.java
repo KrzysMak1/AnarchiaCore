@@ -37,6 +37,7 @@ public class CombatLogManager implements Listener {
     }
 
     public void start() {
+        stopTask();
         int intervalTicks = 20;
         task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             long now = System.currentTimeMillis();
@@ -45,10 +46,21 @@ public class CombatLogManager implements Listener {
     }
 
     public void stop() {
-        if (task != null) {
-            task.cancel();
-        }
+        stopTask();
         combatExpiry.clear();
+    }
+
+    public void reload() {
+        stop();
+        start();
+    }
+
+    public int getActiveTaskCount() {
+        return task != null && !task.isCancelled() ? 1 : 0;
+    }
+
+    public int getListenerCount() {
+        return 1;
     }
 
     @EventHandler
@@ -126,5 +138,12 @@ public class CombatLogManager implements Listener {
 
     public void clearCombat(UUID uuid) {
         combatExpiry.remove(uuid);
+    }
+
+    private void stopTask() {
+        if (task != null) {
+            task.cancel();
+            task = null;
+        }
     }
 }
