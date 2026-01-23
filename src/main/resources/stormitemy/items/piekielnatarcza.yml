@@ -1,0 +1,38 @@
+# === Konfiguracja przedmiotu 'Piekielna tarcza' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Piekielna tarcza'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {ATTACKER} - nazwa gracza, który zaatakował
+#   {TARGET}  - nazwa gracza posiadającego tarczę
+
+piekielnatarcza:
+  material: SHIELD
+  name: '&6Piekielna tarcza'
+  lore:
+  - '&r'
+  - '&8 » &7Posiada &f25% szansy &7na odbicie '
+  - '&8 » &cataku &7wroga!'
+  - '&r'
+  customModelData: 0
+  cooldown: 5
+  reflectChance: 25
+  enchantments: []
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: false
+  messages:
+    defenderTitle: '&6PIEKIELNA TARCZA'
+    defenderSubtitle: '&7Odbiłeś atak od &f{ATTACKER}&7!'
+    defender: ''
+    attackerTitle: '&6PIEKIELNA TARCZA'
+    attackerSubtitle: '&7Twój atak został odbity przez &f{TARGET}&7!'
+    attacker: ''
+    cooldown: ''
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0
