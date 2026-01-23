@@ -1,0 +1,159 @@
+package cc.dreamcode.antylogout.libs.eu.okaeri.persistence.repository;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Proxy;
+import cc.dreamcode.antylogout.libs.eu.okaeri.persistence.PersistenceCollection;
+import cc.dreamcode.antylogout.libs.eu.okaeri.persistence.document.DocumentPersistence;
+import java.lang.reflect.Type;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
+import cc.dreamcode.antylogout.libs.eu.okaeri.persistence.PersistenceEntity;
+import java.util.Optional;
+import cc.dreamcode.antylogout.libs.eu.okaeri.persistence.PersistencePath;
+import cc.dreamcode.antylogout.libs.eu.okaeri.persistence.repository.annotation.DocumentPath;
+import java.lang.reflect.ParameterizedType;
+import java.util.HashMap;
+import lombok.NonNull;
+import cc.dreamcode.antylogout.libs.eu.okaeri.persistence.document.Document;
+import java.lang.reflect.Method;
+import java.util.Map;
+
+public class RepositoryDeclaration<T extends DocumentRepository>
+{
+    private final Class<T> type;
+    private final Map<Method, RepositoryMethodCaller> methods;
+    private final Class<?> pathType;
+    private final Class<? extends Document> entityType;
+    
+    public static <A extends DocumentRepository> RepositoryDeclaration<A> of(@NonNull final Class<A> clazz) {
+        if (clazz == null) {
+            throw new NullPointerException("clazz is marked non-null but is null");
+        }
+        final Map<Method, RepositoryMethodCaller> methods = (Map<Method, RepositoryMethodCaller>)new HashMap();
+        final Type[] types = ((ParameterizedType)clazz.getGenericInterfaces()[0]).getActualTypeArguments();
+        final Class<?> pathType = (Class<?>)types[0];
+        final Class<? extends Document> entityType = (Class<? extends Document>)types[1];
+        for (final Method method : clazz.getDeclaredMethods()) {
+            final DocumentPath property = (DocumentPath)method.getAnnotation((Class)DocumentPath.class);
+            if (property != null) {
+                if (method.getParameterCount() != 1) {
+                    throw new RuntimeException("Methods using @DocumentPath must have a single argument: " + (Object)method);
+                }
+                final PersistencePath path = PersistencePath.parse(property.value(), ".");
+                final Class<?> insideType = getInsideType(method);
+                if (method.getReturnType() == Optional.class) {
+                    if (insideType == PersistenceEntity.class) {
+                        methods.put((Object)method, (persistence, collection, args) -> persistence.readByProperty(collection, path, args[0]).findFirst().map(entity -> entity.into(entityType)));
+                    }
+                    else {
+                        methods.put((Object)method, (persistence, collection, args) -> persistence.readByProperty(collection, path, args[0]).findFirst().map(entity -> entity.into(entityType)).map(PersistenceEntity::getValue));
+                    }
+                }
+                else if (method.getReturnType() == Stream.class) {
+                    if (insideType == PersistenceEntity.class) {
+                        methods.put((Object)method, (persistence, collection, args) -> persistence.readByProperty(collection, path, args[0]).map(entity -> entity.into(entityType)));
+                    }
+                    else {
+                        methods.put((Object)method, (persistence, collection, args) -> persistence.readByProperty(collection, path, args[0]).map(entity -> entity.into(entityType)).map(PersistenceEntity::getValue));
+                    }
+                }
+                else if (method.getReturnType() == List.class || method.getReturnType() == Collection.class) {
+                    if (insideType == PersistenceEntity.class) {
+                        methods.put((Object)method, (persistence, collection, args) -> persistence.readByProperty(collection, path, args[0]).map(entity -> entity.into(entityType)).collect(Collectors.toList()));
+                    }
+                    else {
+                        methods.put((Object)method, (persistence, collection, args) -> persistence.readByProperty(collection, path, args[0]).map(entity -> entity.into(entityType)).map(PersistenceEntity::getValue).collect(Collectors.toList()));
+                    }
+                }
+                else if (method.getReturnType() == Set.class) {
+                    if (insideType == PersistenceEntity.class) {
+                        methods.put((Object)method, (persistence, collection, args) -> persistence.readByProperty(collection, path, args[0]).map(entity -> entity.into(entityType)).collect(Collectors.toSet()));
+                    }
+                    else {
+                        methods.put((Object)method, (persistence, collection, args) -> persistence.readByProperty(collection, path, args[0]).map(entity -> entity.into(entityType)).map(PersistenceEntity::getValue).collect(Collectors.toSet()));
+                    }
+                }
+            }
+        }
+        return new RepositoryDeclaration<A>(clazz, methods, pathType, entityType);
+    }
+    
+    private static Class<?> getInsideType(final Method method) {
+        final ParameterizedType genericReturnType = (ParameterizedType)method.getGenericReturnType();
+        final Type actualTypeArgument = genericReturnType.getActualTypeArguments()[0];
+        if (actualTypeArgument instanceof Class) {
+            return (Class)actualTypeArgument;
+        }
+        if (actualTypeArgument instanceof ParameterizedType) {
+            return (Class)((ParameterizedType)actualTypeArgument).getRawType();
+        }
+        throw new IllegalArgumentException("cannot resolve inside type of " + (Object)method);
+    }
+    
+    public T newProxy(@NonNull final DocumentPersistence persistence, @NonNull final PersistenceCollection collection, @NonNull final ClassLoader classLoader) {
+        if (persistence == null) {
+            throw new NullPointerException("persistence is marked non-null but is null");
+        }
+        if (collection == null) {
+            throw new NullPointerException("collection is marked non-null but is null");
+        }
+        if (classLoader == null) {
+            throw new NullPointerException("classLoader is marked non-null but is null");
+        }
+        final DefaultDocumentRepository defaultRepository = new DefaultDocumentRepository(persistence, collection, (Class<T>)this.entityType);
+        final Map<Method, Method> defaultRepositoryMethods = (Map<Method, Method>)new HashMap();
+        return (T)Proxy.newProxyInstance(classLoader, new Class[] { this.type }, (proxy, method, args) -> {
+            final Class<?> dClass = method.getDeclaringClass();
+            if (method.isDefault()) {
+                try {
+                    final MethodType methodType = MethodType.methodType(method.getReturnType(), method.getParameterTypes());
+                    return MethodHandles.lookup().findSpecial((Class)dClass, method.getName(), methodType, (Class)dClass).bindTo(proxy).invokeWithArguments(args);
+                }
+                catch (final IllegalAccessException ex) {
+                    final Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class);
+                    constructor.setAccessible(true);
+                    return ((MethodHandles.Lookup)constructor.newInstance(new Object[] { dClass })).in((Class)dClass).unreflectSpecial(method, (Class)dClass).bindTo(proxy).invokeWithArguments(args);
+                }
+            }
+            try {
+                Method defaultMethod;
+                if (defaultRepositoryMethods.containsKey((Object)method)) {
+                    defaultMethod = (Method)defaultRepositoryMethods.get((Object)method);
+                }
+                else {
+                    defaultMethod = defaultRepository.getClass().getMethod(method.getName(), (Class<?>[])method.getParameterTypes());
+                    defaultRepositoryMethods.put((Object)method, (Object)defaultMethod);
+                }
+                if (defaultMethod != null) {
+                    try {
+                        return defaultMethod.invoke((Object)defaultRepository, args);
+                    }
+                    catch (final InvocationTargetException exception) {
+                        throw exception.getCause();
+                    }
+                }
+            }
+            catch (final NoSuchMethodException | SecurityException ignored) {
+                defaultRepositoryMethods.put((Object)method, (Object)null);
+            }
+            final RepositoryMethodCaller caller = (RepositoryMethodCaller)this.methods.get((Object)method);
+            if (caller == null) {
+                throw new IllegalArgumentException("cannot proxy " + (Object)method);
+            }
+            return caller.call(persistence, collection, args);
+        });
+    }
+    
+    private RepositoryDeclaration(final Class<T> type, final Map<Method, RepositoryMethodCaller> methods, final Class<?> pathType, final Class<? extends Document> entityType) {
+        this.type = type;
+        this.methods = methods;
+        this.pathType = pathType;
+        this.entityType = entityType;
+    }
+}
