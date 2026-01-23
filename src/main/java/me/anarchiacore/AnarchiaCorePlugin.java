@@ -166,7 +166,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             }
             Player target = Bukkit.getPlayerExact(args[1]);
             if (target == null) {
-                sender.sendMessage("Gracz offline.");
+                messageService.send(sender, "Gracz offline.");
                 return true;
             }
             int amount = 1;
@@ -235,21 +235,21 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (args[0].equalsIgnoreCase("clear") && args.length >= 2) {
             Player target = Bukkit.getPlayerExact(args[1]);
             if (target == null) {
-                sender.sendMessage("Gracz offline.");
+                messageService.send(sender, "Gracz offline.");
                 return true;
             }
             combatLogManager.clearCombat(target.getUniqueId());
-            sender.sendMessage("Wyczyszczono tag combatlog.");
+            messageService.send(sender, "Wyczyszczono tag combatlog.");
             return true;
         }
         if (args[0].equalsIgnoreCase("status") && args.length >= 2) {
             Player target = Bukkit.getPlayerExact(args[1]);
             if (target == null) {
-                sender.sendMessage("Gracz offline.");
+                messageService.send(sender, "Gracz offline.");
                 return true;
             }
             boolean inCombat = combatLogManager.isInCombat(target.getUniqueId());
-            sender.sendMessage("Status combatlog: " + (inCombat ? "W walce" : "Poza walka"));
+            messageService.send(sender, "Status combatlog: " + (inCombat ? "W walce" : "Poza walka"));
             return true;
         }
         return false;

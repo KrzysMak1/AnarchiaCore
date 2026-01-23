@@ -18,38 +18,14 @@ package me.anarchiacore.customitems.stormitemy.utils.color;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import me.anarchiacore.util.MiniMessageUtil;
 import org.bukkit.ChatColor;
 
 public class A {
     private static final String B = "c3Rvcm1jb2Rl";
-    private static final Pattern A = Pattern.compile((String)"&#([A-Fa-f0-9]{6})");
 
     public static String C(String string) {
-        if (string == null) {
-            return "";
-        }
-        Matcher matcher = A.matcher((CharSequence)string);
-        StringBuffer stringBuffer = new StringBuffer();
-        while (matcher.find()) {
-            String string2 = matcher.group(1);
-            String string3 = me.anarchiacore.customitems.stormitemy.utils.color.A.A("#" + string2);
-            matcher.appendReplacement(stringBuffer, string3);
-        }
-        matcher.appendTail(stringBuffer);
-        return ChatColor.translateAlternateColorCodes((char)'&', (String)stringBuffer.toString());
-    }
-
-    private static String A(String string) {
-        if (string == null || !string.startsWith("#") || string.length() != 7) {
-            return string;
-        }
-        StringBuilder stringBuilder = new StringBuilder("\u00a7x");
-        for (int i2 = 1; i2 < string.length(); ++i2) {
-            stringBuilder.append("\u00a7").append(string.charAt(i2));
-        }
-        return stringBuilder.toString();
+        return MiniMessageUtil.parseLegacy(string);
     }
 
     public static List<String> A(List<String> list) {
@@ -189,4 +165,3 @@ public class A {
         return stringBuilder.toString();
     }
 }
-
