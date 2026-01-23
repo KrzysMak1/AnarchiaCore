@@ -1,0 +1,38 @@
+# === Konfiguracja księgi 'Regeneracja I' ===
+# Opis: Plik konfiguracyjny określa właściwości zaklętej księgi.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {TARGET}      - nazwa gracza, który został uderzony
+
+name: '&eZaklęta książka'
+chance: 5.0
+cooldown: 60
+allowedItems:
+- chestplate
+lore:
+- '&7Regeneracji I'
+- '&7'
+- '&2&lZaklęcie specjalne!'
+- '&7Może zostać nałożony na &anapierśnik&7!'
+- '&7Nałożony daje szansę, że po'
+- '&7otrzymanym uderzeniu otrzymasz efekt'
+- '&7regeneracji II na krótki czas.'
+- '&7'
+glow: true
+customModelData: 4
+messages:
+  title: '&c&lREGENERACJA'
+  subtitle: '&7Otrzymałeś efekt regeneracji na &e{DURATION} &7sekund!'
+  chat: ''
+effects:
+- duration: 8
+  icon: true
+  amplifier: 1
+  ambient: false
+  type: REGENERATION
+  particles: true
+sound:
+  volume: 0.8
+  sound: entity.player.levelup
+  pitch: 1.5
+  enabled: true

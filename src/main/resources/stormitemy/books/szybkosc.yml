@@ -1,0 +1,39 @@
+# === Konfiguracja księgi 'Szybkość I' ===
+# Opis: Plik konfiguracyjny określa właściwości zaklętej księgi.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {TARGET}      - nazwa gracza, który został uderzony
+
+name: '&eZaklęta książka'
+chance: 100.0
+cooldown: 0
+allowedItems:
+- boots
+lore:
+- '&7Szybkość I'
+- '&7'
+- '&2&lZaklęcie specjalne!'
+- '&7Może zostać nałożony na &abuty&7!'
+- '&7Otrzymujesz stały efekt &fszybkości I&7.'
+- '&7'
+glow: true
+customModelData: 6
+messages:
+  attacker:
+    title: '&2ZAKLĘCIE TRUCIZNY'
+    subtitle: '&aOtrułeś &7gracza &f{TARGET}&7!'
+    chat: ''
+  target:
+    title: '&2ZAKLĘCIE TRUCIZNY'
+    subtitle: '&7Zostałeś &cotruty &7przez &f{PLAYER}&7!'
+    chat: ''
+  title: ''
+  subtitle: ''
+  chat: ''
+effects:
+- duration: 7
+  icon: true
+  amplifier: 0
+  ambient: true
+  type: SPEED
+  particles: false

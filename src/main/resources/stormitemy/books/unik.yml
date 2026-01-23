@@ -1,0 +1,40 @@
+# === Konfiguracja księgi 'Unik I' ===
+# Opis: Plik konfiguracyjny określa właściwości zaklętej księgi.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {TARGET}      - nazwa gracza, który został uderzony
+
+name: '&eZaklęta książka'
+chance: 5.0
+cooldown: 30
+allowedItems:
+- helmet
+- chestplate
+- leggings
+- boots
+lore:
+- '&7Unik I'
+- '&7'
+- '&2&lZaklęcie specjalne!'
+- '&7Może zostać nałożony na &azbroję&7!'
+- '&7Masz szansę na uniknięcie ataku.'
+- '&7'
+glow: true
+customModelData: 11
+messages:
+  attacker:
+    title: '&bKSIĘGA UNIKU'
+    subtitle: '&7Gracz &f{TARGET} &7uniknął &7Twojego ataku!'
+    chat: ''
+  target:
+    title: '&bKSIĘGA UNIKU'
+    subtitle: '&7Udało Ci się uniknąć &7ataku gracza &f{PLAYER}&7!'
+    chat: ''
+effects: []
+sound:
+  volume: 0.7
+  sound: entity.enderman.teleport
+  pitch: 1.2
+  enabled: true
+dodge:
+  chance: 15

@@ -1,0 +1,40 @@
+# === Konfiguracja księgi 'Ułaskawienie I' ===
+# Opis: Plik konfiguracyjny określa właściwości zaklętej księgi.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {TARGET}      - nazwa gracza, który został uderzony
+
+name: '&eZaklęta książka'
+chance: 0.0
+cooldown: 0
+allowedItems:
+- helmet
+- chestplate
+- leggings
+- boots
+lore:
+- '&7Ułaskawienie I'
+- '&7'
+- '&2&lZaklęcie specjalne!'
+- '&7Może zostać nałożony na &azbroję&7!'
+- '&7Po śmierci ratuje Twoje przedmioty.'
+- '&7'
+glow: true
+customModelData: 24
+messages:
+  attacker:
+    title: '&2ZAKLĘCIE TRUCIZNY'
+    subtitle: '&aOtrułeś &7gracza &f{TARGET}&7!'
+    chat: ''
+  target:
+    title: '&2ZAKLĘCIE TRUCIZNY'
+    subtitle: '&7Zostałeś &cotruty &7przez &f{PLAYER}&7!'
+    chat: ''
+  title: ''
+  subtitle: ''
+  chat: ''
+effects: []
+ulaskawienie:
+  only_save_in_inventory: false
+  return_to_inventory: true
+  auto_equip_armor: true

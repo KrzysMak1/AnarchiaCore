@@ -1,0 +1,40 @@
+# === Konfiguracja księgi 'Wampiryzm I' ===
+# Opis: Plik konfiguracyjny określa właściwości zaklętej księgi.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}      - nazwa gracza, który uderzył
+#   {TARGET}      - nazwa gracza, który został uderzony
+
+name: '&eZaklęta książka'
+chance: 20.0
+cooldown: 30
+allowedItems:
+- sword
+lore:
+- '&7Wampiryzm I'
+- '&7'
+- '&2&lZaklęcie specjalne!'
+- '&7Może zostać nałożony na &amiecz&7!'
+- '&7Masz szansę, że zadając obrażenia przeciwnikowi'
+- '&7wyleczy Cię to o część zadanych obrażeń.'
+- '&7'
+glow: true
+customModelData: 10
+messages:
+  attacker:
+    title: '&4ZAKLĘCIE WAMPIRYZMU'
+    subtitle: '&fWyleczyłeś &7swoje HP!'
+    chat: ''
+  target:
+    title: ''
+    subtitle: ''
+    chat: ''
+effects: []
+sound:
+  volume: 0.5
+  sound: entity.wither.hurt
+  pitch: 1.5
+  enabled: true
+vampirism:
+  heal_percent: 80
+  min_heal_amount: 1
+  chance: 20
