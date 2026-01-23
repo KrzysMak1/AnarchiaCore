@@ -1,0 +1,82 @@
+# === Konfiguracja przedmiotu 'Blok widmo' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Blok widmo'.
+# Dostępne zmienne (placeholdery):
+#   {PLAYER}  - nazwa gracza używającego przedmiotu
+#   {TIME}    - czas działania efektu (w sekundach)
+#   {HEARTS}  - liczba serc, które zabiera efekt
+
+blokwidmo:
+  material: STRUCTURE_BLOCK
+  name: '&c&lBlok widmo'
+  lore:
+  - '&7'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fDnia Dziecka 2025&7!'
+  - '&7'
+  - '&8 » &7Po postawieniu na ziemi,'
+  - '&8 » &7uwalnia &eenergię&7, która obniża'
+  - '&8 » &fmaksymalny limit &7serc pobliskim'
+  - '&8 » &7graczom na określony czas.'
+  - '&7'
+  customModelData: 0
+  cooldown: 300
+  unbreakable: false
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  - HIDE_UNBREAKABLE
+  effect:
+    radius: 20
+    duration: 150
+    hearts_removed: 10
+    min_hearts: 1
+    affect_owner: false
+  single_use: false
+  messages:
+    placed:
+      title: '&c&lBLOK WIDMO'
+      subtitle: '&7Osłabiłeś &fpobliskich&7 graczy!'
+      chatMessage: ''
+    affected:
+      title: '&c&lBLOK WIDMO'
+      subtitle: '&7Twoje maksymalne zdrowie zostało &fobniżone&7!'
+      chatMessage: ''
+    ended:
+      title: '&c&lBLOK WIDMO'
+      subtitle: '&7Efekt &cBloku widmo &7zakończył się!'
+      chatMessage: ''
+    exit_area:
+      title: '&c&lBLOK WIDMO'
+      subtitle: '&7Wyszedłeś poza zasięg &fbloku widmo&7!'
+      chatMessage: ''
+    enter_area:
+      title: '&c&lBLOK WIDMO'
+      subtitle: '&7Wróciłeś w zasięg &fbloku widmo&7!'
+      chatMessage: ''
+    limit_reached:
+      title: '&c&lBLOK WIDMO'
+      subtitle: '&7Osiągnięto limit bloków na tej mapie!'
+      chatMessage: ''
+  bossbar:
+    enabled: true
+    title: '&cBlok widmo: &fPosiadasz obniżony limit serc przez {TIME}!'
+    color: PURPLE
+    style: SOLID
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0
+    effect_end:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0
+    enter_area:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0
+    exit_area:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

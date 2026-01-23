@@ -1,0 +1,24 @@
+# === Konfiguracja przedmiotu 'Anty Cobweb' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Anty Cobweb'.
+
+antycobweb:
+  material: FIREWORK_STAR
+  name: '&dAnty cobweb'
+  lore:
+  - '&7'
+  - '&f Usuwa pajęczyny &e3 kratki &fod postaci.'
+  - '&7'
+  customModelData: 0
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  range: 3
+  cooldown: 20
+  messages:
+    user:
+      title: '&d&lANTY COBWEB'
+      subtitle: '&7Pajęczyny zostały &fusunięte&7!'
+      chatMessage: ''
+    cooldown: ''
