@@ -1,0 +1,300 @@
+# Konfiguracja pluginu / Plugin configuration
+
+disabled-regions:
+- przykladowyregion
+- spawn
+
+# Język pluginu (POL - polski, ENG - angielski) / Plugin language (POL - Polish, ENG - English)
+language: POL
+
+# Konfiguracja zaczarowań / Enchantments configuration
+zaczarowania:
+  # Konfiguracja przedmiotu zaczarowania / Enchantment item configuration
+  item:
+    material: BLUE_DYE
+    name: '&3&lZaczarowanie przedmiotu'
+    lore:
+    - '&7'
+    - '&8 » &7Kliknij &bprawym&7, aby &7zmienić'
+    - '&8 » &7bonusowe &cobrażenia&7.'
+    - '&7'
+    customModelData: 1
+    enchantments:
+    - DURABILITY:1
+    flags:
+    - HIDE_ENCHANTS
+    unbreakable: false
+  
+  # Konfiguracja menu / Menu configuration
+  menu:
+    title: '&3&lZaczarowania przedmiotów'
+    # Przycisk zaczarowania / Enchant button
+    przeboj_button:
+      material: BLUE_DYE
+      name: '&3&lPrzebouj przedmiot'
+      # Lore gdy żaden przedmiot nie jest wybrany / Lore when no item is selected
+      lore:
+      - '&7'
+      - '&4 UWAGA! &cKlikając ten przedmiot'
+      - '&c zmienisz bonusowe obrażenia'
+      - '&c bezpowrotnie!'
+      - '&7'
+      - '&8 » &7Koszt: &bZaczarowany przedmiot x1'
+      - '&7'
+      - '&aKliknij aby to zrobić!'
+      customModelData: 1
+      enchantments:
+      - DURABILITY:1
+      flags:
+      - HIDE_ENCHANTS
+      
+      # Lore gdy przedmiot jest wybrany / Lore when an item is selected
+      lore_selected:
+      - '&7'
+      - '&8 » &7Ostatnie wylosowane obrażenia: '
+      - '&8 » {bonus_text}'
+      - ''
+      - '&4 UWAGA! &cKlikając ten przedmiot'
+      - '&c zmienisz bonusowe obrażenia'
+      - '&c bezpowrotnie!'
+      - '&7'
+      - '&8 » &7Koszt: &bZaczarowany przedmiot x1'
+      - '&7'
+      - '&aKliknij aby to zrobić!'
+    
+    # Przycisk wyboru przedmiotu / Item selection button  
+    select_button:
+      material: PAPER
+      name: '&6WYBIERZ PRZEDMIOT'
+      lore:
+      - '&7Kliknij na miecz w ekwipunku,'
+      - '&7który chciałbyś zaczarować.'
+      customModelData: 0
+    
+    # Przycisk zamknięcia / Close button
+    close_button:
+      material: BARRIER
+      name: '&cZamknij'
+      lore:
+      - '&7Zamyka menu zaczarowań.'
+      customModelData: 0
+  
+  # Konfiguracja dodawanych efektów do przedmiotów / Item effects configuration
+  effects:
+    # Zakres losowanych efektów / Range of randomly generated effects
+    min_bonus: -20
+    max_bonus: 50
+    
+    # Progi kategorii bonusów / Bonus category thresholds
+    # Bonusy poniżej negative_threshold używają format_negative (czerwony)
+    # Bonusy od negative_threshold do high_threshold-1 używają format_normal (biały)
+    # Bonusy od high_threshold i wyżej używają format_high (złoty)
+    negative_threshold: 0
+    high_threshold: 40
+    
+    # Format tekstu dodawanego do przedmiotów / Format of text added to items
+    # Dostępne zmienne: {percent} - procentowa wartość efektu
+    format_negative: '&cDodatkowe obrażenia {percent}%'
+    format_normal: '&fDodatkowe obrażenia {percent}%'
+    format_high: '&6Dodatkowe obrażenia {percent}%'
+    
+    # Konfiguracja prawdopodobieństwa wylosowania efektów / Probability configuration for effects
+    # Im wyższy poziom zaczarowania, tym mniejsza szansa na jego wylosowanie
+    # Higher enchantment levels have lower probability of being selected
+    probability:
+      enabled: true
+      # Zakresy efektów i ich wagi prawdopodobieństwa / Effect ranges and their probability weights
+      # Wyższa waga = większa szansa / Higher weight = higher chance
+      ranges:
+        # Format: "min_value-max_value: weight"
+        -20--1: 30 # Negatywne efekty / Negative effects
+        0-10: 35 # Słabe efekty / Weak effects
+        11-25: 20 # Średnie efekty / Medium effects
+        26-39: 10 # Dobre efekty / Good effects
+        40-50: 5 # Najlepsze efekty / Best effects
+
+actionbar:
+  # Włącz/wyłącz pasek akcji / Enable/disable action bar
+  enabled: true
+  # Separator używany w pasku akcji / Separator used in action bar
+  separator: '&8|'
+  # Format wyświetlania czasu odnowienia / Cooldown time display format
+  # Dostępne zmienne / Available variables:
+  # {time} - czas w sekundach / time in seconds
+  # {color} - kolor przedmiotu / item color 
+  time_format: '&8({color}{time}s&8)'
+  # Maksymalna długość wiadomości w action bar (0 = bez limitu)
+  # Maximum message length in action bar (0 = no limit)
+  max_length: 0
+  # Kolory przedmiotów w formacie HEX / Item colors in HEX format
+  colors:
+    smoczymiecz: '&#DB36A4' # Smoczy miecz / Dragon sword - Intensywny róż / Intense pink
+    bombardamaxima: '&#9C27B0' # Bomba maxima / Maxima bomb - Fioletowy / Purple
+    boskitopor: '&#00F3FF' # Boski topór / Divine axe - Złoty / Gold
+    sniezka: '&#C9C9C9' # Śnieżka / Snowball - Jasny błękit / Light blue
+    splesnialakanapka: '&#8BC34A' # Spleśniała kanapka / Moldy sandwich - Zielony / Green
+    turbotrap: '&#00FF36' # Turbo trap - Czerwony / Red    
+    turbodomek: '&#2DDA4B' # Turbo domek / Turbo house - Zielony / Green
+    wedkasurferka: '&#2196F3' # Wędka surferka / Surfer fishing rod - Niebieski / Blue
+    wedkanielota: '&#9A34E2' # Wędka nielota / Non-flying fishing rod - Indygo / Indigo
+    zaczarowanie: '&#0091EA' # Zaczarowanie / Enchantment - Niebieski / Blue
+    lopatagrincha: '&#62F600' # Łopata grincha / Grinch shovel - Brązowy / Brown
+    piernik: '&#BC5100' # Piernik / Gingerbread - Pomarańczowy / Orange
+    cieplemleko: '&#2A8BD3' # Ciepłe mleko / Warm milk - Biały / White
+    rozakupidyna: '&#E91E63' # Róża kupidyna / Cupid's rose - Różowy / Pink
+    parawan: '&#00ACC1' # Parawan / Screen - Cyjanowy / Cyan
+    lizak: '&#FF4081' # Lizak / Lollipop - Jasnoróżowy / Light pink
+    rozga: '&#689F38' # Rózga / Rod - Ciemnozielony / Dark green
+    kupaanarchi: '&#6D4C41' # Kupa anarchi / Anarchy poop - Ciemnobrązowy / Dark brown
+    koronaanarchi: '&#FFD600' # Korona anarchi / Anarchy crown - Bursztynowy / Amber
+    totemuaskawienia: '&#66BB6A' # Totem uaskawienia / Pardon totem - Jasnozielony / Light green
+    siekieragrincha: '&#3CA833' # Siekiera grincha / Grinch axe - Jasnobrązowy / Light brown
+    lukkupidyna: '&#D81B60' # Łuk kupidyna / Cupid's bow - Ciemnoróżowy / Dark pink
+    marchewkowymiecz: '&#FF8A65' # Marchewkowy miecz / Carrot sword - Pomarańczowo-czerwony / Orange-red
+    kosa: '&#78909C' # Kosa / Scythe - Niebieskoszary / Blue-gray
+    excalibur: '&#0076D6' # Excalibur - Mocny niebieski / Strong blue
+    krewwampira: '&#D32F2F' # Krew wampira / Vampire blood - Krwistoczerwony / Blood red
+    marchewkowakusza: '&#FF7043' # Marchewkowa kusza / Carrot crossbow - Ciemnopomarańczowy / Dark orange
+    lewejajko: '&#FFEE58' # Lewe jajko / Crooked egg - Jasny żółty / Light yellow
+    zajeczymiecz: '&#50B0DE' # Zajęczy miecz / Rabbit sword - Zielono-żółty / Green-yellow
+    zatrutyolowek: '&#85D637' # Zatruty ołówek / Poisoned pencil - Fioletowy / Purple
+    sakiewkadropu: '&#FFEB3B' # Sakiewka dropu / Drop pouch - Żółty / Yellow
+    wampirzejablko: '&#B71C1C' # Wampirze jabłko / Vampire apple - Głęboka czerwień / Deep red
+    arcusmagnus: '&#673AB7' # Arcus magnus - Głęboki fiolet / Deep purple
+    piekielnatarcza: '&#BF360C' # Piekielna tarcza / Hellish shield - Pomarańczowo-brązowy / Orange-brown
+    kostkarubika: '&#F0FF00' # Kostka rubika / Rubik's cube - Turkusowy / Turquoise
+    zlamaneserce: '&#C900FF' # Złamane serce / Broken heart - Bordowy / Burgundy
+    dynamit: '&#E53935' # Dynamit / Dynamite - Jasna czerwień / Bright red
+    rozgotowanakukurydza: '&#FDD835' # Rozgotowana kukurydza / Overcooked corn - Złoty żółty / Golden yellow
+    zmutowanycreeper: '&#7CB342' # Zmutowany creeper / Mutated creeper - Limonkowy / Lime
+    wzmocnionaeltra: '&#1565C0' # Wzmocniona eltra / Reinforced elytra - Ciemnoniebieski / Dark blue
+    anarchicznymiecz: '&#546E7A' # Anarchiczny miecz / Anarchy sword - Stalowy / Steel
+    anarchicznykilof: '&#455A64' # Anarchiczny kilof / Anarchy pickaxe - Ciemnografitowy / Dark graphite
+    antycobweb: '&#CFD8DC' # Anty-cobweb / Anti-cobweb - Srebrzysty / Silvery
+    anarchicznyhelm: '&#424242' # Anarchiczny hełm / Anarchy helmet - Ciemnoszary / Dark gray
+    anarchicznaklata: '&#616161' # Anarchiczna klata / Anarchy chestplate - Grafitowy / Graphite
+    anarchicznespodnie: '&#757575' # Anarchiczne spodnie / Anarchy leggings - Średnioszary / Medium gray
+    anarchicznebuty: '&#9E9E9E' # Anarchiczne buty / Anarchy boots - Jasnoszary / Light gray
+    anarchicznyhelm2: '&#212121' # Anarchiczny hełm II / Anarchy helmet II - Czarny / Black
+    anarchicznaklata2: '&#414141' # Anarchiczna klata II / Anarchy chestplate II - Metaliczny ciemnoszary / Metallic dark gray
+    anarchicznespodnie2: '&#515151' # Anarchiczne spodnie II / Anarchy leggings II - Metaliczny grafitowy / Metallic graphite
+    anarchicznebuty2: '&#717171' # Anarchiczne buty II / Anarchy boots II - Metaliczny średnioszary / Metallic medium gray
+    trojzabposejdona: '&#00D4FF' # Trójząb Posejdona / Poseidon's Trident - Jasnoniebieski / Light blue
+    trojzabposejdona_riptide: '&#00BFFF' # Trójząb Posejdona (Riptide) - Niebieski / Blue
+    wyrzutniahydroklatki: '&#00FFCC' # Wyrzutnia Hydro Klatki / Hydro Cage Launcher - Akwamaryn / Aquamarine
+    rozdzka_iluzjonisty: '&#9C27B0' # Różdżka iluzjonisty / Illusionist's wand - Fioletowy / Purple
+    rozdzka_iluzjonisty_lpm: '&#E91E63' # Różdżka iluzjonisty LPM / Illusionist's wand LPM - Różowy / Pink
+    rozdzka_iluzjonisty_ppm: '&#673AB7' # Różdżka iluzjonisty PPM / Illusionist's wand PPM - Głęboki fiolet / Deep purple
+    anarchicznyluk: '&#37474F'
+    creeper_spawn_egg: '&#7CB342'
+    balonikzhelem: '&#00AFFF'
+    blokwidmo: '&#E15A5A'
+    przeterminowanytrunek: '&#2E7D32'
+    watacukrowa: '&#FFB6C1'
+    olaf: '&#55FFFF'
+    cudownalatarnia: '&#FF00CA'
+  
+  # Niestandardowe nazwy przedmiotów w actionbar / Custom item display names in actionbar
+  display_names:
+    smoczymiecz: Smoczy Miecz
+    bombardamaxima: Bombarda Maxima
+    boskitopor: Boski Topór
+    sniezka: Śnieżka
+    splesnialakanapka: Spleśniała Kanapka
+    turbotrap: Turbo Trap
+    turbodomek: Turbo Domek
+    wedkasurferka: Wędka Surferka
+    wedkanielota: Wędka Nielota
+    zaczarowanie: Zaczarowanie
+    lopatagrincha: Łopata Grincha
+    piernik: Piernik
+    cieplemleko: Ciepłe Mleko
+    rozakupidyna: Róża Kupidyna
+    parawan: Parawan
+    lizak: Lizak
+    rozga: Rózga
+    kupaanarchi: Kupa Anarchi
+    koronaanarchi: Korona Anarchi
+    totemuaskawienia: Totem Ułaskawienia
+    siekieragrincha: Siekiera Grincha
+    lukkupidyna: Łuk Kupidyna
+    marchewkowymiecz: Marchewkowy Miecz
+    kosa: Kosa
+    excalibur: Excalibur
+    krewwampira: Krew Wampira
+    marchewkowakusza: Marchewkowa Kusza
+    lewejajko: Lewe Jajko
+    zajeczymiecz: Zajęczy Miecz
+    zatrutyolowek: Zatruty Ołówek
+    sakiewkadropu: Sakiewka Dropu
+    wampirzejablko: Wampirze Jabłko
+    arcusmagnus: Arcus Magnus
+    piekielnatarcza: Piekielna Tarcza
+    kostkarubika: Kostka Rubika
+    zlamaneserce: Złamane Serce
+    dynamit: Dynamit
+    rozgotowanakukurydza: Rozgotowana Kukurydza
+    zmutowanycreeper: Zmutowany Creeper
+    wzmocnionaeltra: Wzmocniona Elytra
+    anarchicznymiecz: Anarchiczny Miecz
+    anarchicznykilof: Anarchiczny Kilof
+    anarchicznyluk: Anarchiczny Łuk
+    antycobweb: AntyCobweb
+    anarchicznyhelm: Anarchiczny Hełm
+    anarchicznaklata: Anarchiczna Klata
+    anarchicznespodnie: Anarchiczne Spodnie
+    anarchicznebuty: Anarchiczne Buty
+    anarchicznyhelm2: Anarchiczny Hełm II
+    anarchicznaklata2: Anarchiczna Klata II
+    anarchicznespodnie2: Anarchiczne Spodnie II
+    anarchicznebuty2: Anarchiczne Buty II
+    trojzabposejdona: Trójząb Posejdona
+    trojzabposejdona_riptide: Trójząb dostępny za
+    wyrzutniahydroklatki: Wyrzutnia Hydro Klatki
+    creeper_spawn_egg: Zmutowany Creeper
+    rozdzka_iluzjonisty_lpm: Różdżka Iluzjonisty (LPM)
+    rozdzka_iluzjonisty_ppm: Różdżka Iluzjonisty (RPM)
+    balonikzhelem: Balonik z helem
+    blokwidmo: Blok Widmo
+    przeterminowanytrunek: Przeterminowany Trunek
+    watacukrowa: Wata Cukrowa
+    olaf: Olaf
+    cudownalatarnia: Cudowna Latarnia
+
+bstats:
+  # Włącz/wyłącz statystyki bStats / Enable/disable bStats statistics
+  enabled: true
+
+# Konfiguracja custom hit / Custom hit configuration
+customhit:
+  # Mnożnik damage dla PvP (1.0 = normalne damage, 2.0 = podwójne damage)
+  # Damage multiplier for PvP (1.0 = normal damage, 2.0 = double damage)
+  damage_multiplier: 1.6
+
+# Konfiguracja Premium / Premium configuration
+# Aby uzyskać kod premium, wejdź na stronę pluginu w sekcję "Strefa Premium"
+# To get a premium code, visit the plugin website in the "Premium Zone" section
+premium:
+  # Włącz/wyłącz tryb premium / Enable/disable premium mode
+  enabled: false
+  # Kod aktywacyjny premium (uzyskaj na stronie pluginu)
+  # Premium activation code (get it from the plugin website)
+  code: ''
+
+# Konfiguracja texturepacka / Texturepack configuration
+texturepack:
+  # Włącz/wyłącz system texturepacka / Enable/disable texturepack system
+  enabled: true
+  # Link do texturepacka (musi być bezpośredni link do pliku .zip)
+  # Texturepack URL (must be a direct link to .zip file)
+  url: https://download.mc-packs.net/pack/8c99296440a0fda5a1d2e438ccf71933b1262cbd.zip
+  # Czy texturepack jest wymagany (jeśli tak, gracz zostanie wyrzucony gdy odrzuci)
+  # Is texturepack required (if yes, player will be kicked when declined)
+  required: false
+  # Wiadomość wyświetlana gdy gracz zostanie wyrzucony za odrzucenie texturepacka
+  # Message displayed when player is kicked for declining texturepack
+  kick_message: '&#FF0000Musisz zaakceptować texturepack aby grać na tym serwerze!'
+  # Opóźnienie w tickach przed pokazaniem GUI pytania (20 ticków = 1 sekunda)
+  # Delay in ticks before showing the prompt GUI (20 ticks = 1 second)
+  prompt_delay: 60
+

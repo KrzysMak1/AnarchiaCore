@@ -1,0 +1,35 @@
+# === Konfiguracja przedmiotu 'Dynamit' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Dynamit'.
+
+dynamit:
+  material: RED_CANDLE
+  name: '&4&lDynamit'
+  lore:
+  - '&r'
+  - '&8 » &7Ten przedmiot umożliwi tobie zniszczenie'
+  - '&8 » &7skały macierzystej! Wystarczy kliknąć'
+  - '&8 » &7tylko &cprawy &7przycisk!'
+  - '&r'
+  customModelData: 523
+  enchantments: []
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  cooldown: 60
+  explosionParticleCount: 10
+  messages:
+    consumer:
+      title: '&4&lDYNAMIT'
+      subtitle: '&7Zniszczyłeś &fskałe macierzystą&7!'
+      chatMessage: ''
+    cooldown: ''
+  noDestroyRegions: []
+  preventRegionDestruction: true
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

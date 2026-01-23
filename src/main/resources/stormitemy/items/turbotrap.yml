@@ -1,0 +1,40 @@
+# === Konfiguracja przedmiotu 'Turbo-Trap' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu 'Turbo-Trap'.
+
+turbotrap:
+  material: EGG
+  name: '&a&lTurbo-Trap'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty podczas'
+  - '&8 » &fWielkanocnego Wydarzenia 2025&7!'
+  - '&r'
+  - '&8 » &7Podczas wystrzelenia Turbotrapu&7'
+  - '&8 » &fbudujesz prostą pułapkę&7 w miejscu ekspozji!'
+  - '&r'
+  customModelData: 50
+  cooldown: 120
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  animation:
+    enabled: true
+    min_delay: 100
+    max_delay: 250
+    particles: true
+    sound:
+      enabled: true
+      type: BLOCK_STONE_PLACE
+      volume: 1.0
+      pitch: 0.8
+  messages:
+    shooter:
+      title: '&a&lTURBO-TRAP'
+      subtitle: '&7Stworzyłeś &fpułapkę&7!'
+      chatMessage: ''
+    cooldown: ''
+  noPlaceRegions: []

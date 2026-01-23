@@ -1,0 +1,127 @@
+# Polski plik językowy dla pluginu STORMANTYLOGOUT
+# Wersja 2.0
+#
+# UWAGA: Każda wiadomość może być:
+# 1. Prostym tekstem (kompatybilność wstecz):
+#    message: "&aTo jest prosta wiadomość"
+#
+# 2. Złożoną wiadomością z chat/title/subtitle/actionbar:
+#    message:
+#      chat: "&aWiadomość na chacie"
+#      title: "&6Tytuł"
+#      subtitle: "&7Podtytuł"
+#      fade-in: 10
+#      stay: 70
+#      fade-out: 20
+#      actionbar: "&eActionbar"
+#
+# Wszystkie pola są opcjonalne - możesz użyć tylko tych, których potrzebujesz!
+
+messages:
+  region:
+    chat: "&8» &7Nie możesz użyć tego przedmiotu w tym &#FB0808regionie&7!"
+    title: "&#FB0808&lREGION"
+    subtitle: "&7Przedmiot zablokowany w tym regionie!"
+    actionbar: "&#FB0808Nie możesz użyć tego przedmiotu tutaj!"
+    fade-in: 10
+    stay: 40
+    fade-out: 10
+  region_target:
+    chat: "&8» &7Nie możesz użyć tego przedmiotu na bloki w &#FB0808chronionym regionie&7!"
+    title: "&#FB0808&lREGION CHRONIONY"
+    subtitle: "&7Bloki w tym regionie są chronione!"
+    actionbar: "&#FB0808Nie możesz budować w chronionym regionie!"
+    fade-in: 10
+    stay: 40
+    fade-out: 10
+  reload:
+    chat: "&8» &fPlugin &7został &#08FB0Dpomyślnie &7przeładowany &8({time}ms)&7!"
+    title: "&#08FB0D&lPRZEŁADOWANO"
+    subtitle: "&7Plugin przeładowany w &f{time}ms"
+    actionbar: "&#08FB0DPlugin przeładowany pomyślnie!"
+    fade-in: 10
+    stay: 50
+    fade-out: 10
+  give: "&8» &7Przedmiot &f{item} &7został nadany graczowi &#08FB0D{player}&7!"
+  invalidPlayer: "&8» &7Podaj poprawny &#FB0808nick gracza&7 lub użyj komendy jako gracz!"
+  onlyPlayers: "&cKomenda dostępna tylko dla graczy!"
+  notFound: "&8» &7Nie &#FB0808znaleziono &7przedmiotu: &f{item}"
+  noPermission: "&cBrak uprawnień."
+  usage: "&8» &7Poprawne użycie: &f/stormitemy give &8[&fnazwa&8] &8[(&fnick&8)]"
+  actionbarEnabled: "&8» &7Wyświetlanie cooldownów na actionbarze zostało &awłączone&7."
+  actionbarDisabled: "&8» &7Wyświetlanie cooldownów na actionbarze zostało &cwyłączone&7."
+  excaliburKills: "&8» &7Ilość zabójstw na &e&lExcaliburze&7 została ustawiona na &f{kills}&7."
+  notExcalibur: "&8» &7Przedmiot w ręce nie jest &e&lExcaliburem&7!"
+  invalidNumber: "&8» &7Podaj &#FB0808poprawną &7liczbę!"
+  
+  # Region messages
+  region_wand_received: "&8[&x&B&3&0&0&F&F🪓&8] &7Otrzymałeś &x&D&0&6&0&F&Fróżdżkę &7do tworzenia regionów!"
+  region_point1_set: "&8[&x&B&3&0&0&F&F🪓&8] &7Pierwszy punkt zaznaczony na pozycji: &f{x}, {y}, {z}"
+  region_point2_set: "&8[&x&B&3&0&0&F&F🪓&8] &7Drugi punkt zaznaczony na pozycji: &f{x}, {y}, {z}"
+  region_must_select_points: "&8[&x&B&3&0&0&F&F🪓&8] &7Musisz najpierw zaznaczyć &x&D&0&6&0&F&Fdwa punkty &7używając różdżki!"
+  region_already_exists: "&8[&x&B&3&0&0&F&F🪓&8] &7Region o nazwie &x&D&0&6&0&F&F{name} &7już istnieje!"
+  region_not_exists: "&8[&x&B&3&0&0&F&F🪓&8] &7Region o nazwie &x&D&0&6&0&F&F{name} &7nie istnieje!"
+  region_created: "&8[&x&B&3&0&0&F&F🪓&8] &7Region &x&D&0&6&0&F&F{name} &7został &x&D&0&6&0&F&Fpomyślnie &7utworzony!"
+  region_updated: "&8[&x&B&3&0&0&F&F🪓&8] &7Region &x&D&0&6&0&F&F{name} &7został &x&D&0&6&0&F&Fpomyślnie &7zaktualizowany!"
+  region_deleted: "&8[&x&B&3&0&0&F&F🪓&8] &7Region &x&D&0&6&0&F&F{name} &7został &x&D&0&6&0&F&Fpomyślnie &7usunięty!"
+  region_added_to_disabled: "&8[&x&B&3&0&0&F&F🪓&8] &7Region &x&D&0&6&0&F&F{name} &7został dodany do listy regionów &x&D&0&6&0&F&Fzablokowanych&7!"
+  region_error_creating: "&8[&x&B&3&0&0&F&F🪓&8] &7Wystąpił błąd podczas tworzenia regionu &x&D&0&6&0&F&F{name}&7!"
+  region_error_updating: "&8[&x&B&3&0&0&F&F🪓&8] &7Wystąpił błąd podczas aktualizacji regionu &x&D&0&6&0&F&F{name}&7!"
+  region_error_deleting: "&8[&x&B&3&0&0&F&F🪓&8] &7Wystąpił błąd podczas usuwania regionu &x&D&0&6&0&F&F{name}&7!"
+  region_no_regions: "&8[&x&B&3&0&0&F&F🪓&8] &7Nie ma zdefiniowanych żadnych regionów!"
+  region_list_header: "&8[&x&B&3&0&0&F&F🪓&8] &7Lista regionów &8(&f{count}&8):"
+  region_list_item: "&8- &x&D&0&6&0&F&F{name}"
+
+  # Zaczarowania messages
+  zaczarowania_no_item: "&8» &cNie masz przedmiotu Zaczarowanie w ekwipunku!"
+  zaczarowania_select_first: "&8» &cNajpierw wybierz przedmiot do zaczarowania!"
+  zaczarowania_cant_enchant_enchanter: "&8» &cNie możesz zaczarować przedmiotu Zaczarowanie!"
+  zaczarowania_item_selected: "&8» &aWybrano przedmiot do zaczarowania."
+  zaczarowania_bonus_generated: "&8» &aWylosowano {color}{percent}% &adodatkowych obrażeń!"
+  zaczarowania_item_consumed: "&8» &7Zużyto przedmiot &3Zaczarowanie&7."
+
+  # Custom Hit messages
+  customhit_usage_set: "&8[&x&B&3&0&0&F&F🪓&8] &7Użycie: &f/stormitemy &x&D&0&6&0&F&Fcustomhit&f set <&x&D&0&6&0&F&Fmnożnik&f>"
+  customhit_invalid_range: "&8[&x&B&3&0&0&F&F🪓&8] &cMnożnik musi być w zakresie od &x&D&0&6&0&F&F0.1&c do &x&D&0&6&0&F&F10.0&c!"
+  customhit_set_success: "&8[&x&B&3&0&0&F&F🪓&8] &aMnożnik &x&D&0&6&0&F&Fdamage&a ustawiony na: &f{MULTIPLIER}"
+  customhit_invalid_number: "&8[&x&B&3&0&0&F&F🪓&8] &cPodana wartość nie jest prawidłową &x&D&0&6&0&F&Fliczbą&c!"
+  customhit_info: "&8[&x&B&3&0&0&F&F🪓&8] &7Aktualny mnożnik &x&D&0&6&0&F&Fdamage&7: &f{MULTIPLIER}"
+  customhit_help_header: "&8[&x&B&3&0&0&F&F🪓&8] &7Komendy &x&D&0&6&0&F&FCustom Hit&7:"
+  customhit_help_set: "&f/stormitemy &x&D&0&6&0&F&Fcustomhit&f set <&x&D&0&6&0&F&Fmnożnik&f> &8- &7Ustaw mnożnik &x&D&0&6&0&F&Fdamage&7 (0.1-10.0)"
+  customhit_help_info: "&f/stormitemy &x&D&0&6&0&F&Fcustomhit&f info &8- &7Wyświetl aktualny &x&D&0&6&0&F&Fmnożnik&7"
+  
+  # Przykłady złożonych wiadomości (complex messages)
+  # Te wiadomości pokazują jak używać nowego systemu
+  
+  # Przykład 1: Wiadomość z tytułem i podtytułem
+  example_title_message:
+    chat: "&8» &7Otrzymałeś &fspecjalny przedmiot&7!"
+    title: "&#08FB0D&lPRZEDMIOT"
+    subtitle: "&7Gratulacje!"
+    fade-in: 10
+    stay: 50
+    fade-out: 10
+  
+  # Przykład 2: Wiadomość tylko z actionbarem
+  example_actionbar_only:
+    actionbar: "&7Cooldown: &f5s"
+  
+  # Przykład 3: Pełna wiadomość (chat + title + subtitle + actionbar)
+  example_full_message:
+    chat: "&8» &7Pomyślnie &fzałożyłeś&7 przedmiot!"
+    title: "&#08FB0D&lSUKCES"
+    subtitle: "&7Przedmiot został aktywowany!"
+    actionbar: "&7Status: &#08FB0DAktywny"
+    fade-in: 10
+    stay: 70
+    fade-out: 20
+  
+  # Przykład 4: Wiadomość z placeholderami
+  example_with_placeholders:
+    chat: "&8» &7Gracz &f{player} &7otrzymał przedmiot &f{item}&7!"
+    title: "&#08FB0D{item}"
+    subtitle: "&7dla gracza &f{player}"
+    actionbar: "&7Przedmiot: &#08FB0D{item}"
+    fade-in: 5
+    stay: 40
+    fade-out: 10

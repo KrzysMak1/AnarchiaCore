@@ -1,0 +1,40 @@
+# === Konfiguracja przedmiotu 'Bombarda maxima' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Bombarda maxima'.
+
+bombarda:
+  material: FIRE_CHARGE
+  name: '&5&lBombarda maxima'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty z:'
+  - '&8 » &fkarnetu wakacyjnego 2024&7!'
+  - '&r'
+  - '&8 » &7Po wystrzeleniu wybucha w okolicy'
+  - '&8 » &7i niszczy każdy możliwy blok oprócz'
+  - '&8 » &fskały macierzystej&7!'
+  - '&r'
+  customModelData: 1
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  cooldown: 60
+  explosionRadius: 5
+  explosionParticleCount: 10
+  useProjectileMode: false
+  projectileSpeed: 1.5
+  protectedBlocks:
+  - BEDROCK
+  spawnFire: true
+  fireChance: 0.3
+  messages:
+    cooldown: ''
+    consumer:
+      title: '&5&LBOMBARDA MAXIMA'
+      subtitle: '&7Teren wokół ciebie &fwybuchł&7!'
+      chatMessage: ''
+  noDestroyRegions: []
+  preventRegionDestruction: true

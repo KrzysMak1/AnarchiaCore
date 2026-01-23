@@ -1,0 +1,127 @@
+# English language file for STORMANTYLOGOUT plugin
+# Version 2.0
+#
+# NOTE: Each message can be:
+# 1. Simple text (backward compatibility):
+#    message: "&aThis is a simple message"
+#
+# 2. Complex message with chat/title/subtitle/actionbar:
+#    message:
+#      chat: "&aChat message"
+#      title: "&6Title"
+#      subtitle: "&7Subtitle"
+#      fade-in: 10
+#      stay: 70
+#      fade-out: 20
+#      actionbar: "&eActionbar"
+#
+# All fields are optional - you can use only those you need!
+
+messages:
+  region:
+    chat: "&8» &7You cannot use this item in this &#FB0808region&7!"
+    title: "&#FB0808&lREGION"
+    subtitle: "&7Item blocked in this region!"
+    actionbar: "&#FB0808You cannot use this item here!"
+    fade-in: 10
+    stay: 40
+    fade-out: 10
+  region_target:
+    chat: "&8» &7You cannot use this item on blocks in a &#FB0808protected region&7!"
+    title: "&#FB0808&lPROTECTED REGION"
+    subtitle: "&7Blocks in this region are protected!"
+    actionbar: "&#FB0808You cannot build in a protected region!"
+    fade-in: 10
+    stay: 40
+    fade-out: 10
+  reload:
+    chat: "&8» &fPlugin &7has been &#08FB0Dsuccessfully &7reloaded &8({time}ms)&7!"
+    title: "&#08FB0D&lRELOADED"
+    subtitle: "&7Plugin reloaded in &f{time}ms"
+    actionbar: "&#08FB0DPlugin reloaded successfully!"
+    fade-in: 10
+    stay: 50
+    fade-out: 10
+  give: "&8» &7Item &f{item} &7has been given to player &#08FB0D{player}&7!"
+  invalidPlayer: "&8» &7Please provide a valid &#FB0808player name&7 or use the command as a player!"
+  onlyPlayers: "&cCommand only available for players!"
+  notFound: "&8» &7Item not &#FB0808found&7: &f{item}"
+  noPermission: "&cNo permission."
+  usage: "&8» &7Correct usage: &f/stormitemy give &8[&fname&8] &8[(&fplayer&8)]"
+  actionbarEnabled: "&8» &7Displaying cooldowns in actionbar has been &aenabled&7."
+  actionbarDisabled: "&8» &7Displaying cooldowns in actionbar has been &cdisabled&7."
+  excaliburKills: "&8» &7Number of kills on &e&lExcalibur&7 has been set to &f{kills}&7."
+  notExcalibur: "&8» &7The item in your hand is not &e&lExcalibur&7!"
+  invalidNumber: "&8» &7Please provide a &#FB0808valid &7number!"
+  
+  # Region messages
+  region_wand_received: "&8» &7You received a &#08FB0Dwand &7for creating regions!"
+  region_point1_set: "&8» &7First point set at position: &f{x}, {y}, {z}"
+  region_point2_set: "&8» &7Second point set at position: &f{x}, {y}, {z}"
+  region_must_select_points: "&8» &7You must first select &ftwo points &7using the wand!"
+  region_already_exists: "&8» &7Region named &f{name} &7already exists!"
+  region_not_exists: "&8» &7Region named &f{name} &7does not exist!"
+  region_created: "&8» &7Region &f{name} &7has been &#08FB0Dsuccessfully &7created!"
+  region_updated: "&8» &7Region &f{name} &7has been &#08FB0Dsuccessfully &7updated!"
+  region_deleted: "&8» &7Region &f{name} &7has been &#08FB0Dsuccessfully &7deleted!"
+  region_added_to_disabled: "&8» &7Region &f{name} &7has been added to the list of &#FB0808disabled &7regions!"
+  region_error_creating: "&8» &7An error occurred while creating region &f{name}&7!"
+  region_error_updating: "&8» &7An error occurred while updating region &f{name}&7!"
+  region_error_deleting: "&8» &7An error occurred while deleting region &f{name}&7!"
+  region_no_regions: "&8» &7There are no defined regions!"
+  region_list_header: "&8» &7Regions list &8(&f{count}&8):"
+  region_list_item: "&8- &f{name}"
+
+  # Zaczarowania messages
+  zaczarowania_no_item: "&8» &cYou don't have an Enchantment item in your inventory!"
+  zaczarowania_select_first: "&8» &cFirst select an item to enchant!"
+  zaczarowania_cant_enchant_enchanter: "&8» &cYou can't enchant an Enchantment item!"
+  zaczarowania_item_selected: "&8» &aItem selected for enchanting."
+  zaczarowania_bonus_generated: "&8» &aGenerated {color}{percent}% &aadditional damage!"
+  zaczarowania_item_consumed: "&8» &7Used &3Enchantment &7item."
+
+  # Custom Hit messages
+  customhit_usage_set: "&8[&x&B&3&0&0&F&F🪓&8] &7Usage: &f/stormitemy &x&D&0&6&0&F&Fcustomhit&f set <&x&D&0&6&0&F&Fmultiplier&f>"
+  customhit_invalid_range: "&8[&x&B&3&0&0&F&F🪓&8] &cMultiplier must be between &x&D&0&6&0&F&F0.1&c and &x&D&0&6&0&F&F10.0&c!"
+  customhit_set_success: "&8[&x&B&3&0&0&F&F🪓&8] &aDamage &x&D&0&6&0&F&Fmultiplier&a set to: &f{MULTIPLIER}"
+  customhit_invalid_number: "&8[&x&B&3&0&0&F&F🪓&8] &cProvided value is not a valid &x&D&0&6&0&F&Fnumber&c!"
+  customhit_info: "&8[&x&B&3&0&0&F&F🪓&8] &7Current damage &x&D&0&6&0&F&Fmultiplier&7: &f{MULTIPLIER}"
+  customhit_help_header: "&8[&x&B&3&0&0&F&F🪓&8] &7&x&D&0&6&0&F&FCustom Hit&7 Commands:"
+  customhit_help_set: "&f/stormitemy &x&D&0&6&0&F&Fcustomhit&f set <&x&D&0&6&0&F&Fmultiplier&f> &8- &7Set damage &x&D&0&6&0&F&Fmultiplier&7 (0.1-10.0)"
+  customhit_help_info: "&f/stormitemy &x&D&0&6&0&F&Fcustomhit&f info &8- &7Display current &x&D&0&6&0&F&Fmultiplier&7"
+  
+  # Complex message examples
+  # These messages show how to use the new system
+  
+  # Example 1: Message with title and subtitle
+  example_title_message:
+    chat: "&8» &7You received a &fspecial item&7!"
+    title: "&#08FB0D&lITEM"
+    subtitle: "&7Congratulations!"
+    fade-in: 10
+    stay: 50
+    fade-out: 10
+  
+  # Example 2: Actionbar only message
+  example_actionbar_only:
+    actionbar: "&7Cooldown: &f5s"
+  
+  # Example 3: Full message (chat + title + subtitle + actionbar)
+  example_full_message:
+    chat: "&8» &7Successfully &fequipped&7 item!"
+    title: "&#08FB0D&lSUCCESS"
+    subtitle: "&7Item has been activated!"
+    actionbar: "&7Status: &#08FB0DActive"
+    fade-in: 10
+    stay: 70
+    fade-out: 20
+  
+  # Example 4: Message with placeholders
+  example_with_placeholders:
+    chat: "&8» &7Player &f{player} &7received item &f{item}&7!"
+    title: "&#08FB0D{item}"
+    subtitle: "&7for player &f{player}"
+    actionbar: "&7Item: &#08FB0D{item}"
+    fade-in: 5
+    stay: 40
+    fade-out: 10
