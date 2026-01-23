@@ -1,0 +1,50 @@
+# === Konfiguracja przedmiotu 'Zatruty ołówek' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Zatruty ołówek'.
+
+zatrutyolowek:
+  material: LIME_CANDLE
+  name: '&a&lZatruty ołówek'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot zdobyty z'
+  - '&8 » &fwydarzenia szkolnego 2024&7!'
+  - '&r'
+  - '&8 » &7Po uderzeniu przeciwnika'
+  - '&8 » &7otrzymuje on &ctrujący efekt&7!'
+  - '&r'
+  customModelData: 14
+  cooldown: 60
+  enchantments:
+  - DAMAGE_ALL:2
+  - KNOCKBACK:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  - HIDE_UNBREAKABLE
+  unbreakable: true
+  effects:
+  - particles: false
+    duration: 30
+    ambient: false
+    type: POISON
+    amplifier: 1
+  - particles: false
+    duration: 30
+    ambient: false
+    type: WEAKNESS
+    amplifier: 1
+  messages:
+    hitter:
+      title: '&a&lZATRUTY OŁÓWEK'
+      subtitle: '&7Zatrułeś gracza &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&a&lZATRUTY OŁÓWEK'
+      subtitle: '&7Zostałeś zatruty przez &f{HITTER}&7!'
+      chatMessage: ''
+  sounds:
+    hit:
+      enabled: true
+      sound: ENTITY_SPLASH_POTION_BREAK
+      volume: 1.0
+      pitch: 0.8

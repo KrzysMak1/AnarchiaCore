@@ -1,0 +1,39 @@
+# === Konfiguracja przedmiotu 'Piernik' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Piernik'.
+
+piernik:
+  material: COOKIE
+  name: '&6&lPiernik'
+  lore:
+  - ''
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu świątecznego (2024)'
+  - ''
+  - '&8 » &7Po zjedzeniu &epiernika &7otrzymujesz'
+  - '&8 » &7efekt &aszybkości kopania 10&7!'
+  - ''
+  customModelData: 346521
+  cooldown: 70
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: true
+  effects:
+  - amplifier: 9
+    type: FAST_DIGGING
+    duration: 200
+  messages:
+    consumer:
+      title: '&6&lPIERNIK'
+      subtitle: '&7Zjadłeś &fpiernik&7!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

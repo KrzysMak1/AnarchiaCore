@@ -1,0 +1,35 @@
+# === Konfiguracja przedmiotu 'Krew wampira' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Krew wampira'.
+
+krewwampira:
+  material: BEETROOT_SOUP
+  name: '&c&lKrew wampira'
+  lore:
+  - '&r'
+  - '&8 » &7Jest to przedmiot z:'
+  - '&8 » &feventu halloween (2023)'
+  - '&r'
+  - '&8 » &7Po kliknięciu uleczy Cię'
+  - '&8 » &7do &cpełnego HP&7!'
+  - '&r'
+  customModelData: 1
+  enchantments:
+  - DURABILITY:1
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_UNBREAKABLE
+  - HIDE_ATTRIBUTES
+  unbreakable: false
+  cooldown: 80
+  messages:
+    consumer:
+      title: '&c&lKREW WAMPIRA'
+      subtitle: '&7Zostałeś &fuleczony&7!'
+      chatMessage: ''
+    cooldown: ''
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0

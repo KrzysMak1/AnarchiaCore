@@ -1,0 +1,42 @@
+# === Konfiguracja przedmiotu 'Kostka rubika' ===
+# Opis: Plik konfiguracyjny określa właściwości przedmiotu eventowego 'Kostka rubika'.
+# Dostępne zmienne (placeholdery):
+#   {TIME}    - pozostały czas cooldownu (w sekundach)
+#   {TARGET}  - nazwa gracza trafionego
+#   {SHOOTER} - nazwa gracza używającego przedmiotu
+
+kostkarubika:
+  material: PLAYER_HEAD
+  value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODUxM2YwZjFkYzA2MzJkYjhmYzFjMjc5MmE2NjI5ZTA5ZDQ3YzdiMTJjNjM4MjRhNzVjOTRiZjRjZDdlODFkYyJ9fX0=
+  name: '&e&lKostka rubika'
+  lore:
+  - '&r'
+  - '&8 » &7Kostka rubika była do zdobycia'
+  - '&8 » &7w &f2024 roku&7 podczas &adnia dziecka&7.'
+  - '&r'
+  - '&8 » &7Uderz gracza, aby jego ekwipunek'
+  - '&8 » &7został &fprzemieszany&7!'
+  - '&r'
+  cooldown: 60
+  unbreakable: false
+  flags:
+  - HIDE_ENCHANTS
+  - HIDE_ATTRIBUTES
+  - HIDE_UNBREAKABLE
+  enchantments:
+  - {}
+  messages:
+    shooter:
+      title: '&e&lKOSTKA RUBIKA'
+      subtitle: '&7Przemieszałeś ekwipunek gracza &f{TARGET}&7!'
+      chatMessage: ''
+    target:
+      title: '&e&lKOSTKA RUBIKA'
+      subtitle: '&f{SHOOTER}&7 przemiszał Ci ekwipunek!'
+      chatMessage: ''
+  sounds:
+    enabled: false
+    activation:
+      sound: ''
+      volume: 1.0
+      pitch: 1.0
