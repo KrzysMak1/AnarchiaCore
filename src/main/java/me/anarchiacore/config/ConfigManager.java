@@ -95,7 +95,7 @@ public class ConfigManager {
 
     private Map<String, ConfigurationSection> loadEventItems() {
         Map<String, ConfigurationSection> sections = new LinkedHashMap<>();
-        File itemsDir = new File(plugin.getDataFolder(), "configs/STORMITEMY/items");
+        File itemsDir = new File(plugin.getDataFolder(), "custom-items");
         if (!itemsDir.exists() || !itemsDir.isDirectory()) {
             return sections;
         }

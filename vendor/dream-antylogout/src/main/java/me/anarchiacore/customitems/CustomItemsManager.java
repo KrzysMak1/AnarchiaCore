@@ -215,7 +215,7 @@ public class CustomItemsManager implements Listener {
 
     private boolean placeTurboTrap(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
         Location base = player.getLocation().getBlock().getLocation();
-        String schematic = "configs/STORMITEMY/trapanarchia.schem";
+        String schematic = "custom-items/trapanarchia.schem";
         if (!placeStructureFromSchematic(schematic, base)) {
             messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
             return false;

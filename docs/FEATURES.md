@@ -142,11 +142,11 @@ Wszystkie klucze z `message.yml` (komendy, błędy, statusy, komunikaty) muszą 
   * `zaczarowania.*` (item, menu, effects, probability)  
   * `actionbar.*` (włącz/wyłącz, separator, formaty, kolory, display_names)
 * `lang/POL.yml` i `lang/ENG.yml`  
-* `items/*.yml` (pełne definicje eventówek — wszystkie klucze, cooldowny, efekty, regiony, wiadomości)  
+* `custom-items/*.yml` (pełne definicje eventówek — wszystkie klucze, cooldowny, efekty, regiony, wiadomości)  
 * `books/*.yml` (definicje ksiąg i efektów)  
 * `regions.yml`, `texturepack_preferences.yml`  
 * `data.yml`, `data.db` (dane pluginu)  
-* schematy: `trapanarchia.schem`, `turbodomek.schem`
+* schematy: `custom-items/trapanarchia.schem`, `custom-items/turbodomek.schem`
 
 ---
 
@@ -165,12 +165,12 @@ Wszystkie klucze z `message.yml` (komendy, błędy, statusy, komunikaty) muszą 
   * `config.yml`  
   * `lang/ENG.yml`  
   * `lang/POL.yml`  
-  * `items/*.yml`  
+  * `items/*.yml` (kopiowane do `custom-items/*.yml`)  
   * `books/*.yml`  
   * `regions.yml`  
   * `texturepack_preferences.yml`  
   * `data.yml`, `data.db`  
-  * schematy: `trapanarchia.schem`, `turbodomek.schem`
+  * schematy: `trapanarchia.schem`, `turbodomek.schem` (kopiowane do `custom-items/`)
 
 ### Parzystość konfiguracji
-Wszystkie pliki z powyższych ZIP-ów są zachowane 1:1 i rozpakowywane do katalogu danych pluginu (`plugins/AnarchiaCore/configs/...`), aby rdzeń mógł je czytać bez utraty struktury lub wartości.
+Wszystkie pliki z powyższych ZIP-ów są zachowane 1:1 i rozpakowywane do katalogu danych pluginu (`plugins/AnarchiaCore/configs/...`), a pliki eventowych itemów oraz schematy z paczki STORMITEMY są kopiowane do `plugins/AnarchiaCore/custom-items/`, aby rdzeń mógł je czytać bez utraty struktury lub wartości.
