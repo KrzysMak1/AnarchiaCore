@@ -25,6 +25,8 @@ import java.util.stream.Stream;
 public class StormItemyConfigInstaller {
     private static final String RESOURCE_ROOT = "stormitemy/";
     private static final String TARGET_ROOT = "configs/STORMITEMY";
+    private static final String ITEM_TARGET_ROOT = "custom-items";
+    private static final String ITEMS_PREFIX = "items/";
     private static final String TRAP_SCHEM_BASE64 = "H4sIAAAAAAAAA5yTTW/TQBCGZ73xZxQJ8QM4wDUH4ISQcgARBFKrFiERaISqtT22V3V2o/VU4cQP5kdQdmNTO41Ea2yPvfP49ey7H04g/pxVuBEkMw7Td4LEFzSN1ApgFnMIbzPwPPBXMqcKuAfBB5RlRTCzzRNUpaXBFIKzomiQrJjb+GnjxMaTBKJTJJHb4hzi1bJVfb2xxyD/die/sOlv6+n9m9Wyd+FKJ+eiRiI8FT9sHicQdoDDbCMVZkYU9FpI08of90ynjcylcIUYh0f9i0ynO0zdKDk86/GukoSXqVAKzdpostOk1eLFy++uMIdPg8ri6rJAleEaRUMLMtc4V9pQ1TYbfW2bhagbnO8Eoal1WWL+l2D3ias74fD0PgfPndB/oIG2j9bBHt9jIHiAgVdOGHK4ODRARmxzrc26EJlU5cLVnVeiLhapJtKbud6i6vrc6h2a3sFdT66DCEKI39Y6u3Ib04JfbkUZMGYDusM2PcY4s/cO2ueEMZ+x4JDwAWlhOEhbwo+I/1+a/dldtwQONdERYT2JYbYf+VKRJIlN4uZjCvxcN93/xbrwIvA+5sPd3K4WHKm9UWo+Sj0ZpfZHqYNR6nCUOvqXOoZoOP8AfwAAAP//AwCt18hRMAUAAA==";
     private static final String DOM_SCHEM_BASE64 = "H4sIAAAAAAAAA3SPT0vEMBDFXxt2u0npzU8jXhQrgi4KgnW9yNBNt6HdVNo5+OnVSSsbPTiQP+/3XoaJgX6qW3skdrVCfk1Mz3ac3OCBQitkJ4U0xapye26xSrG+te7QMpRc760/BJpj/dA0k2UJqy8pOS9k7Qw2W8u0l+YKuiqX1IskPn/pHcK7qF8XP7+5rMo4RYiYR+ots93SR5jLIPsBCsXReVuP1PA5uXGJn0U2UPf23pPvJnESZNBX/VB34dsC7pAkiWCx4jaz/425TpHINIq5denZsbOTWeDmj8Y3AAAA//8DAGIlyjt/AQAA";
 
@@ -36,10 +38,11 @@ public class StormItemyConfigInstaller {
 
     public int installMissing() {
         File targetRoot = new File(plugin.getDataFolder(), TARGET_ROOT);
+        File itemsRoot = new File(plugin.getDataFolder(), ITEM_TARGET_ROOT);
         List<String> resources = listResourcePaths();
         int copied = 0;
         for (String relativePath : resources) {
-            File target = new File(targetRoot, relativePath);
+            File target = resolveTarget(targetRoot, itemsRoot, relativePath);
             if (target.exists()) {
                 continue;
             }
@@ -61,8 +64,8 @@ public class StormItemyConfigInstaller {
             }
         }
         ensureDatabaseFile(targetRoot);
-        ensureSchematicFiles(targetRoot);
-        validateInstallation(targetRoot, resources);
+        ensureSchematicFiles(itemsRoot);
+        validateInstallation(targetRoot, itemsRoot, resources);
         return copied;
     }
 
@@ -106,25 +109,31 @@ public class StormItemyConfigInstaller {
         }
     }
 
-    private void validateInstallation(File targetRoot, List<String> resources) {
+    private void validateInstallation(File targetRoot, File itemsRoot, List<String> resources) {
         List<String> missingFiles = new ArrayList<>();
         for (String resource : resources) {
-            if (!new File(targetRoot, resource).exists()) {
+            File target = resolveTarget(targetRoot, itemsRoot, resource);
+            if (!target.exists()) {
                 missingFiles.add(resource);
             }
         }
         int total = resources.size();
         int done = total - missingFiles.size();
-        plugin.getLogger().info("StormItemy configs installed: " + done + "/" + total);
+        plugin.getLogger().info("StormItemy configs installed: " + done + "/" + total
+            + " (configs: " + targetRoot.getAbsolutePath() + ", items: " + itemsRoot.getAbsolutePath() + ")");
         if (done < total) {
             plugin.getLogger().severe("Brakuje plików StormItemy: " + String.join(", ", missingFiles));
         }
         if (!hasAnyFile(targetRoot)) {
             plugin.getLogger().severe("Folder StormItemy jest pusty: " + targetRoot.getAbsolutePath());
         }
-        List<String> missingEvents = validateEventConfigs(targetRoot);
+        if (!hasAnyFile(itemsRoot)) {
+            plugin.getLogger().severe("Folder eventowych itemów StormItemy jest pusty: " + itemsRoot.getAbsolutePath());
+        }
+        List<String> missingEvents = validateEventConfigs(itemsRoot);
         if (!missingEvents.isEmpty()) {
-            plugin.getLogger().severe("Brakuje konfiguracji eventów StormItemy: " + String.join(", ", missingEvents));
+            plugin.getLogger().severe("Brakuje konfiguracji eventów StormItemy w "
+                + itemsRoot.getAbsolutePath() + ": " + String.join(", ", missingEvents));
         }
     }
 
@@ -142,10 +151,10 @@ public class StormItemyConfigInstaller {
 
     private List<String> validateEventConfigs(File targetRoot) {
         Map<String, EventCheck> checks = new LinkedHashMap<>();
-        checks.put("Bombarda Maxima", new EventCheck("items/bombardamaxima.yml", List.of("bombarda maxima", "bombarda")));
-        checks.put("Turbo Trap", new EventCheck("items/turbotrap.yml", List.of("turbo-trap", "turbotrap", "turbo trap")));
-        checks.put("Dynamit", new EventCheck("items/dynamit.yml", List.of("dynamit")));
-        checks.put("Totem Ułaskawienia", new EventCheck("items/totemulaskawienia.yml", List.of("totem ułaskawienia", "totem ulaskawienia")));
+        checks.put("Bombarda Maxima", new EventCheck("bombardamaxima.yml", List.of("bombarda maxima", "bombarda")));
+        checks.put("Turbo Trap", new EventCheck("turbotrap.yml", List.of("turbo-trap", "turbotrap", "turbo trap")));
+        checks.put("Dynamit", new EventCheck("dynamit.yml", List.of("dynamit")));
+        checks.put("Totem Ułaskawienia", new EventCheck("totemulaskawienia.yml", List.of("totem ułaskawienia", "totem ulaskawienia")));
 
         List<Path> ymlFiles = new ArrayList<>();
         if (targetRoot.exists()) {
@@ -255,5 +264,13 @@ public class StormItemyConfigInstaller {
 
     private boolean isBinaryResource(String relativePath) {
         return relativePath.endsWith("data.db") || relativePath.endsWith(".schem");
+    }
+
+    private File resolveTarget(File configRoot, File itemsRoot, String relativePath) {
+        if (relativePath.startsWith(ITEMS_PREFIX)) {
+            String trimmed = relativePath.substring(ITEMS_PREFIX.length());
+            return new File(itemsRoot, trimmed);
+        }
+        return new File(configRoot, relativePath);
     }
 }
