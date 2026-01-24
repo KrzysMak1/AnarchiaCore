@@ -63,7 +63,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         customItemsManager = new CustomItemsManager(this, configManager, messageService);
         File combatLogConfig = new File(getDataFolder(), "configs/Dream-AntyLogout/config.yml");
         File combatLogMessage = new File(getDataFolder(), "configs/Dream-AntyLogout/message.yml");
-        combatLogManager = new CombatLogManager(this, combatLogConfig, combatLogMessage);
+        combatLogManager = new CombatLogManager(this, combatLogConfig, combatLogMessage, configManager.getPrefix());
 
         stormItemyConfigInstaller = new StormItemyConfigInstaller(this);
         stormItemyConfigInstaller.installMissing();
@@ -151,6 +151,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         dataStore.reload();
         if (combatLogManager != null) {
             combatLogManager.reload();
+            combatLogManager.updatePrefix(configManager.getPrefix());
         }
         if (stormItemyConfigInstaller != null) {
             stormItemyConfigInstaller.installMissing();

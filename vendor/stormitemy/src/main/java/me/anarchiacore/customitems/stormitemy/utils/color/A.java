@@ -25,7 +25,7 @@ public class A {
     private static final String B = "c3Rvcm1jb2Rl";
 
     public static String C(String string) {
-        return MiniMessageUtil.parseLegacy(string);
+        return MiniMessageUtil.serializeLegacy(MiniMessageUtil.parseComponent(string));
     }
 
     public static List<String> A(List<String> list) {
