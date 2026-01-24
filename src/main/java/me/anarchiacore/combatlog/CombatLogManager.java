@@ -60,12 +60,13 @@ public class CombatLogManager implements Listener {
     private final Map<UUID, Component> originalPlayerListNames = new HashMap<>();
     private BukkitTask task;
 
-    public CombatLogManager(JavaPlugin plugin, File configFile, File messageFile) {
+    public CombatLogManager(JavaPlugin plugin, File configFile, File messageFile, String prefix) {
         this.plugin = plugin;
         this.storage = new CombatLogStorage(plugin);
         this.config = new CombatLogConfig(plugin, configFile);
         this.messageConfig = new CombatLogMessageConfig(messageFile);
         this.messageService = new CombatLogMessageService(messageConfig);
+        this.messageService.setPrefix(prefix);
         reload();
     }
 
@@ -93,6 +94,10 @@ public class CombatLogManager implements Listener {
         storage.reload();
         regionService = new CombatLogRegionService(config, plugin);
         regionService.load();
+    }
+
+    public void updatePrefix(String prefix) {
+        messageService.setPrefix(prefix);
     }
 
     public boolean handleCommand(CommandSender sender, String[] args) {

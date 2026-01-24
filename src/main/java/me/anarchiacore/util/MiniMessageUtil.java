@@ -47,7 +47,7 @@ public final class MiniMessageUtil {
     }
 
     public static String parseLegacy(String raw, Map<String, String> placeholders) {
-        return LEGACY_SECTION.serialize(parseComponent(raw, placeholders));
+        return serializeLegacy(parseComponent(raw, placeholders));
     }
 
     public static String parseLegacy(String raw) {
@@ -59,6 +59,13 @@ public final class MiniMessageUtil {
             return "";
         }
         return MINI_MESSAGE.serialize(component);
+    }
+
+    public static String serializeLegacy(Component component) {
+        if (component == null) {
+            return "";
+        }
+        return LEGACY_SECTION.serialize(component);
     }
 
     private static String normalizeLegacyHex(String input) {
