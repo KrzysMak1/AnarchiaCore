@@ -37,13 +37,16 @@
 package me.anarchiacore.customitems.stormitemy;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
 import org.bukkit.Bukkit;
@@ -52,6 +55,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.TabExecutor;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -89,9 +93,11 @@ import me.anarchiacore.customitems.stormitemy.zaczarowania.C;
 public class Main
 implements Plugin, TabExecutor, Listener {
     private static final String C = "c3Rvcm1jb2Rl";
+    private static final String CUSTOM_GUI_ITEMS_PATH = "configs/STORMITEMY/gui-custom-items.yml";
     private final JavaPlugin plugin;
     private me.anarchiacore.customitems.stormitemy.core.B E;
     private final Map<String, Object> B = new HashMap();
+    private final Map<String, ItemStack> customGuiItems = new LinkedHashMap();
     private String D;
     private volatile boolean F = false;
     private final Object A = new Object();
@@ -105,6 +111,7 @@ implements Plugin, TabExecutor, Listener {
         Bukkit.getConsoleSender().sendMessage("\u00a78[\u00a72StormItemy\u00a78] \u00a77Plugin \u00a7fStormItemy \u00a77plugin \u00a7aw\u0142\u0105czony\u00a77! Wersja: \u00a7f" + this.D);
         this.E = new me.anarchiacore.customitems.stormitemy.core.B(this);
         this.E.K();
+        this.loadCustomGuiItems();
         this.B();
     }
 
@@ -288,6 +295,73 @@ implements Plugin, TabExecutor, Listener {
             catch (Exception exception) {}
         }
         return arrayList;
+    }
+
+    public boolean addCustomGuiItem(String string, ItemStack itemStack) {
+        if (string == null || string.isBlank() || itemStack == null) {
+            return false;
+        }
+        String string2 = string.trim().toLowerCase(Locale.ROOT);
+        return this.registerCustomGuiItem(string2, itemStack, true);
+    }
+
+    private void loadCustomGuiItems() {
+        File file = this.getCustomGuiItemsFile();
+        if (!file.exists()) {
+            return;
+        }
+        FileConfiguration fileConfiguration = YamlConfiguration.loadConfiguration((File)file);
+        ConfigurationSection configurationSection = fileConfiguration.getConfigurationSection("items");
+        if (configurationSection == null) {
+            return;
+        }
+        for (String string : configurationSection.getKeys(false)) {
+            ItemStack itemStack = configurationSection.getItemStack(string);
+            if (itemStack == null) continue;
+            if (this.registerCustomGuiItem(string, itemStack, false)) continue;
+            this.getLogger().warning("Nie uda\u0142o si\u0119 doda\u0107 przedmiotu GUI: " + string + " (konflikt ID).");
+        }
+    }
+
+    private boolean registerCustomGuiItem(String string, ItemStack itemStack, boolean bl) {
+        if (string == null || string.isBlank()) {
+            return false;
+        }
+        String string2 = string.trim().toLowerCase(Locale.ROOT);
+        if (ItemRegistry.isRegistered(string2) || this.B.containsKey((Object)string2) || this.customGuiItems.containsKey((Object)string2)) {
+            return false;
+        }
+        ItemStack itemStack2 = itemStack.clone();
+        this.customGuiItems.put(string2, itemStack2);
+        this.B.put(string2, itemStack2);
+        ItemRegistry.register(string2, () -> itemStack2.clone());
+        if (bl) {
+            this.saveCustomGuiItems();
+        }
+        return true;
+    }
+
+    private void saveCustomGuiItems() {
+        File file = this.getCustomGuiItemsFile();
+        File file2 = file.getParentFile();
+        if (file2 != null && !file2.exists() && !file2.mkdirs()) {
+            this.getLogger().warning("Nie uda\u0142o si\u0119 utworzy\u0107 katalogu: " + file2.getAbsolutePath());
+            return;
+        }
+        YamlConfiguration yamlConfiguration = new YamlConfiguration();
+        for (Map.Entry<String, ItemStack> entry : this.customGuiItems.entrySet()) {
+            yamlConfiguration.set("items." + entry.getKey(), (Object)entry.getValue());
+        }
+        try {
+            yamlConfiguration.save(file);
+        }
+        catch (IOException iOException) {
+            this.getLogger().warning("Nie uda\u0142o si\u0119 zapisa\u0107 listy przedmiot\u00f3w GUI: " + iOException.getMessage());
+        }
+    }
+
+    private File getCustomGuiItemsFile() {
+        return new File(this.getDataFolder(), CUSTOM_GUI_ITEMS_PATH);
     }
 
     public List<String> onTabComplete(CommandSender commandSender, Command command, String string, String[] stringArray) {
