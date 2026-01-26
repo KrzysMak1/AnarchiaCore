@@ -36,6 +36,25 @@ public class StormItemyConfigInstaller {
         this.plugin = plugin;
     }
 
+    public boolean isResourceSourceDirectory() {
+        URL codeSource = plugin.getClass().getProtectionDomain().getCodeSource().getLocation();
+        if (codeSource == null) {
+            return false;
+        }
+        try {
+            Path basePath = Paths.get(codeSource.toURI());
+            return Files.isDirectory(basePath);
+        } catch (URISyntaxException e) {
+            plugin.getLogger().warning("Nie można odczytać ścieżki zasobów StormItemy: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public int getMissingEventConfigCount() {
+        File itemsRoot = new File(plugin.getDataFolder(), ITEM_TARGET_ROOT);
+        return validateEventConfigs(itemsRoot).size();
+    }
+
     public int installMissing() {
         File targetRoot = new File(plugin.getDataFolder(), TARGET_ROOT);
         File itemsRoot = new File(plugin.getDataFolder(), ITEM_TARGET_ROOT);
