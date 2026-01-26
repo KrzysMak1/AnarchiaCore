@@ -1,6 +1,7 @@
 package me.anarchiacore.storage;
 
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -60,5 +61,21 @@ public class DataStore {
 
     public void clearSpawnOnJoin(UUID uuid) {
         config.set("players." + uuid + ".spawnOnJoin", null);
+    }
+
+    public void setValue(String path, Object value) {
+        config.set(path, value);
+    }
+
+    public Object getValue(String path) {
+        return config.get(path);
+    }
+
+    public long getLong(String path, long defaultValue) {
+        return config.getLong(path, defaultValue);
+    }
+
+    public ConfigurationSection getSection(String path) {
+        return config.getConfigurationSection(path);
     }
 }

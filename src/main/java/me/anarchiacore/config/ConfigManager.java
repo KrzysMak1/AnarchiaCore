@@ -3,6 +3,7 @@ package me.anarchiacore.config;
 import me.anarchiacore.customitems.CustomItemDefinition;
 import me.anarchiacore.customitems.CustomItemsConfig;
 import me.anarchiacore.hearts.AnarchiczneSerceDefinition;
+import me.anarchiacore.stats.MissingIpPolicy;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -24,6 +25,11 @@ public class ConfigManager {
     private String trashClearedMessage;
     private AnarchiczneSerceDefinition serceDefinition;
     private CustomItemsConfig customItemsConfig;
+    private int statsTopCacheSeconds;
+    private int statsTopLimit;
+    private int killCreditCooldownSeconds;
+    private boolean killCreditIgnoreSameIp;
+    private MissingIpPolicy killCreditOnMissingIp;
 
     public ConfigManager(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -65,6 +71,7 @@ public class ConfigManager {
         trashClearedMessage = plugin.getConfig().getString("trash.clearMessage");
         serceDefinition = loadSerceDefinition();
         customItemsConfig = loadCustomItems();
+        loadStatsSettings();
     }
 
     private AnarchiczneSerceDefinition loadSerceDefinition() {
@@ -101,6 +108,31 @@ public class ConfigManager {
         ConfigurationSection section = plugin.getConfig().getConfigurationSection("customItems");
         Map<String, ConfigurationSection> eventItemSections = loadEventItems();
         return new CustomItemsConfig(section, eventItemSections);
+    }
+
+    private void loadStatsSettings() {
+        ConfigurationSection statsSection = plugin.getConfig().getConfigurationSection("stats");
+        if (statsSection == null) {
+            statsTopCacheSeconds = 60;
+            statsTopLimit = 10;
+            killCreditCooldownSeconds = 30;
+            killCreditIgnoreSameIp = true;
+            killCreditOnMissingIp = MissingIpPolicy.ALLOW;
+            return;
+        }
+        statsTopCacheSeconds = statsSection.getInt("topCacheSeconds", 60);
+        statsTopLimit = statsSection.getInt("topLimit", 10);
+        ConfigurationSection killCreditSection = statsSection.getConfigurationSection("killCredit");
+        if (killCreditSection == null) {
+            killCreditCooldownSeconds = 30;
+            killCreditIgnoreSameIp = true;
+            killCreditOnMissingIp = MissingIpPolicy.ALLOW;
+            return;
+        }
+        killCreditCooldownSeconds = killCreditSection.getInt("cooldownSeconds", 30);
+        killCreditIgnoreSameIp = killCreditSection.getBoolean("ignoreSameIp", true);
+        String onMissingIp = killCreditSection.getString("onMissingIp", "allow");
+        killCreditOnMissingIp = MissingIpPolicy.fromString(onMissingIp, MissingIpPolicy.ALLOW);
     }
 
     private Map<String, ConfigurationSection> loadEventItems() {
@@ -173,5 +205,25 @@ public class ConfigManager {
 
     public CustomItemsConfig getCustomItemsConfig() {
         return customItemsConfig;
+    }
+
+    public int getStatsTopCacheSeconds() {
+        return statsTopCacheSeconds;
+    }
+
+    public int getStatsTopLimit() {
+        return statsTopLimit;
+    }
+
+    public int getKillCreditCooldownSeconds() {
+        return killCreditCooldownSeconds;
+    }
+
+    public boolean isKillCreditIgnoreSameIp() {
+        return killCreditIgnoreSameIp;
+    }
+
+    public MissingIpPolicy getKillCreditOnMissingIp() {
+        return killCreditOnMissingIp;
     }
 }
