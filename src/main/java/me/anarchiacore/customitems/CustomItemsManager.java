@@ -25,12 +25,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +39,10 @@ public class CustomItemsManager implements Listener {
     private final NamespacedKey itemKey;
     private final NamespacedKey bombardaProjectileKey;
     private final WorldGuardIntegration worldGuardIntegration;
+    private final SchematicService schematicService;
     private final Map<UUID, Map<String, Long>> cooldowns = new ConcurrentHashMap<>();
+    private final Map<String, Set<String>> cachedNoPlaceRegions = new ConcurrentHashMap<>();
+    private final Map<String, Set<String>> cachedNoDestroyRegions = new ConcurrentHashMap<>();
 
     public CustomItemsManager(Plugin plugin, ConfigManager configManager, MessageService messageService) {
         this.plugin = plugin;
@@ -53,6 +51,7 @@ public class CustomItemsManager implements Listener {
         this.itemKey = new NamespacedKey(plugin, "custom_item");
         this.bombardaProjectileKey = new NamespacedKey(plugin, "bombarda_maxima_projectile");
         this.worldGuardIntegration = new WorldGuardIntegration(plugin);
+        this.schematicService = new SchematicService(plugin);
     }
 
     public ItemStack createItem(String id) {
@@ -81,6 +80,9 @@ public class CustomItemsManager implements Listener {
 
     public void reload() {
         cooldowns.clear();
+        cachedNoPlaceRegions.clear();
+        cachedNoDestroyRegions.clear();
+        schematicService.clear();
     }
 
     public boolean isCustomItem(ItemStack item, String id) {
@@ -117,9 +119,9 @@ public class CustomItemsManager implements Listener {
             return;
         }
         event.setCancelled(true);
-        boolean explosive = normalized.equals("bombardamaxima") || normalized.equals("dynamit");
+        boolean explosive = isExplosiveItem(normalized);
         if (!eventItem.noPlaceRegions().isEmpty()
-                && worldGuardIntegration.isInRegions(event.getPlayer().getLocation(), new HashSet<>(eventItem.noPlaceRegions()))) {
+                && worldGuardIntegration.isInRegions(event.getPlayer().getLocation(), getCachedRegions(eventItem.id(), eventItem.noPlaceRegions(), cachedNoPlaceRegions))) {
             messageService.send(event.getPlayer(), plugin.getConfig().getString("messages.customItems.regionBlocked"));
             return;
         }
@@ -130,24 +132,25 @@ public class CustomItemsManager implements Listener {
             sendCooldownMessage(event.getPlayer(), eventItem);
             return;
         }
-        if (normalized.equals("bombardamaxima")) {
-            launchBombarda(event.getPlayer(), eventItem);
-            sendConsumerMessage(event.getPlayer(), eventItem);
-            consumeItem(event.getPlayer(), item);
-            return;
-        }
-        if (normalized.equals("turbotrap")) {
-            if (placeTurboTrap(event.getPlayer(), eventItem)) {
+        switch (normalized) {
+            case "bombardamaxima" -> {
+                launchBombarda(event.getPlayer(), eventItem);
                 sendConsumerMessage(event.getPlayer(), eventItem);
                 consumeItem(event.getPlayer(), item);
             }
-            return;
-        }
-        if (normalized.equals("dynamit")) {
-            spawnDynamite(event.getPlayer(), eventItem);
-            sendConsumerMessage(event.getPlayer(), eventItem);
-            consumeItem(event.getPlayer(), item);
-            return;
+            case "turbotrap" -> {
+                if (placeTurboTrap(event.getPlayer(), eventItem)) {
+                    sendConsumerMessage(event.getPlayer(), eventItem);
+                    consumeItem(event.getPlayer(), item);
+                }
+            }
+            case "dynamit" -> {
+                spawnDynamite(event.getPlayer(), eventItem);
+                sendConsumerMessage(event.getPlayer(), eventItem);
+                consumeItem(event.getPlayer(), item);
+            }
+            default -> {
+            }
         }
     }
 
@@ -210,7 +213,7 @@ public class CustomItemsManager implements Listener {
             return;
         }
         if (eventItem.preventRegionDestruction()) {
-            Set<String> blocked = new HashSet<>(eventItem.noDestroyRegions());
+            Set<String> blocked = getCachedRegions(eventItem.id(), eventItem.noDestroyRegions(), cachedNoDestroyRegions);
             if (!blocked.isEmpty() && worldGuardIntegration.isInRegions(location, blocked)) {
                 return;
             }
@@ -222,7 +225,7 @@ public class CustomItemsManager implements Listener {
     private boolean placeTurboTrap(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
         Location base = player.getLocation().getBlock().getLocation();
         String schematic = "configs/customitems/trapanarchia.schem";
-        if (!placeStructureFromSchematic(schematic, base)) {
+        if (!schematicService.paste(schematic, base)) {
             messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
             return false;
         }
@@ -249,10 +252,10 @@ public class CustomItemsManager implements Listener {
             return false;
         }
         for (ItemStack item : player.getInventory().getContents()) {
-        if (item != null && isCustomItem(item, "totemulaskawienia")) {
-            item.setAmount(item.getAmount() - 1);
-            return true;
-        }
+            if (item != null && isCustomItem(item, "totemulaskawienia")) {
+                item.setAmount(item.getAmount() - 1);
+                return true;
+            }
         }
         return false;
     }
@@ -272,11 +275,14 @@ public class CustomItemsManager implements Listener {
         if (cooldownSeconds <= 0) {
             return false;
         }
-        Map<String, Long> playerCooldowns = cooldowns.computeIfAbsent(player.getUniqueId(), key -> new HashMap<>());
+        Map<String, Long> playerCooldowns = cooldowns.computeIfAbsent(player.getUniqueId(), key -> new ConcurrentHashMap<>());
         long now = System.currentTimeMillis();
         Long next = playerCooldowns.get(itemId);
         if (next != null && next > now) {
             return true;
+        }
+        if (next != null) {
+            playerCooldowns.remove(itemId);
         }
         playerCooldowns.put(itemId, now + cooldownSeconds * 1000L);
         return false;
@@ -309,94 +315,17 @@ public class CustomItemsManager implements Listener {
         }
     }
 
-    private boolean placeStructureFromSchematic(String path, Location origin) {
-        File schematicFile = new File(plugin.getDataFolder(), path);
-        if (!schematicFile.exists()) {
-            return false;
-        }
-        try {
-            if (!canPasteSchematic(schematicFile, origin)) {
-                return false;
-            }
-            Object schematic = null;
-            try {
-                Class<?> clipboardFormats = Class.forName("com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats");
-                Object format = clipboardFormats.getMethod("findByFile", File.class).invoke(null, schematicFile);
-                if (format == null) {
-                    return false;
-                }
-                try (InputStream inputStream = new FileInputStream(schematicFile)) {
-                    Object reader = format.getClass().getMethod("getReader", InputStream.class).invoke(format, inputStream);
-                    schematic = reader.getClass().getMethod("read").invoke(reader);
-                }
-            } catch (ReflectiveOperationException ex) {
-                plugin.getLogger().warning("Nie można wczytać schematu: " + ex.getMessage());
-                return false;
-            }
-            if (schematic == null) {
-                return false;
-            }
-            Class<?> worldEdit = Class.forName("com.sk89q.worldedit.WorldEdit");
-            Object instance = worldEdit.getMethod("getInstance").invoke(null);
-            Object editSessionFactory = instance.getClass().getMethod("getEditSessionFactory").invoke(instance);
-            Object adaptedWorld = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter").getMethod("adapt", org.bukkit.World.class).invoke(null, origin.getWorld());
-            Object editSession = editSessionFactory.getClass().getMethod("getEditSession", Class.forName("com.sk89q.worldedit.world.World"), int.class).invoke(editSessionFactory, adaptedWorld, -1);
-            Object clipboard = schematic;
-            Object originVector = Class.forName("com.sk89q.worldedit.math.BlockVector3").getMethod("at", int.class, int.class, int.class)
-                    .invoke(null, origin.getBlockX(), origin.getBlockY(), origin.getBlockZ());
-            Object pasteBuilder = clipboard.getClass().getMethod("createPaste", Class.forName("com.sk89q.worldedit.EditSession"))
-                    .invoke(clipboard, editSession);
-            pasteBuilder.getClass().getMethod("to", Class.forName("com.sk89q.worldedit.math.BlockVector3"))
-                    .invoke(pasteBuilder, originVector);
-            pasteBuilder.getClass().getMethod("ignoreAirBlocks", boolean.class).invoke(pasteBuilder, false);
-            Object operation = pasteBuilder.getClass().getMethod("build").invoke(pasteBuilder);
-            Class.forName("com.sk89q.worldedit.function.operation.Operations").getMethod("complete", Class.forName("com.sk89q.worldedit.function.operation.Operation"))
-                    .invoke(null, operation);
-            editSession.getClass().getMethod("close").invoke(editSession);
-            return true;
-        } catch (Exception e) {
-            plugin.getLogger().warning("Nie można postawić struktury: " + e.getMessage());
-            return false;
-        }
+    private boolean isExplosiveItem(String itemId) {
+        return "bombardamaxima".equals(itemId) || "dynamit".equals(itemId);
     }
 
-    private boolean canPasteSchematic(File schematicFile, Location origin) {
-        try {
-            Class<?> clipboardFormats = Class.forName("com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats");
-            Object format = clipboardFormats.getMethod("findByFile", File.class).invoke(null, schematicFile);
-            if (format == null) {
-                return false;
-            }
-            Object clipboard;
-            try (InputStream inputStream = new FileInputStream(schematicFile)) {
-                Object reader = format.getClass().getMethod("getReader", InputStream.class).invoke(format, inputStream);
-                clipboard = reader.getClass().getMethod("read").invoke(reader);
-            }
-            if (clipboard == null) {
-                return false;
-            }
-            Object region = clipboard.getClass().getMethod("getRegion").invoke(clipboard);
-            Object minimum = region.getClass().getMethod("getMinimumPoint").invoke(region);
-            Object maximum = region.getClass().getMethod("getMaximumPoint").invoke(region);
-            int minX = (int) minimum.getClass().getMethod("getBlockX").invoke(minimum);
-            int minY = (int) minimum.getClass().getMethod("getBlockY").invoke(minimum);
-            int minZ = (int) minimum.getClass().getMethod("getBlockZ").invoke(minimum);
-            int maxX = (int) maximum.getClass().getMethod("getBlockX").invoke(maximum);
-            int maxY = (int) maximum.getClass().getMethod("getBlockY").invoke(maximum);
-            int maxZ = (int) maximum.getClass().getMethod("getBlockZ").invoke(maximum);
-            for (int x = minX; x <= maxX; x++) {
-                for (int y = minY; y <= maxY; y++) {
-                    for (int z = minZ; z <= maxZ; z++) {
-                        if (!origin.getWorld().getBlockAt(origin.getBlockX() + x, origin.getBlockY() + y, origin.getBlockZ() + z).isEmpty()) {
-                            return false;
-                        }
-                    }
-                }
-            }
-            return true;
-        } catch (Exception e) {
-            plugin.getLogger().warning("Nie można sprawdzić miejsca schematu: " + e.getMessage());
-            return false;
+    private Set<String> getCachedRegions(String itemId, java.util.List<String> regions, Map<String, Set<String>> cache) {
+        if (regions == null || regions.isEmpty()) {
+            return Set.of();
         }
+        return cache.computeIfAbsent(itemId, key -> regions.stream()
+                .filter(value -> value != null && !value.isBlank())
+                .map(value -> value.toLowerCase(Locale.ROOT))
+                .collect(java.util.stream.Collectors.toSet()));
     }
 }

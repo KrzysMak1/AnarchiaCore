@@ -8,10 +8,10 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class WorldGuardIntegration {
     private final Plugin plugin;
@@ -36,10 +36,12 @@ public class WorldGuardIntegration {
             return RegionResult.NO_RULES;
         }
         int maxPriority = set.getRegions().stream().mapToInt(ProtectedRegion::getPriority).max().orElse(Integer.MIN_VALUE);
-        Set<String> highest = set.getRegions().stream()
-                .filter(region -> region.getPriority() == maxPriority)
-                .map(region -> region.getId().toLowerCase(Locale.ROOT))
-                .collect(Collectors.toSet());
+        Set<String> highest = new HashSet<>();
+        for (ProtectedRegion region : set.getRegions()) {
+            if (region.getPriority() == maxPriority) {
+                highest.add(region.getId().toLowerCase(Locale.ROOT));
+            }
+        }
         if (containsAny(highest, rules.allowAllRegions())) {
             return RegionResult.ALLOW_ALL;
         }
@@ -50,6 +52,9 @@ public class WorldGuardIntegration {
     }
 
     public boolean isInRegions(Location location, Set<String> regionIds) {
+        if (regionIds == null || regionIds.isEmpty()) {
+            return false;
+        }
         if (plugin.getServer().getPluginManager().getPlugin("WorldGuard") == null) {
             return false;
         }
@@ -61,8 +66,8 @@ public class WorldGuardIntegration {
         if (set == null || set.size() == 0) {
             return false;
         }
-        Set<String> normalized = regionIds.stream().map(id -> id.toLowerCase(Locale.ROOT)).collect(Collectors.toSet());
-        return set.getRegions().stream().anyMatch(region -> normalized.contains(region.getId().toLowerCase(Locale.ROOT)));
+        return set.getRegions().stream()
+                .anyMatch(region -> regionIds.contains(region.getId().toLowerCase(Locale.ROOT)));
     }
 
     private boolean containsAny(Set<String> regionIds, List<String> allowed) {
