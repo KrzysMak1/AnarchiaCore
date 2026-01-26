@@ -19,7 +19,6 @@ public class ConfigManager {
     private int maxHearts;
     private String prefix;
     private Set<World.Environment> blockedCrystalEnvironments = new LinkedHashSet<>();
-    private Set<String> blockedCrystalWorldNames = new LinkedHashSet<>();
     private String trashTitle;
     private int trashRows;
     private String trashClearedMessage;
@@ -41,8 +40,11 @@ public class ConfigManager {
         maxHearts = plugin.getConfig().getInt("maxHearts", 40);
         prefix = plugin.getConfig().getString("messages.prefix", "");
         blockedCrystalEnvironments = new LinkedHashSet<>();
-        blockedCrystalWorldNames = new LinkedHashSet<>();
-        for (String envName : plugin.getConfig().getStringList("blockedEndCrystalEnvironments")) {
+        List<String> rawDimensions = plugin.getConfig().getStringList("blockedEndCrystalDimensions");
+        if (rawDimensions.isEmpty()) {
+            rawDimensions = plugin.getConfig().getStringList("blockedEndCrystalEnvironments");
+        }
+        for (String envName : rawDimensions) {
             if (envName == null) {
                 continue;
             }
@@ -53,18 +55,8 @@ public class ConfigManager {
             try {
                 blockedCrystalEnvironments.add(World.Environment.valueOf(token.toUpperCase(Locale.ROOT)));
             } catch (IllegalArgumentException ex) {
-                plugin.getLogger().warning("Unknown environment in blockedEndCrystalEnvironments: " + token);
+                plugin.getLogger().warning("Unknown environment in blockedEndCrystalDimensions: " + token);
             }
-        }
-        for (String worldName : plugin.getConfig().getStringList("blockedEndCrystalWorlds")) {
-            if (worldName == null) {
-                continue;
-            }
-            String token = worldName.trim();
-            if (token.isEmpty()) {
-                continue;
-            }
-            blockedCrystalWorldNames.add(token.toLowerCase(Locale.ROOT));
         }
         trashTitle = plugin.getConfig().getString("trash.title", "Kosz");
         trashRows = plugin.getConfig().getInt("trash.rows", 5);
@@ -117,27 +109,27 @@ public class ConfigManager {
             statsTopLimit = 10;
             killCreditCooldownSeconds = 30;
             killCreditIgnoreSameIp = true;
-            killCreditOnMissingIp = MissingIpPolicy.ALLOW;
+            killCreditOnMissingIp = MissingIpPolicy.COUNT;
             return;
         }
         statsTopCacheSeconds = statsSection.getInt("topCacheSeconds", 60);
-        statsTopLimit = statsSection.getInt("topLimit", 10);
+        statsTopLimit = Math.max(10, statsSection.getInt("topLimit", 10));
         ConfigurationSection killCreditSection = statsSection.getConfigurationSection("killCredit");
         if (killCreditSection == null) {
             killCreditCooldownSeconds = 30;
             killCreditIgnoreSameIp = true;
-            killCreditOnMissingIp = MissingIpPolicy.ALLOW;
+            killCreditOnMissingIp = MissingIpPolicy.COUNT;
             return;
         }
-        killCreditCooldownSeconds = killCreditSection.getInt("cooldownSeconds", 30);
+        killCreditCooldownSeconds = killCreditSection.getInt("sameVictimCooldownSeconds", 30);
         killCreditIgnoreSameIp = killCreditSection.getBoolean("ignoreSameIp", true);
-        String onMissingIp = killCreditSection.getString("onMissingIp", "allow");
-        killCreditOnMissingIp = MissingIpPolicy.fromString(onMissingIp, MissingIpPolicy.ALLOW);
+        String onMissingIp = killCreditSection.getString("onMissingIp", "count");
+        killCreditOnMissingIp = MissingIpPolicy.fromString(onMissingIp, MissingIpPolicy.COUNT);
     }
 
     private Map<String, ConfigurationSection> loadEventItems() {
         Map<String, ConfigurationSection> sections = new LinkedHashMap<>();
-        File itemsDir = new File(plugin.getDataFolder(), "custom-items");
+        File itemsDir = new File(plugin.getDataFolder(), "configs/customitems");
         if (!itemsDir.exists() || !itemsDir.isDirectory()) {
             return sections;
         }
@@ -176,15 +168,8 @@ public class ConfigManager {
         return Collections.unmodifiableSet(blockedCrystalEnvironments);
     }
 
-    public Set<String> getBlockedCrystalWorldNames() {
-        return Collections.unmodifiableSet(blockedCrystalWorldNames);
-    }
-
     public boolean isCrystalBlocked(World world) {
-        if (blockedCrystalEnvironments.contains(world.getEnvironment())) {
-            return true;
-        }
-        return blockedCrystalWorldNames.contains(world.getName().toLowerCase(Locale.ROOT));
+        return blockedCrystalEnvironments.contains(world.getEnvironment());
     }
 
     public String getTrashTitle() {

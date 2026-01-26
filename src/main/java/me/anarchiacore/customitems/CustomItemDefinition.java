@@ -13,6 +13,7 @@ public record CustomItemDefinition(
         Map<String, Integer> enchantments,
         List<String> flags,
         int customModelData,
-        boolean unbreakable
+        boolean unbreakable,
+        List<CustomItemsConfig.AttributeModifierDefinition> attributes
 ) {
 }

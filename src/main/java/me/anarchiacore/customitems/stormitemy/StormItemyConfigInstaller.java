@@ -25,7 +25,7 @@ import java.util.stream.Stream;
 public class StormItemyConfigInstaller {
     private static final String RESOURCE_ROOT = "stormitemy/";
     private static final String TARGET_ROOT = "configs/STORMITEMY";
-    private static final String ITEM_TARGET_ROOT = "custom-items";
+    private static final String ITEM_TARGET_ROOT = "configs/customitems";
     private static final String ITEMS_PREFIX = "items/";
     private static final String TRAP_SCHEM_BASE64 = "H4sIAAAAAAAAA5yTTW/TQBCGZ73xZxQJ8QM4wDUH4ISQcgARBFKrFiERaISqtT22V3V2o/VU4cQP5kdQdmNTO41Ea2yPvfP49ey7H04g/pxVuBEkMw7Td4LEFzSN1ApgFnMIbzPwPPBXMqcKuAfBB5RlRTCzzRNUpaXBFIKzomiQrJjb+GnjxMaTBKJTJJHb4hzi1bJVfb2xxyD/die/sOlv6+n9m9Wyd+FKJ+eiRiI8FT9sHicQdoDDbCMVZkYU9FpI08of90ynjcylcIUYh0f9i0ynO0zdKDk86/GukoSXqVAKzdpostOk1eLFy++uMIdPg8ri6rJAleEaRUMLMtc4V9pQ1TYbfW2bhagbnO8Eoal1WWL+l2D3ias74fD0PgfPndB/oIG2j9bBHt9jIHiAgVdOGHK4ODRARmxzrc26EJlU5cLVnVeiLhapJtKbud6i6vrc6h2a3sFdT66DCEKI39Y6u3Ib04JfbkUZMGYDusM2PcY4s/cO2ueEMZ+x4JDwAWlhOEhbwo+I/1+a/dldtwQONdERYT2JYbYf+VKRJIlN4uZjCvxcN93/xbrwIvA+5sPd3K4WHKm9UWo+Sj0ZpfZHqYNR6nCUOvqXOoZoOP8AfwAAAP//AwCt18hRMAUAAA==";
     private static final String DOM_SCHEM_BASE64 = "H4sIAAAAAAAAA3SPT0vEMBDFXxt2u0npzU8jXhQrgi4KgnW9yNBNt6HdVNo5+OnVSSsbPTiQP+/3XoaJgX6qW3skdrVCfk1Mz3ac3OCBQitkJ4U0xapye26xSrG+te7QMpRc760/BJpj/dA0k2UJqy8pOS9k7Qw2W8u0l+YKuiqX1IskPn/pHcK7qF8XP7+5rMo4RYiYR+ots93SR5jLIPsBCsXReVuP1PA5uXGJn0U2UPf23pPvJnESZNBX/VB34dsC7pAkiWCx4jaz/425TpHINIq5denZsbOTWeDmj8Y3AAAA//8DAGIlyjt/AQAA";

@@ -1,5 +1,7 @@
 package me.anarchiacore.combatlog;
 
+import me.anarchiacore.customitems.CustomItemsManager;
+import me.anarchiacore.storage.DataStore;
 import me.anarchiacore.util.MiniMessageUtil;
 import net.kyori.adventure.bossbar.BossBar;
 import net.kyori.adventure.text.Component;
@@ -54,14 +56,18 @@ public class CombatLogManager implements Listener {
     private final CombatLogMessageConfig messageConfig;
     private final CombatLogMessageService messageService;
     private CombatLogRegionService regionService;
+    private final CustomItemsManager customItemsManager;
+    private final DataStore dataStore;
     private final Map<UUID, CombatState> combatStates = new HashMap<>();
     private final Map<UUID, ProtectionState> protectionStates = new HashMap<>();
     private final Map<UUID, Component> originalDisplayNames = new HashMap<>();
     private final Map<UUID, Component> originalPlayerListNames = new HashMap<>();
     private BukkitTask task;
 
-    public CombatLogManager(JavaPlugin plugin, String prefix) {
+    public CombatLogManager(JavaPlugin plugin, String prefix, CustomItemsManager customItemsManager, DataStore dataStore) {
         this.plugin = plugin;
+        this.customItemsManager = customItemsManager;
+        this.dataStore = dataStore;
         this.storage = new CombatLogStorage(plugin);
         File configFile = resolveConfigFile("config.yml");
         File messageFile = resolveConfigFile("message.yml");
@@ -411,6 +417,14 @@ public class CombatLogManager implements Listener {
         if (player.hasPermission(BYPASS_PERMISSION)) {
             return;
         }
+        if (customItemsManager != null && customItemsManager.consumeTotemForCombatLogout(player)) {
+            if (dataStore != null) {
+                dataStore.setSpawnOnJoin(player.getUniqueId(), true);
+                dataStore.save();
+            }
+            clearCombat(player, false);
+            return;
+        }
         if (player.getGameMode() != GameMode.CREATIVE) {
             var maxHealth = player.getAttribute(Attribute.MAX_HEALTH);
             if (maxHealth != null) {
@@ -428,6 +442,15 @@ public class CombatLogManager implements Listener {
             storage.setJoined(player.getUniqueId());
             storage.save();
             applyProtection(player, config.getProtectionDuration(), false);
+        }
+        if (dataStore != null && dataStore.getSpawnOnJoin(player.getUniqueId())) {
+            Location spawn = player.getServer().getWorlds().isEmpty()
+                ? player.getLocation()
+                : player.getServer().getWorlds().get(0).getSpawnLocation();
+            Bukkit.getScheduler().runTask(plugin, () -> player.teleport(spawn));
+            dataStore.clearSpawnOnJoin(player.getUniqueId());
+            dataStore.save();
+            clearCombat(player, false);
         }
     }
 

@@ -65,6 +65,7 @@ public class CustomItemsManager implements Listener {
             ItemStack item = ItemUtil.createItem(def.material());
             ItemUtil.applyMeta(item, def.displayName(), def.lore(), def.enchantments(), def.flags(), def.customModelData(), plugin, itemKey, def.id());
             ItemUtil.applyUnbreakable(item, def.unbreakable());
+            ItemUtil.applyAttributeModifiers(item, def.attributes(), plugin, def.id());
             return item;
         }
         CustomItemsConfig.EventItemDefinition eventItem = config.getEventItemDefinition(id);
@@ -74,6 +75,7 @@ public class CustomItemsManager implements Listener {
         ItemStack item = ItemUtil.createItem(eventItem.material());
         ItemUtil.applyMeta(item, eventItem.displayName(), eventItem.lore(), eventItem.enchantments(), eventItem.flags(), eventItem.customModelData(), plugin, itemKey, eventItem.id());
         ItemUtil.applyUnbreakable(item, eventItem.unbreakable());
+        ItemUtil.applyAttributeModifiers(item, eventItem.attributes(), plugin, eventItem.id());
         return item;
     }
 
@@ -219,7 +221,7 @@ public class CustomItemsManager implements Listener {
 
     private boolean placeTurboTrap(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
         Location base = player.getLocation().getBlock().getLocation();
-        String schematic = "custom-items/trapanarchia.schem";
+        String schematic = "configs/customitems/trapanarchia.schem";
         if (!placeStructureFromSchematic(schematic, base)) {
             messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
             return false;

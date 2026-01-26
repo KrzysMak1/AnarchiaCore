@@ -56,6 +56,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             entryName -> !entryName.endsWith(".schem") && !entryName.endsWith("data.db")
         );
 
+        stormItemyConfigInstaller = new StormItemyConfigInstaller(this);
+        stormItemyConfigInstaller.installMissing();
+
         configManager = new ConfigManager(this);
         configManager.reload();
         messageService = new MessageService(configManager);
@@ -63,11 +66,12 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         heartsManager = new HeartsManager(this, configManager, messageService, dataStore);
         trashManager = new TrashManager(this, configManager, messageService);
         customItemsManager = new CustomItemsManager(this, configManager, messageService);
-        combatLogManager = new CombatLogManager(this, configManager.getPrefix());
+        combatLogManager = new CombatLogManager(this, configManager.getPrefix(), customItemsManager, dataStore);
         statsManager = new StatsManager(this, configManager, dataStore);
-
-        stormItemyConfigInstaller = new StormItemyConfigInstaller(this);
-        stormItemyConfigInstaller.installMissing();
+        int customItemsCount = configManager.getCustomItemsConfig().getAllItemIds().size();
+        if (customItemsCount == 0) {
+            getLogger().severe("CustomItems configs are empty: " + new java.io.File(getDataFolder(), "configs/customitems").getAbsolutePath());
+        }
 
         getServer().getPluginManager().registerEvents(heartsManager, this);
         getServer().getPluginManager().registerEvents(trashManager, this);
@@ -137,6 +141,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (stormItemyMain != null) {
             stormItemyMain.onDisable();
         }
+        if (dataStore != null) {
+            dataStore.close();
+        }
     }
 
     @Override
@@ -186,6 +193,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     }
 
     private void reloadAll(CommandSender sender) {
+        if (stormItemyConfigInstaller != null) {
+            stormItemyConfigInstaller.installMissing();
+        }
         configManager.reload();
         dataStore.reload();
         if (heartsManager != null) {
@@ -204,9 +214,6 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             combatLogManager.reload();
             combatLogManager.updatePrefix(configManager.getPrefix());
             combatLogManager.start();
-        }
-        if (stormItemyConfigInstaller != null) {
-            stormItemyConfigInstaller.installMissing();
         }
         reloadStormItemy(sender);
         registerPlaceholders();
