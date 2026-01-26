@@ -101,8 +101,17 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
         int stormCommands = stormItemyInitializer != null && stormItemyInitializer.getMenuCommand() != null ? 2 : 1;
         int stormConfigs = stormItemyInitializer != null ? stormItemyInitializer.getLoadedConfigCount() : 0;
-        getLogger().info("StormItemy integrated: source; registered listeners: " + stormListeners
+        int expectedStormConfigs = 4;
+        String stormSource = stormItemyConfigInstaller.isResourceSourceDirectory() ? "source" : "jar";
+        getLogger().info("StormItemy integrated: " + stormSource + "; registered listeners: " + stormListeners
             + "; commands: " + stormCommands + "; configs loaded: " + stormConfigs);
+        if (stormConfigs < expectedStormConfigs) {
+            getLogger().severe("StormItemy configs loaded < expected: " + stormConfigs + "/" + expectedStormConfigs);
+        }
+        int missingEventConfigs = stormItemyConfigInstaller.getMissingEventConfigCount();
+        if (missingEventConfigs == 4) {
+            getLogger().severe("StormItemy event configs missing: " + missingEventConfigs + "/4");
+        }
 
         try {
             combatLogManager.start();
