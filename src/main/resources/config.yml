@@ -15,8 +15,10 @@ anarchiczneSerce:
       - HIDE_ATTRIBUTES
 anarchiczneSerceCustomModelData: 0
 
-blockedEndCrystalDimensions:
+blockedEndCrystalEnvironments:
   - NETHER
+blockedEndCrystalWorlds:
+  - spawn
 
 trash:
   title: "Kosz"

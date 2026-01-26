@@ -2,19 +2,19 @@
 
 ## Konfiguracja
 
-### `blockedEndCrystalDimensions`
-Lista miejsc, w których blokowane jest stawianie kryształów Endu. Wartości mogą być:
+### `blockedEndCrystalEnvironments`
+Lista środowisk Bukkit (`NETHER`, `END`, `NORMAL`, itp.), w których blokowane jest stawianie kryształów Endu.
 
-- nazwy środowisk Bukkit (`NETHER`, `END`, `NORMAL`, itp.),
-- **lub** nazwy światów (case-insensitive).
+### `blockedEndCrystalWorlds`
+Lista nazw światów (case-insensitive), w których blokowane jest stawianie kryształów Endu.
 
 Przykład:
 
 ```yaml
-blockedEndCrystalDimensions:
+blockedEndCrystalEnvironments:
   - NETHER
   - END
+blockedEndCrystalWorlds:
   - spawn
   - pvp_world
 ```
-
