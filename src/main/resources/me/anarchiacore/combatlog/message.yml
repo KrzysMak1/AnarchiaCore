@@ -1,0 +1,96 @@
+## Dream-AntyLogout (Message-Config) ##
+# Dostepne type: (DO_NOT_SEND, CHAT, ACTION_BAR, SUBTITLE, TITLE, TITLE_SUBTITLE)
+command-usage:
+  type: CHAT
+  text: '&7Przyklady uzycia komendy: &c{label}'
+command-usage-help:
+  type: CHAT
+  text: '&f{usage} &8- &7{description}'
+command-usage-not-found:
+  type: CHAT
+  text: '&cNie znaleziono pasujacych do kryteriow komendy.'
+command-path-not-found:
+  type: CHAT
+  text: '&cTa komenda jest pusta lub nie posiadasz dostepu do niej.'
+command-no-permission:
+  type: CHAT
+  text: '&cNie posiadasz uprawnien.'
+command-not-player:
+  type: CHAT
+  text: '&cTa komende mozna tylko wykonac z poziomu gracza.'
+command-not-console:
+  type: CHAT
+  text: '&cTa komende mozna tylko wykonac z poziomu konsoli.'
+command-invalid-format:
+  type: CHAT
+  text: '&cPodano nieprawidlowy format argumentu komendy. ({input})'
+player-not-found:
+  type: CHAT
+  text: '&cPodanego gracza nie znaleziono.'
+world-not-found:
+  type: CHAT
+  text: '&cPodanego swiata nie znaleziono.'
+config-reloaded:
+  type: CHAT
+  text: '&aPrzeladowano! &7({time})'
+config-reload-error:
+  type: CHAT
+  text: '&cZnaleziono problem w konfiguracji: &6{error}'
+error:
+  type: CHAT
+  text: '&cWystapil nieznany błąd. Spróbuj ponownie później lub relognij'
+no-protection:
+  type: CHAT
+  text: '&cNie masz aktywnej ochrony'
+pvp-is-off:
+  type: CHAT
+  text: '&cPvp jest w tej chwili wyłączone'
+player-has-protection:
+  type: CHAT
+  text: '&cGracz posiada aktywna ochrone. Nie mozesz go zranic'
+you-have-protection:
+  type: CHAT
+  text: '&cMasz aktywna ochrone. Nie mozesz nikogo ranic'
+cant-hurt-on-creative:
+  type: CHAT
+  text: '&cNie mozesz nikogo ranic bedac na creative'
+cant-use-commands:
+  type: CHAT
+  text: '&cNie mozesz uzywac komend bedac podczas walki'
+protection-ended:
+  type: CHAT
+  text: '&cTwoja ochrona sie skonczyla, uwazaj na siebie!'
+combat-ended:
+  type: CHAT
+  text: '&aKoniec walki! Możesz się bezpiecznie wylogować'
+combat-start:
+  type: CHAT
+  text: '&cJestes teraz podczas walki z {opponent}, nie wylogowuj się z serwera albo zginiesz!'
+combat-logout:
+  type: CHAT
+  text: '&cGracz {nick} wylogował się podczas walki'
+teleport-cancelled:
+  type: CHAT
+  text: '&cNie mozesz przeniesc sie w to miejsce bedac podczas walki'
+interaction-blocked:
+  type: CHAT
+  text: '&cNie mozesz tego uzywac podczas walki'
+health-left:
+  type: CHAT
+  text: '&7Trafiony! Pozostalo mu &c{hp} HP'
+protection-added:
+  type: CHAT
+  text: '&aJestes bezpieczny z powodu ochrony ;)'
+cant-fly-in-combat:
+  type: CHAT
+  text: '&cNie mozesz latac podczas walki'
+enabled: '&awlaczono'
+disabled: '&cwylaczono'
+# {status} zostanie podmienione przez &cwylaczone lub &awlaczone
+pvp-status-changed:
+  type: CHAT
+  text: '{status} &ePVP &7na serwerze'
+# {status} zostanie podmienione przez &cwylaczone lub &awlaczone
+autorespawn-status-changed:
+  type: CHAT
+  text: '{status} &eAutoRespawn &7na serwerze'

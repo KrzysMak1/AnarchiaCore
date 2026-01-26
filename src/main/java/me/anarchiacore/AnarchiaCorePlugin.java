@@ -24,7 +24,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.*;
 
 public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, TabCompleter {
@@ -47,7 +46,6 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         exporter.exportAlways("bundles/stormitemy_115-1jar-3723efab.zip", "stormitemy_115-1jar-3723efab.zip");
 
         ZipExtractor zipExtractor = new ZipExtractor(this);
-        zipExtractor.extractAlways("configs/Dream-AntyLogout.zip", new java.io.File(getDataFolder(), "configs/Dream-AntyLogout"));
         zipExtractor.extractAlways(
             "configs/STORMITEMY.zip",
             new java.io.File(getDataFolder(), "configs/STORMITEMY"),
@@ -61,9 +59,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         heartsManager = new HeartsManager(this, configManager, messageService, dataStore);
         trashManager = new TrashManager(this, configManager, messageService);
         customItemsManager = new CustomItemsManager(this, configManager, messageService);
-        File combatLogConfig = new File(getDataFolder(), "configs/Dream-AntyLogout/config.yml");
-        File combatLogMessage = new File(getDataFolder(), "configs/Dream-AntyLogout/message.yml");
-        combatLogManager = new CombatLogManager(this, combatLogConfig, combatLogMessage, configManager.getPrefix());
+        combatLogManager = new CombatLogManager(this, configManager.getPrefix());
 
         stormItemyConfigInstaller = new StormItemyConfigInstaller(this);
         stormItemyConfigInstaller.installMissing();
@@ -76,6 +72,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
         Objects.requireNonNull(getCommand("anarchiacore")).setExecutor(this);
         Objects.requireNonNull(getCommand("anarchiacore")).setTabCompleter(this);
+        Objects.requireNonNull(getCommand("antylogout")).setExecutor(this);
+        Objects.requireNonNull(getCommand("antylogout")).setTabCompleter(this);
         Objects.requireNonNull(getCommand("kosz")).setExecutor(new TrashCommand(trashManager, messageService, this));
 
         stormItemyMain = new Main(this);
@@ -123,6 +121,12 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equalsIgnoreCase("antylogout")) {
+            if (combatLogManager != null) {
+                return combatLogManager.handleCommand(sender, args);
+            }
+            return true;
+        }
         if (args.length == 0) {
             return false;
         }
@@ -152,6 +156,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (combatLogManager != null) {
             combatLogManager.reload();
             combatLogManager.updatePrefix(configManager.getPrefix());
+            combatLogManager.start();
         }
         if (stormItemyConfigInstaller != null) {
             stormItemyConfigInstaller.installMissing();
@@ -285,6 +290,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        if (command.getName().equalsIgnoreCase("antylogout") && combatLogManager != null) {
+            return combatLogManager.tabComplete(args);
+        }
         if (!command.getName().equalsIgnoreCase("anarchiacore")) {
             return Collections.emptyList();
         }

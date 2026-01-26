@@ -60,9 +60,11 @@ public class CombatLogManager implements Listener {
     private final Map<UUID, Component> originalPlayerListNames = new HashMap<>();
     private BukkitTask task;
 
-    public CombatLogManager(JavaPlugin plugin, File configFile, File messageFile, String prefix) {
+    public CombatLogManager(JavaPlugin plugin, String prefix) {
         this.plugin = plugin;
         this.storage = new CombatLogStorage(plugin);
+        File configFile = resolveConfigFile("config.yml");
+        File messageFile = resolveConfigFile("message.yml");
         this.config = new CombatLogConfig(plugin, configFile);
         this.messageConfig = new CombatLogMessageConfig(messageFile);
         this.messageService = new CombatLogMessageService(messageConfig);
@@ -94,6 +96,34 @@ public class CombatLogManager implements Listener {
         storage.reload();
         regionService = new CombatLogRegionService(config, plugin);
         regionService.load();
+    }
+
+    private File resolveConfigFile(String fileName) {
+        File directory = new File(plugin.getDataFolder(), "combatlog");
+        if (!directory.exists() && !directory.mkdirs()) {
+            plugin.getLogger().warning("Nie można utworzyć katalogu combatlog.");
+        }
+        File file = new File(directory, fileName);
+        if (!file.exists()) {
+            exportDefault(fileName, file);
+        }
+        return file;
+    }
+
+    private void exportDefault(String fileName, File target) {
+        String resourcePath = "me/anarchiacore/combatlog/" + fileName;
+        try (var input = plugin.getResource(resourcePath)) {
+            if (input == null) {
+                plugin.getLogger().warning("Nie znaleziono zasobu combatlog: " + resourcePath);
+                return;
+            }
+            if (target.getParentFile() != null) {
+                target.getParentFile().mkdirs();
+            }
+            java.nio.file.Files.copy(input, target.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException ex) {
+            plugin.getLogger().warning("Nie można zapisać domyślnego pliku combatlog " + fileName + ": " + ex.getMessage());
+        }
     }
 
     public void updatePrefix(String prefix) {
