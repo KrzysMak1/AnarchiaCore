@@ -1130,11 +1130,13 @@ public final class XItemStack
                         final EquipmentSlot slot = (section.getString("slot") != null) ? ((EquipmentSlot)Enums.getIfPresent((Class)EquipmentSlot.class, section.getString("slot")).or((Object)EquipmentSlot.HAND)) : null;
                         String attrName = section.getString("name");
                         String modifierKey = this.createModifierKey(attribute, attrName);
-                        if (this.hasModifier((Attribute)((XModule<XForm, Attribute>)attributeInst.get()).get(), modifierKey)) {
+                        Attribute attributeKey = (Attribute)((XModule<XForm, Attribute>)attributeInst.get()).get();
+                        int existingMatches = this.removeDuplicateModifiers(attributeKey, modifierKey);
+                        if (existingMatches == 1) {
                             continue;
                         }
                         final AttributeModifier modifier = XAttribute.createModifier(modifierKey, section.getDouble("amount"), (AttributeModifier.Operation)Enums.getIfPresent((Class)AttributeModifier.Operation.class, section.getString("operation")).or((Object)AttributeModifier.Operation.ADD_NUMBER), slot);
-                        this.meta.addAttributeModifier((Attribute)((XModule<XForm, Attribute>)attributeInst.get()).get(), modifier);
+                        this.meta.addAttributeModifier(attributeKey, modifier);
                     }
                 }
             }
@@ -1163,6 +1165,24 @@ public final class XItemStack
                 }
             }
             return false;
+        }
+
+        private int removeDuplicateModifiers(Attribute attribute, String modifierKey) {
+            final java.util.Collection<AttributeModifier> modifiers = this.meta.getAttributeModifiers(attribute);
+            if (modifiers == null || modifiers.isEmpty()) {
+                return 0;
+            }
+            java.util.List<AttributeModifier> toRemove = new java.util.ArrayList<AttributeModifier>();
+            for (final AttributeModifier modifier : modifiers) {
+                final String existingKey = this.extractModifierKey(modifier);
+                if (existingKey != null && existingKey.equalsIgnoreCase(modifierKey)) {
+                    toRemove.add(modifier);
+                }
+            }
+            for (final AttributeModifier modifier : toRemove) {
+                this.meta.removeAttributeModifier(attribute, modifier);
+            }
+            return toRemove.size();
         }
 
         @Nullable
