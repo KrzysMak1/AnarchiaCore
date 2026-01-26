@@ -25,6 +25,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import java.util.Locale;
+import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -47,6 +49,34 @@ implements CommandExecutor {
         }
         if (stringArray.length == 0) {
             commandSender.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cPoprawne u\u017cycie: /menuprzedmioty open <gracz>"));
+            commandSender.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cPoprawne u\u017cycie: /menuprzedmioty add <id>"));
+            return true;
+        }
+        if (stringArray[0].equalsIgnoreCase("add")) {
+            if (!(commandSender instanceof Player)) {
+                commandSender.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cTa komenda jest tylko dla gracza."));
+                return true;
+            }
+            if (stringArray.length != 2) {
+                commandSender.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cPoprawne u\u017cycie: /menuprzedmioty add <id>"));
+                return true;
+            }
+            Player player = (Player)commandSender;
+            ItemStack itemStack = player.getInventory().getItemInMainHand();
+            if (itemStack == null || itemStack.getType() == Material.AIR) {
+                commandSender.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cTrzymaj przedmiot w r\u0119ce, aby go doda\u0107."));
+                return true;
+            }
+            String string2 = stringArray[1].trim().toLowerCase(Locale.ROOT);
+            if (string2.isBlank()) {
+                commandSender.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cPoprawne u\u017cycie: /menuprzedmioty add <id>"));
+                return true;
+            }
+            if (!this.A.addCustomGuiItem(string2, itemStack)) {
+                commandSender.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cNie uda\u0142o si\u0119 doda\u0107 przedmiotu. Sprawd\u017a, czy ID nie jest zaj\u0119te."));
+                return true;
+            }
+            commandSender.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&aDodano przedmiot do GUI jako &f" + string2 + "&a."));
             return true;
         }
         if (!stringArray[0].equalsIgnoreCase("open")) {
@@ -89,4 +119,3 @@ implements CommandExecutor {
         player.openInventory(inventory);
     }
 }
-
