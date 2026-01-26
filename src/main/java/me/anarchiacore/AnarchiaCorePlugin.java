@@ -8,6 +8,7 @@ import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.StormItemyConfigInstaller;
 import me.anarchiacore.customitems.stormitemy.core.B;
 import me.anarchiacore.hearts.HeartsManager;
+import me.anarchiacore.papi.AnarchiaCorePlaceholderExpansion;
 import me.anarchiacore.stats.StatsManager;
 import me.anarchiacore.storage.DataStore;
 import me.anarchiacore.trash.TrashCommand;
@@ -111,12 +112,17 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             getLogger().severe("CombatLog failed to start: " + ex.getMessage());
             ex.printStackTrace();
         }
+
+        registerPlaceholders();
     }
 
     @Override
     public void onDisable() {
         if (combatLogManager != null) {
             combatLogManager.stop();
+        }
+        if (statsManager != null) {
+            statsManager.stop();
         }
         if (stormItemyMain != null) {
             stormItemyMain.onDisable();
@@ -152,6 +158,16 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return handleCustomItemsCommand(sender, Arrays.copyOfRange(args, 1, args.length));
         }
         return false;
+    }
+
+    private void registerPlaceholders() {
+        var plugin = getServer().getPluginManager().getPlugin("PlaceholderAPI");
+        if (plugin != null && plugin.isEnabled()) {
+            new AnarchiaCorePlaceholderExpansion(this, configManager, dataStore, combatLogManager, statsManager).register();
+            getLogger().info("PlaceholderAPI found, placeholders registered.");
+        } else {
+            getLogger().info("PlaceholderAPI not found, skipping placeholders.");
+        }
     }
 
     private void reloadAll(CommandSender sender) {

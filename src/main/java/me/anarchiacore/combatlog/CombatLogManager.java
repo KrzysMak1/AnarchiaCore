@@ -573,6 +573,23 @@ public class CombatLogManager implements Listener {
         return state != null && !state.isExpired();
     }
 
+    public boolean isCombatTagged(UUID uuid) {
+        CombatState state = combatStates.get(uuid);
+        return state != null && !state.isExpired();
+    }
+
+    public int getCombatTimeLeftSeconds(UUID uuid) {
+        CombatState state = combatStates.get(uuid);
+        if (state == null) {
+            return 0;
+        }
+        long remainingMillis = state.expiresAt() - System.currentTimeMillis();
+        if (remainingMillis <= 0) {
+            return 0;
+        }
+        return (int) Math.ceil(remainingMillis / 1000.0);
+    }
+
     private void applyProtection(Player player, Duration duration, boolean deathProtection) {
         if (duration.isZero() || duration.isNegative()) {
             return;

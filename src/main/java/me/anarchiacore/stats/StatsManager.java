@@ -11,13 +11,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.EnumMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -26,18 +23,32 @@ public class StatsManager implements Listener {
     private final ConfigManager configManager;
     private final StatsStorage storage;
     private final Map<UUID, LastHit> lastHits = new java.util.HashMap<>();
-    private final EnumMap<TopType, TopCache> topCache = new EnumMap<>(TopType.class);
+    private final TopCacheManager topCacheManager;
 
     public StatsManager(JavaPlugin plugin, ConfigManager configManager, DataStore dataStore) {
         this.plugin = plugin;
         this.configManager = configManager;
         this.storage = new StatsStorage(plugin, dataStore);
+        this.topCacheManager = new TopCacheManager(plugin, configManager, storage);
+        this.topCacheManager.start();
     }
 
     public void reload() {
         storage.reload();
-        topCache.clear();
         lastHits.clear();
+        topCacheManager.reload();
+    }
+
+    public void stop() {
+        topCacheManager.stop();
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        if (storage.updateName(player.getUniqueId(), player.getName())) {
+            storage.save();
+        }
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
@@ -69,7 +80,6 @@ public class StatsManager implements Listener {
             }
         }
         storage.save();
-        topCache.clear();
         lastHits.remove(victim.getUniqueId());
     }
 
@@ -133,49 +143,14 @@ public class StatsManager implements Listener {
         return address.getAddress().getHostAddress();
     }
 
-    public List<TopEntry> getTop(TopType type) {
-        TopCache cache = topCache.get(type);
-        long now = System.currentTimeMillis();
-        if (cache != null && now - cache.refreshedAt() < configManager.getStatsTopCacheSeconds() * 1000L) {
-            return cache.entries();
-        }
-        List<TopEntry> entries = new ArrayList<>();
-        for (Map.Entry<UUID, PlayerStats> entry : storage.getAllStats().entrySet()) {
-            PlayerStats stats = entry.getValue();
-            int value = switch (type) {
-                case KILLS -> stats.getKills();
-                case DEATHS -> stats.getDeaths();
-                case KILLSTREAK -> stats.getKillstreak();
-                case BEST_KILLSTREAK -> stats.getBestKillstreak();
-            };
-            if (value <= 0) {
-                continue;
-            }
-            entries.add(new TopEntry(entry.getKey(), stats.getName(), value));
-        }
-        entries.sort(Comparator.comparingInt(TopEntry::value).reversed().thenComparing(TopEntry::name, Comparator.nullsLast(String::compareToIgnoreCase)));
-        int limit = Math.max(1, configManager.getStatsTopLimit());
-        if (entries.size() > limit) {
-            entries = entries.subList(0, limit);
-        }
-        TopCache refreshed = new TopCache(now, List.copyOf(entries));
-        topCache.put(type, refreshed);
-        return refreshed.entries();
+    public PlayerStats getStats(UUID uuid) {
+        return storage.getAllStats().get(uuid);
+    }
+
+    public TopCacheManager getTopCacheManager() {
+        return topCacheManager;
     }
 
     private record LastHit(UUID attacker, long timestamp, String ip) {
-    }
-
-    public enum TopType {
-        KILLS,
-        DEATHS,
-        KILLSTREAK,
-        BEST_KILLSTREAK
-    }
-
-    public record TopEntry(UUID uuid, String name, int value) {
-    }
-
-    private record TopCache(long refreshedAt, List<TopEntry> entries) {
     }
 }

@@ -30,7 +30,9 @@ public class StatsStorage {
         ensureStatsFile();
         statsConfig = YamlConfiguration.loadConfiguration(statsFile);
         statsByPlayer.clear();
+        loadSection(dataStore.getSection("stats"));
         loadSection(dataStore.getSection("stats.players"));
+        loadSection(statsConfig.getConfigurationSection("stats"));
         loadSection(statsConfig.getConfigurationSection("players"));
     }
 
@@ -84,22 +86,38 @@ public class StatsStorage {
         return stats;
     }
 
+    public boolean updateName(UUID uuid, String name) {
+        if (name == null || name.isBlank()) {
+            return false;
+        }
+        PlayerStats stats = statsByPlayer.get(uuid);
+        if (stats == null) {
+            statsByPlayer.put(uuid, new PlayerStats(name, 0, 0, 0, 0));
+            return true;
+        }
+        if (!name.equals(stats.getName())) {
+            stats.setName(name);
+            return true;
+        }
+        return false;
+    }
+
     public Map<UUID, PlayerStats> getAllStats() {
         return Collections.unmodifiableMap(statsByPlayer);
     }
 
     public void save() {
         statsConfig = new YamlConfiguration();
-        statsConfig.set("players", null);
+        statsConfig.set("stats", null);
         for (Map.Entry<UUID, PlayerStats> entry : statsByPlayer.entrySet()) {
-            String basePath = "players." + entry.getKey();
+            String basePath = "stats." + entry.getKey();
             PlayerStats stats = entry.getValue();
             statsConfig.set(basePath + ".name", stats.getName());
             statsConfig.set(basePath + ".kills", stats.getKills());
             statsConfig.set(basePath + ".deaths", stats.getDeaths());
             statsConfig.set(basePath + ".killstreak", stats.getKillstreak());
             statsConfig.set(basePath + ".bestKillstreak", stats.getBestKillstreak());
-            String dataPath = "stats.players." + entry.getKey();
+            String dataPath = "stats." + entry.getKey();
             dataStore.setValue(dataPath + ".name", stats.getName());
             dataStore.setValue(dataPath + ".kills", stats.getKills());
             dataStore.setValue(dataPath + ".deaths", stats.getDeaths());
