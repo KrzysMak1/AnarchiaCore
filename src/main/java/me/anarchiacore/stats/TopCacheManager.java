@@ -48,6 +48,10 @@ public class TopCacheManager {
         if (position < 1) {
             return null;
         }
+        int limit = Math.max(10, configManager.getStatsTopLimit());
+        if (position > limit) {
+            return null;
+        }
         List<TopEntry> entries = topCache.get(type);
         if (entries == null || position > entries.size()) {
             return null;
@@ -81,6 +85,10 @@ public class TopCacheManager {
         for (Map.Entry<TopType, List<TopEntry>> entry : newCache.entrySet()) {
             List<TopEntry> entries = entry.getValue();
             entries.sort(comparator);
+            int limit = Math.max(10, configManager.getStatsTopLimit());
+            if (entries.size() > limit) {
+                entries = entries.subList(0, limit);
+            }
             entry.setValue(List.copyOf(entries));
         }
         topCache.clear();

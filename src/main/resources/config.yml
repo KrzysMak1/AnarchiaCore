@@ -15,18 +15,27 @@ anarchiczneSerce:
       - HIDE_ATTRIBUTES
 anarchiczneSerceCustomModelData: 0
 
-blockedEndCrystalEnvironments:
+blockedEndCrystalDimensions:
   - NETHER
-blockedEndCrystalWorlds:
-  - spawn
 
 stats:
   topCacheSeconds: 60
   topLimit: 10
   killCredit:
-    cooldownSeconds: 30
+    sameVictimCooldownSeconds: 30
     ignoreSameIp: true
-    onMissingIp: allow
+    onMissingIp: count
+
+storage:
+  type: "YAML" # YAML or MYSQL
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "anarchiacore"
+    user: "root"
+    password: "pass"
+    useSSL: false
+    poolSize: 10
 
 trash:
   title: "Kosz"
@@ -56,3 +65,9 @@ messages:
     explosivesBlocked: "{prefix}<red>W tym regionie nie można używać Bombardy Maxima ani dynamitu.</red>"
     regionBlocked: "{prefix}<red>Nie możesz użyć tego itemu w tym regionie.</red>"
     noSpace: "{prefix}<red>Brak miejsca na postawienie Turbo Trapa.</red>"
+
+customItems:
+  worldguard:
+    enabled: true
+    allowAllEventItemsRegions: []
+    allowEventItemsExceptExplosivesRegions: []

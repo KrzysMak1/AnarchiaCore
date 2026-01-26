@@ -3,6 +3,8 @@ package me.anarchiacore.util;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -97,6 +99,37 @@ public final class ItemUtil {
             return item;
         }
         meta.setUnbreakable(unbreakable);
+        item.setItemMeta(meta);
+        return item;
+    }
+
+    public static ItemStack applyAttributeModifiers(ItemStack item,
+                                                    List<me.anarchiacore.customitems.CustomItemsConfig.AttributeModifierDefinition> modifiers,
+                                                    Plugin plugin,
+                                                    String itemId) {
+        if (item == null || modifiers == null || modifiers.isEmpty()) {
+            return item;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null) {
+            return item;
+        }
+        int index = 0;
+        for (me.anarchiacore.customitems.CustomItemsConfig.AttributeModifierDefinition modifier : modifiers) {
+            if (modifier == null || modifier.attribute() == null) {
+                continue;
+            }
+            NamespacedKey key = new NamespacedKey(plugin, "attr_" + itemId + "_" + modifier.attribute().name().toLowerCase(Locale.ROOT) + "_" + index);
+            AttributeModifier attributeModifier = new AttributeModifier(key, modifier.amount(), modifier.operation(), modifier.slot());
+            if (meta.hasAttributeModifiers()) {
+                var existing = meta.getAttributeModifiers(modifier.attribute());
+                if (existing != null && existing.stream().anyMatch(existingModifier -> key.equals(existingModifier.getKey()))) {
+                    continue;
+                }
+            }
+            meta.addAttributeModifier(modifier.attribute(), attributeModifier);
+            index++;
+        }
         item.setItemMeta(meta);
         return item;
     }

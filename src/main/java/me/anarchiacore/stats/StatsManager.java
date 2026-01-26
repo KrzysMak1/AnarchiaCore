@@ -2,31 +2,26 @@ package me.anarchiacore.stats;
 
 import me.anarchiacore.config.ConfigManager;
 import me.anarchiacore.storage.DataStore;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.InetSocketAddress;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
 public class StatsManager implements Listener {
-    private final JavaPlugin plugin;
     private final ConfigManager configManager;
     private final StatsStorage storage;
-    private final Map<UUID, LastHit> lastHits = new java.util.HashMap<>();
+    private final Map<UUID, Map<UUID, Long>> killCreditCooldowns = new HashMap<>();
     private final TopCacheManager topCacheManager;
 
     public StatsManager(JavaPlugin plugin, ConfigManager configManager, DataStore dataStore) {
-        this.plugin = plugin;
         this.configManager = configManager;
         this.storage = new StatsStorage(plugin, dataStore);
         this.topCacheManager = new TopCacheManager(plugin, configManager, storage);
@@ -35,7 +30,7 @@ public class StatsManager implements Listener {
 
     public void reload() {
         storage.reload();
-        lastHits.clear();
+        killCreditCooldowns.clear();
         topCacheManager.reload();
     }
 
@@ -47,89 +42,62 @@ public class StatsManager implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         if (storage.updateName(player.getUniqueId(), player.getName())) {
-            storage.save();
+            storage.savePlayer(player.getUniqueId());
         }
-    }
-
-    @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
-    public void onDamage(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player victim)) {
-            return;
-        }
-        Player attacker = resolveAttacker(event.getDamager());
-        if (attacker == null || attacker.getUniqueId().equals(victim.getUniqueId())) {
-            return;
-        }
-        lastHits.put(victim.getUniqueId(), new LastHit(attacker.getUniqueId(), System.currentTimeMillis(), readIp(attacker)));
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onDeath(PlayerDeathEvent event) {
         Player victim = event.getEntity();
-        Player creditedKiller = resolveKiller(victim);
+        Player killer = victim.getKiller();
+        boolean credited = killer != null && isKillCreditAllowed(victim, killer);
         PlayerStats victimStats = storage.getOrCreate(victim.getUniqueId(), victim.getName());
         victimStats.setDeaths(victimStats.getDeaths() + 1);
         victimStats.setKillstreak(0);
-        if (creditedKiller != null) {
-            PlayerStats killerStats = storage.getOrCreate(creditedKiller.getUniqueId(), creditedKiller.getName());
+        if (credited) {
+            PlayerStats killerStats = storage.getOrCreate(killer.getUniqueId(), killer.getName());
             killerStats.setKills(killerStats.getKills() + 1);
             int newStreak = killerStats.getKillstreak() + 1;
             killerStats.setKillstreak(newStreak);
             if (newStreak > killerStats.getBestKillstreak()) {
                 killerStats.setBestKillstreak(newStreak);
             }
+            storage.savePlayer(killer.getUniqueId());
         }
-        storage.save();
-        lastHits.remove(victim.getUniqueId());
+        storage.savePlayer(victim.getUniqueId());
     }
 
-    private Player resolveKiller(Player victim) {
-        Player killer = victim.getKiller();
-        if (killer != null && isKillCreditAllowed(victim, killer, readIp(killer))) {
-            return killer;
-        }
-        LastHit lastHit = lastHits.get(victim.getUniqueId());
-        if (lastHit == null) {
-            return null;
-        }
-        long ageMillis = System.currentTimeMillis() - lastHit.timestamp();
-        if (ageMillis > configManager.getKillCreditCooldownSeconds() * 1000L) {
-            return null;
-        }
-        Player attacker = Bukkit.getPlayer(lastHit.attacker());
-        if (attacker == null || !attacker.isOnline()) {
-            return null;
-        }
-        if (!isKillCreditAllowed(victim, attacker, lastHit.ip())) {
-            return null;
-        }
-        return attacker;
-    }
-
-    private boolean isKillCreditAllowed(Player victim, Player attacker, String attackerIp) {
+    private boolean isKillCreditAllowed(Player victim, Player attacker) {
         if (victim.getUniqueId().equals(attacker.getUniqueId())) {
+            return false;
+        }
+        if (!checkSameVictimCooldown(attacker.getUniqueId(), victim.getUniqueId())) {
             return false;
         }
         if (!configManager.isKillCreditIgnoreSameIp()) {
             return true;
         }
+        String attackerIp = readIp(attacker);
         String victimIp = readIp(victim);
         if (victimIp == null || attackerIp == null) {
-            return configManager.getKillCreditOnMissingIp() == MissingIpPolicy.ALLOW;
+            return configManager.getKillCreditOnMissingIp() == MissingIpPolicy.COUNT;
         }
         return !victimIp.equals(attackerIp);
     }
 
-    private Player resolveAttacker(Entity damager) {
-        if (damager instanceof Player player) {
-            return player;
+    private boolean checkSameVictimCooldown(UUID killer, UUID victim) {
+        int cooldownSeconds = Math.max(0, configManager.getKillCreditCooldownSeconds());
+        if (cooldownSeconds == 0) {
+            return true;
         }
-        if (damager instanceof Projectile projectile) {
-            if (projectile.getShooter() instanceof Player shooter) {
-                return shooter;
-            }
+        long now = System.currentTimeMillis();
+        Map<UUID, Long> killerMap = killCreditCooldowns.computeIfAbsent(killer, key -> new HashMap<>());
+        Long last = killerMap.get(victim);
+        if (last != null && (now - last) < cooldownSeconds * 1000L) {
+            return false;
         }
-        return null;
+        killerMap.put(victim, now);
+        return true;
     }
 
     private String readIp(Player player) {
@@ -149,8 +117,5 @@ public class StatsManager implements Listener {
 
     public TopCacheManager getTopCacheManager() {
         return topCacheManager;
-    }
-
-    private record LastHit(UUID attacker, long timestamp, String ip) {
     }
 }

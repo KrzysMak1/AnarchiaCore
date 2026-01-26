@@ -38,7 +38,8 @@ public class CustomItemsConfig {
                 List<String> flags = itemSection.getStringList("meta.flags");
                 int cmd = itemSection.getInt("customModelData", 0);
                 boolean unbreakable = itemSection.getBoolean("unbreakable", false);
-                items.put(key.toLowerCase(Locale.ROOT), new CustomItemDefinition(key, material, displayName, lore, enchants, flags, cmd, unbreakable));
+                List<AttributeModifierDefinition> attributes = readAttributes(itemSection.getConfigurationSection("attributes"));
+                items.put(key.toLowerCase(Locale.ROOT), new CustomItemDefinition(key, material, displayName, lore, enchants, flags, cmd, unbreakable, attributes));
             }
         }
         ConfigurationSection eventSection = section.getConfigurationSection("eventItems");
@@ -91,7 +92,8 @@ public class CustomItemsConfig {
         List<String> noDestroyRegions = section.getStringList("noDestroyRegions");
         List<String> noPlaceRegions = section.getStringList("noPlaceRegions");
         boolean preventRegionDestruction = section.getBoolean("preventRegionDestruction", false);
-        return new EventItemDefinition(id, material, displayName, lore, enchants, flags, cmd, unbreakable,
+        List<AttributeModifierDefinition> attributes = readAttributes(section.getConfigurationSection("attributes"));
+        return new EventItemDefinition(id, material, displayName, lore, enchants, flags, cmd, unbreakable, attributes,
                 cooldown, explosionRadius, explosionParticleCount, useProjectileMode, projectileSpeed, projectileLifeTimeTicks,
                 protectedBlocks, spawnFire, fireChance, message, noDestroyRegions, noPlaceRegions, preventRegionDestruction);
     }
@@ -142,6 +144,24 @@ public class CustomItemsConfig {
         return parsed;
     }
 
+    private List<AttributeModifierDefinition> readAttributes(ConfigurationSection section) {
+        if (section == null) {
+            return List.of();
+        }
+        List<AttributeModifierDefinition> result = new ArrayList<>();
+        for (String key : section.getKeys(false)) {
+            ConfigurationSection attrSection = section.getConfigurationSection(key);
+            if (attrSection == null) {
+                continue;
+            }
+            AttributeModifierDefinition definition = AttributeModifierDefinition.fromSection(attrSection);
+            if (definition != null) {
+                result.add(definition);
+            }
+        }
+        return result;
+    }
+
     public CustomItemDefinition getItemDefinition(String id) {
         if (id == null) {
             return null;
@@ -174,6 +194,10 @@ public class CustomItemsConfig {
         return eventItems.values();
     }
 
+    public int getEventItemCount() {
+        return eventItems.size();
+    }
+
     public WorldGuardRules getWorldGuardRules() {
         return worldGuardRules;
     }
@@ -190,6 +214,7 @@ public class CustomItemsConfig {
             List<String> flags,
             int customModelData,
             boolean unbreakable,
+            List<AttributeModifierDefinition> attributes,
             int cooldown,
             int explosionRadius,
             int explosionParticleCount,
@@ -210,5 +235,44 @@ public class CustomItemsConfig {
     }
 
     public record TitleMessage(String title, String subtitle) {
+    }
+
+    public record AttributeModifierDefinition(
+        org.bukkit.attribute.Attribute attribute,
+        double amount,
+        org.bukkit.attribute.AttributeModifier.Operation operation,
+        org.bukkit.inventory.EquipmentSlot slot
+    ) {
+        public static AttributeModifierDefinition fromSection(ConfigurationSection section) {
+            if (section == null) {
+                return null;
+            }
+            String attributeName = section.getString("attribute");
+            if (attributeName == null || attributeName.isBlank()) {
+                return null;
+            }
+            org.bukkit.attribute.Attribute attribute;
+            try {
+                attribute = org.bukkit.attribute.Attribute.valueOf(attributeName.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException ex) {
+                return null;
+            }
+            double amount = section.getDouble("amount", 0.0);
+            String operationName = section.getString("operation", "ADD_NUMBER");
+            org.bukkit.attribute.AttributeModifier.Operation operation;
+            try {
+                operation = org.bukkit.attribute.AttributeModifier.Operation.valueOf(operationName.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException ex) {
+                operation = org.bukkit.attribute.AttributeModifier.Operation.ADD_NUMBER;
+            }
+            String slotName = section.getString("slot", "HAND");
+            org.bukkit.inventory.EquipmentSlot slot;
+            try {
+                slot = org.bukkit.inventory.EquipmentSlot.valueOf(slotName.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException ex) {
+                slot = org.bukkit.inventory.EquipmentSlot.HAND;
+            }
+            return new AttributeModifierDefinition(attribute, amount, operation, slot);
+        }
     }
 }
