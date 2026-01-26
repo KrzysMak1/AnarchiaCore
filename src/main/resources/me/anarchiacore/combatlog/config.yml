@@ -1,0 +1,121 @@
+## Dream-AntyLogout (Main-Config) ##
+# dream.antylogout.bypass - uprawnienie do bypassu antylogoutu
+# dream.antylogout.command.pvp - uprawnienie do przelaczania pvp
+# dream.antylogout.command.autorespawn - uprawnienie do przelaczania autorespawnu
+# dream.antylogout.command.reload - uprawnienie do przeladowania konfiguracji
+# dream.antylogout.command.protection-off - uprawnienie do wylaczania ochrony
+
+# Debug pokazuje dodatkowe informacje do konsoli. Lepiej wylaczyc. :P
+debug: true
+
+# Ponizej znajduja sie dane do logowania bazy danych:
+storage-config:
+  # W jakiej formie maja byc zapisywane dane o graczu?
+  # Dostepne zapisy: (FLAT, MYSQL, MONGO, H2)
+  storage-type: FLAT
+  # Jaki prefix ustawic dla danych?
+  # Nie uzupelniaj prefixu dla zapisu typu FLAT.
+  prefix: dreamantylogout
+  # FLAT   : not applicable
+  # MONGO  : mongodb://{host}:{port}/{database}
+  # MYSQL  : jdbc:mysql://{host}:{port}/{database}?user={username}&password={password}
+  # H2     : jdbc:h2:file:./plugins/{data_folder}/storage;mode=mysql
+  # uri
+  uri: ''
+antylogout:
+  # czas trwania walki
+  duration: 30s
+  # czy antylogout ma dzialac od mobow?
+  monster-antylogout: true
+  # antylogout po otrzymaniu obrazen z perły
+  ender-pearl-antylogout: true
+  # Czy plugin ma blokowac elytre jesli gracz jest podczas walki
+  block-gliding: true
+  # Czy void ma nadawac antylogout
+  voidAntylogout: true
+
+  # Regiony, na ktorych antylogout bedzie wylaczony (regiony z worldguard wpisuj nastepujaco: wg:<nazwa_swiata>:<nazwa_regionu>
+  # Wlasne regiony wpisuj rg:<nazwa_swiata>:minX:minY:minZ:maxX:maxY:maxZ
+  disabled-regions:
+  - wg:world:spawn
+  - wg:world:lobby
+  - rg:world:0:0:0:50:100:50
+
+  # z jakimi blokami zablokowac interakcje
+  blocked-blocks:
+  - CRAFTING_TABLE
+  - ENDER_CHEST
+
+  # z jakimi bytami zablokowac interakcje
+  # blocked-entity
+  blockedEntity:
+  - OAK_BOAT
+  - MINECART
+
+  # Czy komendy maja byc zablokowane w trakcie walki
+  disable-commands: true
+  # Komendy dozwolone podczas antylogoutu
+  allowed-commands:
+  - msg
+  - r
+
+  # gdzie pokazywac ma sie odliczanie (dostepne opcje: BOSSBAR, ACTIONBAR)
+  display: BOSSBAR
+  # jesli powyzsza wartosc ustawiona jest na false, uzywane bedzie tylko pole 'title'
+  notice:
+    title: '&cJestes podczas walki! Pozostaly czas: &4{time}'
+    color: RED
+    style: SOLID
+
+  send-end: true
+  end-notice:
+    title: '&aWalka zakonczona! Mozesz sie bezpiecznie wylogowac!'
+    color: GREEN
+    style: SOLID
+protection:
+  # Ile ma trwac ochrona startowa gracza
+  duration: 1m
+  # Czy można bić graczy mając ochrone (natychmiastowo zabiera ochrone)
+  damage-on-protection: true
+  # jak ma wygladac suffix jesli gracz ma ochrone
+  suffix: ' &b[OCHRONA]'
+  # gdzie pokazywac ma sie odliczanie (dostepne opcje: BOSSBAR, ACTIONBAR)
+  display: BOSSBAR
+  # jesli powyzsza wartosc ustawiona jest na ACTIONBAR, uzywane bedzie tylko pole 'title'
+  # jak ma wygladac bossbar dla ochrony
+  notice:
+    title: '&aAktywna ochrona: &2{time}'
+    color: GREEN
+    style: SOLID
+
+  # Ile ma trwać ochrona dla graczy po śmierci (0s = wylaczona)
+  death-duration: 30s
+  # jak ma wygladac bossbar dla ochrony po smierci
+  death-notice:
+    title: '&eAktywna ochrona po smierci: &6({time})'
+    color: YELLOW
+    style: SOLID
+
+  send-end: true
+  end-notice:
+    title: '&cOchrona sie skonczyla. Uwazaj na siebie!'
+    color: RED
+    style: SOLID
+barrier:
+  # mozliwosci blokady wejscia gracza na zablokowany teren (z listy ponizej)
+  # dostepne opcje: KNOCKBACK, BLOCK, WALL (wkrotce), IGNORE
+  barrier-type: KNOCKBACK
+  # (wkrotce)
+  wall-block: RED_STAINED_GLASS
+  # siła odrzutu gracza (jesli powyzsza opcja to PUSH)
+  knockback-strength: 1.2
+  # jak bardzo podrzucać ma gracza do góry (jesli barrierType: PUSH
+  knockback-y: 0.2
+misc:
+  # Blokada bicia na creative (dostepne opcje NONE, PLAYER, MONSTER, BOTH
+  cancel-creative-damage: PLAYER
+  # Status pvp na serwerze (mozliwe do zmiany komenda /antylogout pvp on/off
+  # pvp-disabled
+  pvpDisabled: false
+  # Automatyczne odradzanie po smierci (mozliwe do zmiany komenda /antylogout autorespawn on/off
+  autorespawn: true

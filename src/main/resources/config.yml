@@ -25,10 +25,6 @@ trash:
   rows: 5
   clearMessage: "{prefix}<red>Usunięto itemy z kosza.</red>"
 
-combatlog:
-  tagDurationSeconds: 15
-  killOnLogout: true
-
 messages:
   prefix: "<dark_gray>[</dark_gray><red>Anarchia</red><dark_gray>] </dark_gray><gray>"
   noPermission: "{prefix}<red>Brak uprawnień.</red>"
@@ -43,10 +39,6 @@ messages:
   crystalBlocked: "{prefix}<red>Nie można stawiać kryształów Endu w tym wymiarze.</red>"
   trashOpened: "{prefix}<gray>Otworzono kosz. Itemy zostaną usunięte po zamknięciu.</gray>"
   trashCleared: "{prefix}<red>Usunięto itemy z kosza.</red>"
-  combatlog:
-    tagged: "{prefix}<red>Jesteś w combatlogu.</red>"
-    logoutPunish: "{prefix}<red>Wylogowałeś się podczas walki.</red>"
-    spawned: "{prefix}<green>Totem ułaskawił Cię, przeniesiono na spawn.</green>"
   customItems:
     giveUsage: "{prefix}<red>Użycie: /anarchiacore customitems give <item> [player]</red>"
     invalidPlayer: "{prefix}<red>Nie znaleziono gracza.</red>"

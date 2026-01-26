@@ -6,6 +6,8 @@ softdepend: [WorldGuard]
 commands:
   anarchiacore:
     aliases: [acore, anarchia]
+  antylogout:
+    aliases: [combatlog]
   kosz:
     aliases: [trash, bin]
   stormitemy:
