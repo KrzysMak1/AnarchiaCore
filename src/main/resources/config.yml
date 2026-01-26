@@ -20,6 +20,14 @@ blockedEndCrystalEnvironments:
 blockedEndCrystalWorlds:
   - spawn
 
+stats:
+  topCacheSeconds: 60
+  topLimit: 10
+  killCredit:
+    cooldownSeconds: 30
+    ignoreSameIp: true
+    onMissingIp: allow
+
 trash:
   title: "Kosz"
   rows: 5

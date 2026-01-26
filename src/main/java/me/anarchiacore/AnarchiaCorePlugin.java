@@ -8,6 +8,7 @@ import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.StormItemyConfigInstaller;
 import me.anarchiacore.customitems.stormitemy.core.B;
 import me.anarchiacore.hearts.HeartsManager;
+import me.anarchiacore.stats.StatsManager;
 import me.anarchiacore.storage.DataStore;
 import me.anarchiacore.trash.TrashCommand;
 import me.anarchiacore.trash.TrashManager;
@@ -34,6 +35,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private TrashManager trashManager;
     private CustomItemsManager customItemsManager;
     private CombatLogManager combatLogManager;
+    private StatsManager statsManager;
     private Main stormItemyMain;
     private B stormItemyInitializer;
     private StormItemyConfigInstaller stormItemyConfigInstaller;
@@ -60,6 +62,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         trashManager = new TrashManager(this, configManager, messageService);
         customItemsManager = new CustomItemsManager(this, configManager, messageService);
         combatLogManager = new CombatLogManager(this, configManager.getPrefix());
+        statsManager = new StatsManager(this, configManager, dataStore);
 
         stormItemyConfigInstaller = new StormItemyConfigInstaller(this);
         stormItemyConfigInstaller.installMissing();
@@ -68,6 +71,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         getServer().getPluginManager().registerEvents(trashManager, this);
         getServer().getPluginManager().registerEvents(customItemsManager, this);
         getServer().getPluginManager().registerEvents(combatLogManager, this);
+        getServer().getPluginManager().registerEvents(statsManager, this);
         getServer().getPluginManager().registerEvents(new EndCrystalBlocker(this, configManager, messageService), this);
 
         Objects.requireNonNull(getCommand("anarchiacore")).setExecutor(this);
@@ -153,6 +157,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private void reloadAll(CommandSender sender) {
         configManager.reload();
         dataStore.reload();
+        if (statsManager != null) {
+            statsManager.reload();
+        }
         if (combatLogManager != null) {
             combatLogManager.reload();
             combatLogManager.updatePrefix(configManager.getPrefix());
