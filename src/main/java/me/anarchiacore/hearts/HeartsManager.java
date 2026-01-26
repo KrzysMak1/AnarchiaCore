@@ -47,7 +47,8 @@ public class HeartsManager implements Listener {
         UUID uuid = player.getUniqueId();
         int hearts;
         boolean setFullHealth;
-        if (!dataStore.hasHearts(uuid)) {
+        boolean hasHearts = dataStore.hasHearts(uuid);
+        if (!hasHearts) {
             hearts = configManager.getDefaultHearts();
             setFullHealth = true;
         } else {
@@ -55,7 +56,7 @@ public class HeartsManager implements Listener {
             setFullHealth = false;
         }
         int clampedHearts = clampHearts(hearts);
-        if (clampedHearts != hearts || !dataStore.hasHearts(uuid)) {
+        if (clampedHearts != hearts || !hasHearts) {
             dataStore.setHearts(uuid, clampedHearts);
             dataStore.save();
         }
