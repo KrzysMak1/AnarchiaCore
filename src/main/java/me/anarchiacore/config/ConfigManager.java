@@ -17,7 +17,7 @@ public class ConfigManager {
     private int defaultHearts;
     private int maxHearts;
     private String prefix;
-    private Set<World.Environment> blockedCrystalDimensions = new LinkedHashSet<>();
+    private Set<World.Environment> blockedCrystalEnvironments = new LinkedHashSet<>();
     private Set<String> blockedCrystalWorldNames = new LinkedHashSet<>();
     private String trashTitle;
     private int trashRows;
@@ -34,9 +34,9 @@ public class ConfigManager {
         defaultHearts = plugin.getConfig().getInt("defaultHearts", 30);
         maxHearts = plugin.getConfig().getInt("maxHearts", 40);
         prefix = plugin.getConfig().getString("messages.prefix", "");
-        blockedCrystalDimensions = new LinkedHashSet<>();
+        blockedCrystalEnvironments = new LinkedHashSet<>();
         blockedCrystalWorldNames = new LinkedHashSet<>();
-        for (String envName : plugin.getConfig().getStringList("blockedEndCrystalDimensions")) {
+        for (String envName : plugin.getConfig().getStringList("blockedEndCrystalEnvironments")) {
             if (envName == null) {
                 continue;
             }
@@ -45,10 +45,20 @@ public class ConfigManager {
                 continue;
             }
             try {
-                blockedCrystalDimensions.add(World.Environment.valueOf(token.toUpperCase(Locale.ROOT)));
+                blockedCrystalEnvironments.add(World.Environment.valueOf(token.toUpperCase(Locale.ROOT)));
             } catch (IllegalArgumentException ex) {
-                blockedCrystalWorldNames.add(token.toLowerCase(Locale.ROOT));
+                plugin.getLogger().warning("Unknown environment in blockedEndCrystalEnvironments: " + token);
             }
+        }
+        for (String worldName : plugin.getConfig().getStringList("blockedEndCrystalWorlds")) {
+            if (worldName == null) {
+                continue;
+            }
+            String token = worldName.trim();
+            if (token.isEmpty()) {
+                continue;
+            }
+            blockedCrystalWorldNames.add(token.toLowerCase(Locale.ROOT));
         }
         trashTitle = plugin.getConfig().getString("trash.title", "Kosz");
         trashRows = plugin.getConfig().getInt("trash.rows", 5);
@@ -131,7 +141,7 @@ public class ConfigManager {
     }
 
     public Set<World.Environment> getBlockedCrystalDimensions() {
-        return Collections.unmodifiableSet(blockedCrystalDimensions);
+        return Collections.unmodifiableSet(blockedCrystalEnvironments);
     }
 
     public Set<String> getBlockedCrystalWorldNames() {
@@ -139,7 +149,7 @@ public class ConfigManager {
     }
 
     public boolean isCrystalBlocked(World world) {
-        if (blockedCrystalDimensions.contains(world.getEnvironment())) {
+        if (blockedCrystalEnvironments.contains(world.getEnvironment())) {
             return true;
         }
         return blockedCrystalWorldNames.contains(world.getName().toLowerCase(Locale.ROOT));
