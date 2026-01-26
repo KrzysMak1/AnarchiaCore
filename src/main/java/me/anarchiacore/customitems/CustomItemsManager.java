@@ -77,6 +77,10 @@ public class CustomItemsManager implements Listener {
         return item;
     }
 
+    public void reload() {
+        cooldowns.clear();
+    }
+
     public boolean isCustomItem(ItemStack item, String id) {
         if (item == null) {
             return false;
