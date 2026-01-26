@@ -40,6 +40,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private Main stormItemyMain;
     private B stormItemyInitializer;
     private StormItemyConfigInstaller stormItemyConfigInstaller;
+    private AnarchiaCorePlaceholderExpansion placeholderExpansion;
 
     @Override
     public void onEnable() {
@@ -162,8 +163,13 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
     private void registerPlaceholders() {
         var plugin = getServer().getPluginManager().getPlugin("PlaceholderAPI");
+        if (placeholderExpansion != null) {
+            placeholderExpansion.unregister();
+            placeholderExpansion = null;
+        }
         if (plugin != null && plugin.isEnabled()) {
-            new AnarchiaCorePlaceholderExpansion(this, configManager, dataStore, combatLogManager, statsManager).register();
+            placeholderExpansion = new AnarchiaCorePlaceholderExpansion(this, configManager, dataStore, combatLogManager, statsManager);
+            placeholderExpansion.register();
             getLogger().info("PlaceholderAPI found, placeholders registered.");
         } else {
             getLogger().info("PlaceholderAPI not found, skipping placeholders.");
@@ -173,6 +179,15 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private void reloadAll(CommandSender sender) {
         configManager.reload();
         dataStore.reload();
+        if (heartsManager != null) {
+            heartsManager.reload();
+        }
+        if (trashManager != null) {
+            trashManager.reload();
+        }
+        if (customItemsManager != null) {
+            customItemsManager.reload();
+        }
         if (statsManager != null) {
             statsManager.reload();
         }
@@ -184,7 +199,24 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (stormItemyConfigInstaller != null) {
             stormItemyConfigInstaller.installMissing();
         }
+        reloadStormItemy(sender);
+        registerPlaceholders();
         messageService.send(sender, getConfig().getString("messages.reloadDone"));
+    }
+
+    private void reloadStormItemy(CommandSender sender) {
+        if (stormItemyMain == null) {
+            return;
+        }
+        if (stormItemyMain.getConfigManager() != null) {
+            stormItemyMain.getConfigManager().A();
+        }
+        if (stormItemyMain.getActionbarManager() != null) {
+            stormItemyMain.getActionbarManager().loadConfig();
+        }
+        if (stormItemyInitializer != null && stormItemyInitializer.Z != null) {
+            stormItemyInitializer.Z.B(sender);
+        }
     }
 
     private boolean handleHeartCommand(CommandSender sender, String[] args) {

@@ -4,6 +4,7 @@ import me.anarchiacore.config.ConfigManager;
 import me.anarchiacore.config.MessageService;
 import me.anarchiacore.storage.DataStore;
 import me.anarchiacore.util.ItemUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -138,6 +139,19 @@ public class HeartsManager implements Listener {
         placeholders.put("maxHearts", String.valueOf(configManager.getMaxHearts()));
         ItemUtil.applyMeta(item, def.displayName(), def.lore(), def.enchantments(), def.flags(), def.customModelData(), plugin, heartKey, "1", placeholders);
         return item;
+    }
+
+    public void reload() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            UUID uuid = player.getUniqueId();
+            int hearts = dataStore.getHearts(uuid, configManager.getDefaultHearts());
+            int clampedHearts = clampHearts(hearts);
+            if (clampedHearts != hearts) {
+                dataStore.setHearts(uuid, clampedHearts);
+                dataStore.save();
+            }
+            applyMaxHealth(player, clampedHearts);
+        }
     }
 
     public boolean isHeartItem(ItemStack item) {

@@ -33,6 +33,14 @@ public class TrashManager implements Listener {
         messageService.send(player, plugin.getConfig().getString("messages.trashOpened"));
     }
 
+    public void reload() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player.getOpenInventory().getTopInventory().getHolder() instanceof TrashHolder) {
+                player.closeInventory();
+            }
+        }
+    }
+
     @EventHandler
     public void onClose(InventoryCloseEvent event) {
         InventoryHolder holder = event.getInventory().getHolder();
