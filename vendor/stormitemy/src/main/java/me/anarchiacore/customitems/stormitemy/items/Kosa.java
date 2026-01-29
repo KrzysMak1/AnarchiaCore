@@ -53,12 +53,12 @@ import org.bukkit.potion.PotionEffectType;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class _
+public class Kosa
 implements Listener {
     private final Plugin B;
     private final ConfigurationSection A;
 
-    public _(Plugin plugin) {
+    public Kosa(Plugin plugin) {
         me.anarchiacore.customitems.stormitemy.config.A a2;
         this.B = plugin;
         File file = new File(plugin.getDataFolder(), "items");
@@ -284,4 +284,3 @@ implements Listener {
         }
     }
 }
-

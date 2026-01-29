@@ -430,71 +430,33 @@ implements Plugin, TabExecutor, Listener {
 
     private void C() {
         try {
-            Object object;
-            Object object2;
-            Object object3;
-            Object object4;
-            Object object5;
-            Object object6;
             Object object7 = this.getItem("arcusmagnus");
             if (object7 != null && object7 instanceof me.anarchiacore.customitems.stormitemy.items.A) {
                 ((me.anarchiacore.customitems.stormitemy.items.A)object7).cleanup();
             }
-            if ((object6 = this.getItem("przeterminowanytrunek")) != null) {
-                try {
-                    object5 = object6.getClass().getMethod("onDisable", new Class[0]);
-                    object5.invoke(object6, new Object[0]);
-                }
-                catch (Exception exception) {
-                    // empty catch block
-                }
-            }
-            if ((object5 = this.getItem("wyrzutniahydroklatki")) != null) {
-                try {
-                    object4 = object5.getClass().getMethod("cleanupAllCages", new Class[0]);
-                    object4.invoke(object5, new Object[0]);
-                }
-                catch (Exception exception) {
-                    // empty catch block
-                }
-            }
-            if ((object4 = this.getItem("sakiewkadropu")) != null) {
-                try {
-                    object3 = object4.getClass().getMethod("closeDatabase", new Class[0]);
-                    object3.invoke(object4, new Object[0]);
-                }
-                catch (Exception exception) {
-                    // empty catch block
-                }
-            }
-            if ((object3 = this.getItem("balonikzhelem")) != null) {
-                try {
-                    object2 = object3.getClass().getMethod("cleanup", new Class[0]);
-                    object2.invoke(object3, new Object[0]);
-                }
-                catch (Exception exception) {
-                    // empty catch block
-                }
-            }
-            if ((object2 = this.getItem("blokwidmo")) != null) {
-                try {
-                    object = object2.getClass().getMethod("cleanup", new Class[0]);
-                    object.invoke(object2, new Object[0]);
-                }
-                catch (Exception exception) {
-                    // empty catch block
-                }
-            }
-            if ((object = this.getItem("cudownalatarnia")) != null) {
-                try {
-                    Method method = object.getClass().getMethod("cleanup", new Class[0]);
-                    method.invoke(object, new Object[0]);
-                }
-                catch (Exception exception) {}
-            }
+            this.invokeItemMethod("przeterminowanytrunek", "onDisable");
+            this.invokeItemMethod("wyrzutniahydroklatki", "cleanupAllCages");
+            this.invokeItemMethod("sakiewkadropu", "closeDatabase");
+            this.invokeItemMethod("balonikzhelem", "cleanup");
+            this.invokeItemMethod("blokwidmo", "cleanup");
+            this.invokeItemMethod("cudownalatarnia", "cleanup");
         }
         catch (Exception exception) {
             this.getLogger().warning("B\u0142\u0105d podczas czyszczenia przedmiot\u00f3w: " + exception.getMessage());
+        }
+    }
+
+    private void invokeItemMethod(String key, String methodName) {
+        Object object = this.getItem(key);
+        if (object == null) {
+            return;
+        }
+        try {
+            Method method = object.getClass().getMethod(methodName, new Class[0]);
+            method.invoke(object, new Object[0]);
+        }
+        catch (Exception exception) {
+            // empty catch block
         }
     }
 
@@ -552,35 +514,34 @@ implements Plugin, TabExecutor, Listener {
 
     public boolean isItemDisabled(String string) {
         try {
-            Set set;
-            String string2;
             File file = new File(this.getDataFolder(), "items");
             if (!file.exists()) {
                 return false;
             }
             File file2 = new File(file, string + ".yml");
             if (!file2.exists()) {
-                string2 = string.replace((CharSequence)"_", (CharSequence)"");
+                String string2 = string.replace((CharSequence)"_", (CharSequence)"");
                 file2 = new File(file, string2 + ".yml");
             }
             if (!file2.exists()) {
-                string2 = string.replace((CharSequence)"_", (CharSequence)"").toLowerCase();
-                set = file.listFiles();
-                if (set != null) {
-                    for (Set set2 : set) {
-                        if (!set2.getName().endsWith(".yml")) continue;
-                        String string3 = set2.getName().replace((CharSequence)".yml", (CharSequence)"").toLowerCase();
+                String string2 = string.replace((CharSequence)"_", (CharSequence)"").toLowerCase();
+                File[] files = file.listFiles();
+                if (files != null) {
+                    for (File file3 : files) {
+                        if (!file3.getName().endsWith(".yml")) continue;
+                        String string3 = file3.getName().replace((CharSequence)".yml", (CharSequence)"").toLowerCase();
                         if (string3.equals((Object)string2) || string3.replace((CharSequence)"_", (CharSequence)"").equals((Object)string2)) {
-                            file2 = set2;
+                            file2 = file3;
                             break;
                         }
                         try {
-                            String string4;
-                            String string5;
-                            YamlConfiguration exception = YamlConfiguration.loadConfiguration((File)set2);
-                            Set set3 = exception.getKeys(false);
-                            if (set3.isEmpty() || !(string5 = (string4 = (String)set3.iterator().next()).replace((CharSequence)"_", (CharSequence)"").toLowerCase()).equals((Object)string2)) continue;
-                            file2 = set2;
+                            YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration(file3);
+                            Set<String> set = yamlConfiguration.getKeys(false);
+                            if (set.isEmpty()) continue;
+                            String string4 = set.iterator().next();
+                            String string5 = string4.replace((CharSequence)"_", (CharSequence)"").toLowerCase();
+                            if (!string5.equals((Object)string2)) continue;
+                            file2 = file3;
                             break;
                         }
                         catch (Exception exception) {
@@ -592,13 +553,13 @@ implements Plugin, TabExecutor, Listener {
             if (!file2.exists()) {
                 return false;
             }
-            string2 = YamlConfiguration.loadConfiguration((File)file2);
-            set = string2.getKeys(false);
+            YamlConfiguration yamlConfiguration = YamlConfiguration.loadConfiguration((File)file2);
+            Set<String> set = yamlConfiguration.getKeys(false);
             if (set.isEmpty()) {
                 return false;
             }
             String string6 = (String)set.iterator().next();
-            return string2.getBoolean(string6 + ".disabled", false);
+            return yamlConfiguration.getBoolean(string6 + ".disabled", false);
         }
         catch (Exception exception) {
             this.getLogger().warning("[ItemEditor] B\u0142\u0105d przy sprawdzaniu stanu przedmiotu: " + exception.getMessage());

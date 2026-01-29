@@ -58,7 +58,7 @@ public class B {
     public me.anarchiacore.customitems.stormitemy.commands.F I;
     public me.anarchiacore.customitems.stormitemy.listeners.B n;
     public me.anarchiacore.customitems.stormitemy.commands.B H;
-    public me.anarchiacore.customitems.stormitemy.ui.gui.A _;
+    public me.anarchiacore.customitems.stormitemy.ui.gui.A mainGui;
     public me.anarchiacore.customitems.stormitemy.listeners.D e;
     public F m;
     public me.anarchiacore.customitems.stormitemy.ui.gui.B i;
@@ -181,12 +181,12 @@ public class B {
     }
 
     private void L() {
-        this._ = new me.anarchiacore.customitems.stormitemy.ui.gui.A(this.j, this.h);
-        this.H = new me.anarchiacore.customitems.stormitemy.commands.B(this.j, this._);
+        this.mainGui = new me.anarchiacore.customitems.stormitemy.ui.gui.A(this.j, this.h);
+        this.H = new me.anarchiacore.customitems.stormitemy.commands.B(this.j, this.mainGui);
         this.i = new me.anarchiacore.customitems.stormitemy.ui.gui.B(this.j);
         this.d = new me.anarchiacore.customitems.stormitemy.listeners.C(this.j, this.i);
         this.i.A(this.d);
-        this.e = new me.anarchiacore.customitems.stormitemy.listeners.D(this.j, this._, this.i);
+        this.e = new me.anarchiacore.customitems.stormitemy.listeners.D(this.j, this.mainGui, this.i);
         if (this.W != null && this.W.G()) {
             this.A("Premium aktywne - inicjalizacja kreatora w\u0142asnych przedmiot\u00f3w...");
             this.Y = new E(this.j);

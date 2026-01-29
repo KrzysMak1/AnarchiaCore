@@ -53,13 +53,13 @@ import org.bukkit.potion.PotionEffect;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class u
+public class U
 implements Listener {
     private final Plugin B;
     private File C;
     private YamlConfiguration A;
 
-    public u(Plugin plugin) {
+    public U(Plugin plugin) {
         this.B = plugin;
         File file = new File(plugin.getDataFolder(), "items");
         if (!file.exists()) {
@@ -259,4 +259,3 @@ implements Listener {
         return itemStack;
     }
 }
-
