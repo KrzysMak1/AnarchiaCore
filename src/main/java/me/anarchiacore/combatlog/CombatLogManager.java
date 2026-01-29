@@ -468,7 +468,7 @@ public class CombatLogManager implements Listener {
         combatStates.remove(event.getEntity().getUniqueId());
         if (config.isAutorespawn()) {
             Player player = event.getEntity();
-            Bukkit.getScheduler().runTask(plugin, () -> player.spigot().respawn());
+            Bukkit.getScheduler().runTask(plugin, player::respawn);
         }
     }
 
