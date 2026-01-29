@@ -60,7 +60,7 @@ import me.anarchiacore.customitems.stormitemy.items.W;
 import me.anarchiacore.customitems.stormitemy.items.X;
 import me.anarchiacore.customitems.stormitemy.items.Y;
 import me.anarchiacore.customitems.stormitemy.items.Z;
-import me.anarchiacore.customitems.stormitemy.items._;
+import me.anarchiacore.customitems.stormitemy.items.Kosa;
 import me.anarchiacore.customitems.stormitemy.items.a;
 import me.anarchiacore.customitems.stormitemy.items.b;
 import me.anarchiacore.customitems.stormitemy.items.c;
@@ -78,7 +78,7 @@ import me.anarchiacore.customitems.stormitemy.items.n;
 import me.anarchiacore.customitems.stormitemy.items.o;
 import me.anarchiacore.customitems.stormitemy.items.p;
 import me.anarchiacore.customitems.stormitemy.items.q;
-import me.anarchiacore.customitems.stormitemy.items.r;
+import me.anarchiacore.customitems.stormitemy.items.R;
 import me.anarchiacore.customitems.stormitemy.items.s;
 import me.anarchiacore.customitems.stormitemy.items.t;
 import me.anarchiacore.customitems.stormitemy.items.u;
@@ -120,7 +120,7 @@ public class C {
                 this.A("kupaanarchi", new B(this.C));
                 this.A("lizak", new a(this.C));
                 this.A("koronaanarchi", new W(this.C));
-                this.A("totemulaskawienia", new r(this.C));
+                this.A("totemulaskawienia", new R(this.C));
                 this.A("\u0141adowanie przedmiot\u00f3w... (20%)");
                 this.A("wedkasurferka", new o((Plugin)this.C));
                 this.A("siekieragrincha", new y((Plugin)this.C));
@@ -128,7 +128,7 @@ public class C {
                 this.A("bombardamaxima", new HA(this.C));
                 this.A("lukkupidyna", new e(this.C));
                 this.A("marchewkowymiecz", new f(this.C));
-                this.A("kosa", new _((Plugin)this.C));
+                this.A("kosa", new Kosa((Plugin)this.C));
                 this.A("excalibur", new EA((Plugin)this.C));
                 this.A("krewwampira", new AA((Plugin)this.C));
                 this.A("marchewkowakusza", new q(this.C));
@@ -267,8 +267,8 @@ public class C {
         if (object instanceof W) {
             return ((W)object)::getItem;
         }
-        if (object instanceof r) {
-            return ((r)object)::getItem;
+        if (object instanceof R) {
+            return ((R)object)::getItem;
         }
         if (object instanceof o) {
             return ((o)object)::getItem;
@@ -288,8 +288,8 @@ public class C {
         if (object instanceof f) {
             return ((f)object)::getItem;
         }
-        if (object instanceof _) {
-            return ((_)object)::getItem;
+        if (object instanceof Kosa) {
+            return ((Kosa)object)::getItem;
         }
         if (object instanceof EA) {
             return ((EA)object)::getItem;
@@ -452,4 +452,3 @@ public class C {
         }
     }
 }
-

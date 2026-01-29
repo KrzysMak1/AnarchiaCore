@@ -76,14 +76,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class r
+public class R
 implements Listener {
     private final Plugin D;
     private ConfigurationSection A;
     private static final Map<UUID, Long> C = new ConcurrentHashMap();
     private static final long B = 10000L;
 
-    public r(Plugin javaPlugin) {
+    public R(Plugin javaPlugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.D = javaPlugin;
@@ -177,7 +177,7 @@ implements Listener {
 
     private void A() {
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!player.hasMetadata("totem_ulaskawienia_used") || r.hasRecentlyUsedTotem(player.getUniqueId())) continue;
+            if (!player.hasMetadata("totem_ulaskawienia_used") || R.hasRecentlyUsedTotem(player.getUniqueId())) continue;
             player.removeMetadata("totem_ulaskawienia_used", (Plugin)this.D);
         }
     }
@@ -219,12 +219,8 @@ implements Listener {
                 this.D.getLogger().warning("B\u0142\u0105d parsowania efektu totemu: " + string);
             }
         }
-        new BukkitRunnable(this){
-            final /* synthetic */ r this$0;
-            {
-                this.this$0 = r2;
-            }
-
+        new BukkitRunnable(){
+            @Override
             public void run() {
                 final ItemStack itemStack = player.getInventory().getItemInMainHand();
                 final ItemStack itemStack2 = player.getInventory().getItemInOffHand();
@@ -232,17 +228,13 @@ implements Listener {
                 player.getInventory().setItemInMainHand(itemStack3);
                 try {
                     player.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 1, 1, false, false));
-                    new BukkitRunnable(this){
-                        final /* synthetic */ 1 this$1;
-                        {
-                            this.this$1 = var1_1;
-                        }
-
+                    new BukkitRunnable(){
+                        @Override
                         public void run() {
-                            this.this$1.player.getInventory().setItemInMainHand(itemStack);
-                            this.this$1.player.getInventory().setItemInOffHand(itemStack2);
+                            player.getInventory().setItemInMainHand(itemStack);
+                            player.getInventory().setItemInOffHand(itemStack2);
                         }
-                    }.runTaskLater((Plugin)this.this$0.D, 3L);
+                    }.runTaskLater((Plugin)R.this.D, 3L);
                 }
                 catch (Exception exception) {
                     player.getInventory().setItemInMainHand(itemStack);
@@ -381,4 +373,3 @@ implements Listener {
         }
     }
 }
-

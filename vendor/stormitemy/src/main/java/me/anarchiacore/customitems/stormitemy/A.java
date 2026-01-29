@@ -11,7 +11,7 @@ package me.anarchiacore.customitems.stormitemy;
 public final class A {
     public static final String b = "antycobweb";
     public static final String \u00c2 = "zmutowanycreeper";
-    public static final String _ = "balonikzhelem";
+    public static final String BALONIK_Z_HELEM = "balonikzhelem";
     public static final String \u00a4 = "smoczymiecz";
     public static final String i = "bombardamaxima";
     public static final String G = "boskitopor";
@@ -77,4 +77,3 @@ public final class A {
         throw new AssertionError((Object)"Nie mo\u017cna instancjonowa\u0107 Constants");
     }
 }
-

@@ -158,13 +158,8 @@ public class A {
         }
     }
 
-    /*
-     * WARNING - void declaration
-     */
     private static void A(Object object, _A _A2, boolean bl) {
         try {
-            Constructor constructor3;
-            void var5_9;
             Class clazz = Class.forName((String)"net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket");
             Class clazz2 = null;
             for (Class clazz3 : clazz.getDeclaredClasses()) {
@@ -176,17 +171,17 @@ public class A {
                 D.getLogger().warning("[DEBUG] Nie znaleziono klasy Action w pakiecie PlayerInfo");
                 return;
             }
-            Object var5_7 = null;
-            for (Object object2 : clazz2.getEnumConstants()) {
-                if (!((Enum)object2).name().equals((Object)"ADD_PLAYER")) continue;
-                Object object3 = object2;
+            Object object2 = null;
+            for (Object object3 : clazz2.getEnumConstants()) {
+                if (!((Enum)object3).name().equals((Object)"ADD_PLAYER")) continue;
+                object2 = object3;
                 break;
             }
-            if (var5_9 == null) {
+            if (object2 == null) {
                 D.getLogger().warning("[DEBUG] Nie znaleziono akcji ADD_PLAYER");
                 return;
             }
-            EnumSet enumSet = EnumSet.of((Enum)((Enum)var5_9));
+            EnumSet enumSet = EnumSet.of((Enum)((Enum)object2));
             Class clazz4 = null;
             for (Class clazz5 : clazz.getDeclaredClasses()) {
                 if (!clazz5.getSimpleName().equals((Object)"b") && !clazz5.getSimpleName().equals((Object)"Entry")) continue;
@@ -197,29 +192,29 @@ public class A {
                 D.getLogger().warning("[DEBUG] Nie znaleziono klasy Entry");
                 return;
             }
-            Constructor constructor2 = null;
-            for (Constructor constructor3 : clazz4.getDeclaredConstructors()) {
-                if (constructor3.getParameterCount() < 4) continue;
-                constructor2 = constructor3;
+            Constructor constructor = null;
+            for (Constructor constructor2 : clazz4.getDeclaredConstructors()) {
+                if (constructor2.getParameterCount() < 4) continue;
+                constructor = constructor2;
                 break;
             }
-            if (constructor2 == null) {
+            if (constructor == null) {
                 D.getLogger().warning("[DEBUG] Nie znaleziono konstruktora Entry");
                 return;
             }
-            constructor2.setAccessible(true);
-            Object[] objectArray = new Object[constructor2.getParameterCount()];
+            constructor.setAccessible(true);
+            Object[] objectArray = new Object[constructor.getParameterCount()];
             objectArray[0] = _A2.D;
             objectArray[1] = _A2.C;
-            objectArray[2] = Boolean.valueOf((boolean)true);
+            objectArray[2] = Boolean.TRUE;
             objectArray[3] = Integer.valueOf((int)0);
             for (int i2 = 4; i2 < objectArray.length; ++i2) {
                 objectArray[i2] = null;
             }
-            Object object4 = constructor2.newInstance(objectArray);
+            Object object4 = constructor.newInstance(objectArray);
             ArrayList arrayList = new ArrayList();
             arrayList.add(object4);
-            constructor3 = clazz.getConstructor(new Class[]{EnumSet.class, Collection.class});
+            Constructor constructor3 = clazz.getConstructor(new Class[]{EnumSet.class, Collection.class});
             Object object5 = constructor3.newInstance(new Object[]{enumSet, arrayList});
             me.anarchiacore.customitems.stormitemy.npc.A.A(object, object5);
             D.getLogger().info("[DEBUG] \u2713 Wys\u0142ano pakiet PlayerInfo (ADD_PLAYER)");
@@ -501,4 +496,3 @@ public class A {
         }
     }
 }
-
