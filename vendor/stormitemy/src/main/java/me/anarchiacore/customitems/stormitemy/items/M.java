@@ -117,7 +117,7 @@ import org.bukkit.scheduler.BukkitTask;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class m
+public class M
 implements Listener {
     private final Main F;
     private ConfigurationSection C;
@@ -127,7 +127,7 @@ implements Listener {
     private final Map<UUID, Map<PotionEffectType, PotionEffect>> A = new ConcurrentHashMap();
     private final Map<UUID, Map<PotionEffectType, Long>> G = new ConcurrentHashMap();
 
-    public m(Main main) {
+    public M(Main main) {
         File file;
         this.F = main;
         main.getServer().getPluginManager().registerEvents((Listener)this, (Plugin)main);

@@ -31,7 +31,6 @@ package me.anarchiacore.customitems.stormitemy.zaczarowania;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -72,9 +71,6 @@ public class C {
     }
 
     public ItemStack E() {
-        Object object;
-        String string5;
-        String string22;
         Material material;
         String string3 = this.C.getConfig().getString("zaczarowania.item.material", "BLUE_DYE");
         try {
@@ -92,27 +88,25 @@ public class C {
         }
         String string4 = this.C.getConfig().getString("zaczarowania.item.name", "&3&lZaczarowanie przedmiotu");
         itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C(string4));
-        List list = this.C.getConfig().getStringList("zaczarowania.item.lore");
-        ArrayList arrayList = new ArrayList();
-        for (String string22 : list) {
-            arrayList.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C(string22));
+        List<String> lore = this.C.getConfig().getStringList("zaczarowania.item.lore");
+        List<String> coloredLore = new ArrayList();
+        for (String line : lore) {
+            coloredLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C(line));
         }
-        itemMeta.setLore((List)arrayList);
-        Iterator iterator = this.C.getConfig().getStringList("zaczarowania.item.flags");
-        for (String string5 : iterator) {
+        itemMeta.setLore(coloredLore);
+        List<String> flags = this.C.getConfig().getStringList("zaczarowania.item.flags");
+        for (String flagName : flags) {
             try {
-                object = ItemFlag.valueOf((String)string5);
-                itemMeta.addItemFlags(new ItemFlag[]{object});
+                ItemFlag flag = ItemFlag.valueOf(flagName);
+                itemMeta.addItemFlags(flag);
             }
             catch (IllegalArgumentException illegalArgumentException) {
-                this.C.getLogger().warning("Nieznana flaga przedmiotu: " + string5);
+                this.C.getLogger().warning("Nieznana flaga przedmiotu: " + flagName);
             }
         }
-        string22 = this.C.getConfig().getStringList("zaczarowania.item.enchantments");
-        string5 = string22.iterator();
-        while (string5.hasNext()) {
-            object = (String)string5.next();
-            String[] stringArray = object.split(":");
+        List<String> enchantmentEntries = this.C.getConfig().getStringList("zaczarowania.item.enchantments");
+        for (String enchantmentEntry : enchantmentEntries) {
+            String[] stringArray = enchantmentEntry.split(":");
             if (stringArray.length != 2) continue;
             try {
                 Enchantment enchantment = Enchantment.getByName((String)stringArray[0]);
@@ -195,7 +189,7 @@ public class C {
             }
             return ThreadLocalRandom.current().nextInt(n4, n5 + 1);
         }
-        ArrayList arrayList = new ArrayList();
+        List<_A> ranges = new ArrayList();
         int n6 = 0;
         boolean bl2 = this.C.getLuckyEventManager() != null && this.C.getLuckyEventManager().D();
         int n7 = this.C.getConfig().getInt("zaczarowania.effects.high_threshold", 40);
@@ -203,13 +197,13 @@ public class C {
             try {
                 int n8 = configurationSection.getInt(string, 0);
                 if (n8 <= 0) continue;
-                Object object = this.A(string);
-                if (object == null) {
+                String[] range = this.A(string);
+                if (range == null) {
                     this.C.getLogger().warning("Nieprawid\u0142owy format zakresu: " + string);
                     continue;
                 }
-                int n9 = Integer.parseInt((String)object[0]);
-                int n10 = Integer.parseInt((String)object[1]);
+                int n9 = Integer.parseInt(range[0]);
+                int n10 = Integer.parseInt(range[1]);
                 if (n10 < n9) {
                     this.C.getLogger().warning("Nieprawid\u0142owy zakres (max < min): " + string);
                     continue;
@@ -222,25 +216,25 @@ public class C {
                         n8 *= 3;
                     }
                 }
-                arrayList.add((Object)new _A(n9, n10, n8));
+                ranges.add(new _A(n9, n10, n8));
                 n6 += n8;
             }
             catch (NumberFormatException numberFormatException) {
                 this.C.getLogger().warning("B\u0142\u0105d parsowania zakresu: " + string + " - " + numberFormatException.getMessage());
             }
         }
-        if (arrayList.isEmpty() || n6 == 0) {
+        if (ranges.isEmpty() || n6 == 0) {
             this.C.getLogger().warning("Brak prawid\u0142owych zakres\u00f3w! U\u017cywam domy\u015blnego losowania.");
             return ThreadLocalRandom.current().nextInt(-20, 51);
         }
         int n11 = ThreadLocalRandom.current().nextInt(n6);
         int n12 = 0;
-        for (Object object : arrayList) {
-            if (n11 >= (n12 += object.C)) continue;
-            return ThreadLocalRandom.current().nextInt(object.B, object.A + 1);
+        for (_A range : ranges) {
+            if (n11 >= (n12 += range.C)) continue;
+            return ThreadLocalRandom.current().nextInt(range.B, range.A + 1);
         }
-        Object object = (_A)arrayList.get(arrayList.size() - 1);
-        return ThreadLocalRandom.current().nextInt(object.B, object.A + 1);
+        _A range = ranges.get(ranges.size() - 1);
+        return ThreadLocalRandom.current().nextInt(range.B, range.A + 1);
     }
 
     private String[] A(String string) {
@@ -322,15 +316,15 @@ public class C {
 
     private void B() {
         this.B.clear();
-        List list = this.C.getConfig().getStringList("zaczarowania.item.enchantments");
-        for (String string : list) {
+        List<String> entries = this.C.getConfig().getStringList("zaczarowania.item.enchantments");
+        for (String string : entries) {
             String[] stringArray = string.split(":");
             if (stringArray.length != 2) continue;
             try {
                 Enchantment enchantment = Enchantment.getByName((String)stringArray[0]);
                 int n2 = Integer.parseInt((String)stringArray[1]);
                 if (enchantment == null) continue;
-                this.B.put((Object)enchantment.getKey().getKey(), (Object)n2);
+                this.B.put(enchantment.getKey().getKey(), n2);
             }
             catch (NumberFormatException numberFormatException) {
                 this.C.getLogger().warning("B\u0142\u0105d parsowania enchantmentu: " + string);
@@ -366,4 +360,3 @@ public class C {
         }
     }
 }
-

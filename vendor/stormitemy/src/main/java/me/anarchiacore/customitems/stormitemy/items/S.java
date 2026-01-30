@@ -97,13 +97,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class s
+public class S
 implements Listener {
     private final Main C;
     private final ConfigurationSection A;
     private final Map<UUID, UUID> B = new ConcurrentHashMap();
 
-    public s(Main main) {
+    public S(Main main) {
         me.anarchiacore.customitems.stormitemy.config.A a2;
         this.C = main;
         main.getServer().getPluginManager().registerEvents((Listener)this, (Plugin)main);

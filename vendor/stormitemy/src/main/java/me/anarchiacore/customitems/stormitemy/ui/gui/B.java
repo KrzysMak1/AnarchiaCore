@@ -65,7 +65,6 @@ import me.anarchiacore.customitems.stormitemy.books.D;
 import me.anarchiacore.customitems.stormitemy.core.ItemRegistry;
 import me.anarchiacore.customitems.stormitemy.messages.A;
 import me.anarchiacore.customitems.stormitemy.messages.C;
-import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
 public class B {
     private final Main E;
@@ -1413,4 +1412,3 @@ public class B {
         this.A(player, itemStack.clone());
     }
 }
-

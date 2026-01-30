@@ -133,9 +133,9 @@ public class B {
             if (this.A) {
                 try {
                     Object object;
-                    Iterator iterator = Class.forName((String)"com.sk89q.worldguard.WorldGuard");
-                    object = iterator.getMethod("getInstance", new Class[0]).invoke(null, new Object[0]);
-                    Object object2 = iterator.getMethod("getPlatform", new Class[0]).invoke(object, new Object[0]);
+                    Class<?> worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
+                    object = worldGuardClass.getMethod("getInstance", new Class[0]).invoke(null, new Object[0]);
+                    Object object2 = worldGuardClass.getMethod("getPlatform", new Class[0]).invoke(object, new Object[0]);
                     Object object3 = object2.getClass().getMethod("getRegionContainer", new Class[0]).invoke(object2, new Object[0]);
                     Object object4 = object3.getClass().getMethod("createQuery", new Class[0]).invoke(object3, new Object[0]);
                     Class clazz = Class.forName((String)"com.sk89q.worldedit.bukkit.BukkitAdapter");
@@ -174,9 +174,9 @@ public class B {
             if (this.A) {
                 try {
                     Object object;
-                    Iterator iterator = Class.forName((String)"com.sk89q.worldguard.WorldGuard");
-                    object = iterator.getMethod("getInstance", new Class[0]).invoke(null, new Object[0]);
-                    Object object2 = iterator.getMethod("getPlatform", new Class[0]).invoke(object, new Object[0]);
+                    Class<?> worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
+                    object = worldGuardClass.getMethod("getInstance", new Class[0]).invoke(null, new Object[0]);
+                    Object object2 = worldGuardClass.getMethod("getPlatform", new Class[0]).invoke(object, new Object[0]);
                     Object object3 = object2.getClass().getMethod("getRegionContainer", new Class[0]).invoke(object2, new Object[0]);
                     Object object4 = object3.getClass().getMethod("createQuery", new Class[0]).invoke(object3, new Object[0]);
                     Class clazz = Class.forName((String)"com.sk89q.worldedit.bukkit.BukkitAdapter");
@@ -200,4 +200,3 @@ public class B {
         }
     }
 }
-

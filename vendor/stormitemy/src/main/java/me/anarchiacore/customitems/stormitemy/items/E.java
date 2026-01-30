@@ -51,7 +51,6 @@ package me.anarchiacore.customitems.stormitemy.items;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,19 +75,19 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import me.anarchiacore.customitems.stormitemy.Main;
+import me.anarchiacore.customitems.stormitemy.regions.C;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class e
+public class E
 implements Listener {
     private final Plugin C;
     private final ConfigurationSection A;
     private boolean B;
 
-    public e(Plugin javaPlugin) {
+    public E(Plugin javaPlugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.C = javaPlugin;
@@ -143,6 +142,10 @@ implements Listener {
         }
         yamlConfiguration = YamlConfiguration.loadConfiguration((File)file);
         this.A = yamlConfiguration.getConfigurationSection("luk_kupidyna");
+    }
+
+    public E(Main main, C regionManager) {
+        this((Plugin)main);
     }
 
     private void A(Player player) {
@@ -208,123 +211,110 @@ implements Listener {
             return;
         }
         Entity entity = projectileHitEvent.getHitEntity();
-        if (entity instanceof Player) {
-            Object object;
-            Object object2;
-            Object object3;
-            Object object4;
-            Object object5;
-            Object object6;
-            Object object7;
-            Main main;
-            Player player2 = (Player)entity;
-            boolean bl = false;
-            boolean bl2 = false;
+        if (!(entity instanceof Player player2)) {
+            return;
+        }
+        boolean shooterBlocked = false;
+        boolean targetBlocked = false;
+        try {
+            if (this.C instanceof Main main) {
+                shooterBlocked = main.isPlayerInBlockedRegion(player);
+                targetBlocked = main.isPlayerInBlockedRegion(player2);
+            }
+        }
+        catch (Exception exception) {
+            // empty catch block
+        }
+        if (this.B && !shooterBlocked && !targetBlocked) {
             try {
-                if (this.C instanceof Main) {
-                    main = (Main)this.C;
-                    if (main.isPlayerInBlockedRegion(player)) {
-                        bl = true;
-                    }
-                    if (main.isPlayerInBlockedRegion(player2)) {
-                        bl2 = true;
-                    }
-                }
+                Class<?> worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
+                Object worldGuard = worldGuardClass.getMethod("getInstance", new Class[0]).invoke(null, new Object[0]);
+                Object platform = worldGuardClass.getMethod("getPlatform", new Class[0]).invoke(worldGuard, new Object[0]);
+                Object container = platform.getClass().getMethod("getRegionContainer", new Class[0]).invoke(platform, new Object[0]);
+                Object query = container.getClass().getMethod("createQuery", new Class[0]).invoke(container, new Object[0]);
+                Class<?> bukkitAdapter = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
+                Object playerVector = bukkitAdapter.getMethod("adapt", new Class[]{Location.class}).invoke(null, new Object[]{player.getLocation()});
+                Object targetVector = bukkitAdapter.getMethod("adapt", new Class[]{Location.class}).invoke(null, new Object[]{player2.getLocation()});
+                Object playerRegions = query.getClass().getMethod("getApplicableRegions", new Class[]{Class.forName("com.sk89q.worldedit.math.BlockVector3")}).invoke(query, new Object[]{playerVector});
+                Object targetRegions = query.getClass().getMethod("getApplicableRegions", new Class[]{Class.forName("com.sk89q.worldedit.math.BlockVector3")}).invoke(query, new Object[]{targetVector});
+                List<String> disabledRegions = this.C.getConfig().getStringList("disabled-regions");
+                shooterBlocked = this.isRegionBlocked(playerRegions, disabledRegions);
+                targetBlocked = this.isRegionBlocked(targetRegions, disabledRegions);
             }
             catch (Exception exception) {
                 // empty catch block
             }
-            if (this.B && !bl && !bl2) {
-                try {
-                    main = Class.forName((String)"com.sk89q.worldguard.WorldGuard");
-                    object7 = main.getMethod("getInstance", new Class[0]).invoke(null, new Object[0]);
-                    object6 = main.getMethod("getPlatform", new Class[0]).invoke(object7, new Object[0]);
-                    object5 = object6.getClass().getMethod("getRegionContainer", new Class[0]).invoke(object6, new Object[0]);
-                    object4 = object5.getClass().getMethod("createQuery", new Class[0]).invoke(object5, new Object[0]);
-                    object3 = Class.forName((String)"com.sk89q.worldedit.bukkit.BukkitAdapter");
-                    object2 = object3.getMethod("adapt", new Class[]{Location.class}).invoke(null, new Object[]{player.getLocation()});
-                    object = object4.getClass().getMethod("getApplicableRegions", new Class[]{Class.forName((String)"com.sk89q.worldedit.math.BlockVector3")}).invoke(object4, new Object[]{object2});
-                    Object object8 = object3.getMethod("adapt", new Class[]{Location.class}).invoke(null, new Object[]{player2.getLocation()});
-                    Object object9 = object4.getClass().getMethod("getApplicableRegions", new Class[]{Class.forName((String)"com.sk89q.worldedit.math.BlockVector3")}).invoke(object4, new Object[]{object8});
-                    List list = this.C.getConfig().getStringList("disabled-regions");
-                    Iterable iterable = (Iterable)object;
-                    for (Object object10 : iterable) {
-                        Object object11 = (String)object10.getClass().getMethod("getId", new Class[0]).invoke(object10, new Object[0]);
-                        for (String string : list) {
-                            if (!object11.equalsIgnoreCase(string)) continue;
-                            bl = true;
-                            break;
-                        }
-                        if (!bl) continue;
-                        break;
+        }
+        if (shooterBlocked || targetBlocked) {
+            return;
+        }
+        int chance = this.A.getInt("chance", 30);
+        if (Math.random() * 100.0 < (double)chance) {
+            List<Map<?, ?>> effects = (List<Map<?, ?>>)(List<?>)this.A.getMapList("effects");
+            if (effects != null && !effects.isEmpty()) {
+                for (Map<?, ?> effectMap : effects) {
+                    String effectTypeName = effectMap.get("type") != null ? effectMap.get("type").toString() : "";
+                    PotionEffectType effectType = PotionEffectType.getByName(effectTypeName);
+                    if (effectType == null) {
+                        continue;
                     }
-                    Iterator iterator = (Iterable)object9;
-                    for (Object object11 : iterator) {
-                        Object object12 = (String)object11.getClass().getMethod("getId", new Class[0]).invoke(object11, new Object[0]);
-                        for (String string : list) {
-                            if (!object12.equalsIgnoreCase(string)) continue;
-                            bl2 = true;
-                            break;
-                        }
-                        if (!bl2) continue;
-                        break;
-                    }
+                    int duration = effectMap.get("duration") instanceof Number ? ((Number)effectMap.get("duration")).intValue() : 5;
+                    int amplifier = effectMap.get("amplifier") instanceof Number ? ((Number)effectMap.get("amplifier")).intValue() : 0;
+                    boolean ambient = effectMap.get("ambient") instanceof Boolean ? (Boolean)effectMap.get("ambient") : false;
+                    boolean particles = effectMap.get("particles") instanceof Boolean ? (Boolean)effectMap.get("particles") : true;
+                    player2.addPotionEffect(new PotionEffect(effectType, duration * 20, amplifier, ambient, particles));
                 }
-                catch (Exception exception) {
-                    // empty catch block
-                }
+            } else {
+                int effectDuration = this.A.getInt("effectDuration", 5);
+                player2.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, effectDuration * 20, 0));
             }
-            if (bl || bl2) {
-                return;
+            player.setCooldown(Material.BOW, this.A.getInt("cooldown", 20) * 20);
+            this.A(player);
+            String shooterTitle = this.A.getString("messages.shooter.title", "");
+            String shooterSubtitle = this.A.getString("messages.shooter.subtitle", "");
+            String shooterChatMessage = this.A.getString("messages.shooter.chatMessage", "");
+            shooterTitle = shooterTitle.replace("{TARGET}", player2.getName());
+            shooterSubtitle = shooterSubtitle.replace("{TARGET}", player2.getName());
+            shooterChatMessage = shooterChatMessage.replace("{TARGET}", player2.getName());
+            if (!shooterTitle.isEmpty() || !shooterSubtitle.isEmpty()) {
+                player.sendTitle(me.anarchiacore.customitems.stormitemy.utils.color.A.C(shooterTitle), me.anarchiacore.customitems.stormitemy.utils.color.A.C(shooterSubtitle), 10, 70, 20);
             }
-            int n2 = this.A.getInt("chance", 30);
-            if (Math.random() * 100.0 < (double)n2) {
-                object7 = this.A.getMapList("effects");
-                if (object7 != null && !object7.isEmpty()) {
-                    object6 = object7.iterator();
-                    while (object6.hasNext()) {
-                        object5 = (Map)object6.next();
-                        object4 = object5.get((Object)"type") != null ? object5.get((Object)"type").toString() : "";
-                        object3 = PotionEffectType.getByName((String)object4);
-                        if (object3 == null) continue;
-                        int n3 = object5.get((Object)"duration") instanceof Number ? ((Number)object5.get((Object)"duration")).intValue() : 5;
-                        int n4 = object5.get((Object)"amplifier") instanceof Number ? ((Number)object5.get((Object)"amplifier")).intValue() : 0;
-                        boolean bl3 = object5.get((Object)"ambient") instanceof Boolean ? (Boolean)object5.get((Object)"ambient") : false;
-                        boolean bl4 = object5.get((Object)"particles") instanceof Boolean ? (Boolean)object5.get((Object)"particles") : true;
-                        player2.addPotionEffect(new PotionEffect(object3, n3 * 20, n4, bl3, bl4));
-                    }
-                } else {
-                    int n5 = this.A.getInt("effectDuration", 5);
-                    player2.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, n5 * 20, 0));
-                }
-                player.setCooldown(Material.BOW, this.A.getInt("cooldown", 20) * 20);
-                this.A(player);
-                String string = this.A.getString("messages.shooter.title", "");
-                object5 = this.A.getString("messages.shooter.subtitle", "");
-                object4 = this.A.getString("messages.shooter.chatMessage", "");
-                string = string.replace((CharSequence)"{TARGET}", (CharSequence)player2.getName());
-                object5 = object5.replace((CharSequence)"{TARGET}", (CharSequence)player2.getName());
-                object4 = object4.replace((CharSequence)"{TARGET}", (CharSequence)player2.getName());
-                if (!string.isEmpty() || !object5.isEmpty()) {
-                    player.sendTitle(me.anarchiacore.customitems.stormitemy.utils.color.A.C(string), me.anarchiacore.customitems.stormitemy.utils.color.A.C((String)object5), 10, 70, 20);
-                }
-                if (!object4.isEmpty()) {
-                    player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C((String)object4));
-                }
-                object3 = this.A.getString("messages.target.title", "");
-                object2 = this.A.getString("messages.target.subtitle", "");
-                object = this.A.getString("messages.target.chatMessage", "");
-                object3 = object3.replace((CharSequence)"{SHOOTER}", (CharSequence)player.getName());
-                object2 = object2.replace((CharSequence)"{SHOOTER}", (CharSequence)player.getName());
-                object = object.replace((CharSequence)"{SHOOTER}", (CharSequence)player.getName());
-                if (!object3.isEmpty() || !object2.isEmpty()) {
-                    player2.sendTitle(me.anarchiacore.customitems.stormitemy.utils.color.A.C((String)object3), me.anarchiacore.customitems.stormitemy.utils.color.A.C((String)object2), 10, 70, 20);
-                }
-                if (!object.isEmpty()) {
-                    player2.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C((String)object));
-                }
+            if (!shooterChatMessage.isEmpty()) {
+                player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C(shooterChatMessage));
+            }
+            String targetTitle = this.A.getString("messages.target.title", "");
+            String targetSubtitle = this.A.getString("messages.target.subtitle", "");
+            String targetChatMessage = this.A.getString("messages.target.chatMessage", "");
+            targetTitle = targetTitle.replace("{SHOOTER}", player.getName());
+            targetSubtitle = targetSubtitle.replace("{SHOOTER}", player.getName());
+            targetChatMessage = targetChatMessage.replace("{SHOOTER}", player.getName());
+            if (!targetTitle.isEmpty() || !targetSubtitle.isEmpty()) {
+                player2.sendTitle(me.anarchiacore.customitems.stormitemy.utils.color.A.C(targetTitle), me.anarchiacore.customitems.stormitemy.utils.color.A.C(targetSubtitle), 10, 70, 20);
+            }
+            if (!targetChatMessage.isEmpty()) {
+                player2.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C(targetChatMessage));
             }
         }
+    }
+
+    private boolean isRegionBlocked(Object regionCollection, List<String> disabledRegions) {
+        if (!(regionCollection instanceof Iterable<?> iterable)) {
+            return false;
+        }
+        for (Object region : iterable) {
+            try {
+                String regionId = String.valueOf(region.getClass().getMethod("getId", new Class[0]).invoke(region, new Object[0]));
+                for (String blocked : disabledRegions) {
+                    if (regionId.equalsIgnoreCase(blocked)) {
+                        return true;
+                    }
+                }
+            }
+            catch (Exception exception) {
+                return false;
+            }
+        }
+        return false;
     }
 
     public ItemStack getItem() {
@@ -340,21 +330,21 @@ implements Listener {
         String string = me.anarchiacore.customitems.stormitemy.utils.color.A.C(this.A.getString("name", "&4\u0141uk kupidyna"));
         itemMeta.setDisplayName(string);
         if (this.A.contains("lore")) {
-            List list = this.A.getStringList("lore");
-            Object object = new ArrayList();
-            for (String string2 : list) {
-                object.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C(string2));
+            List<String> lore = this.A.getStringList("lore");
+            List<String> coloredLore = new ArrayList();
+            for (String line : lore) {
+                coloredLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C(line));
             }
-            itemMeta.setLore((List)object);
+            itemMeta.setLore(coloredLore);
         }
         if (this.A.contains("customModelData")) {
             itemMeta.setCustomModelData(Integer.valueOf((int)this.A.getInt("customModelData")));
         }
         if (this.A.contains("enchantments")) {
-            for (Object object : this.A.getStringList("enchantments")) {
+            for (String enchantmentEntry : this.A.getStringList("enchantments")) {
                 Enchantment enchantment;
                 String string2;
-                String[] stringArray = object.split(":");
+                String[] stringArray = enchantmentEntry.split(":");
                 if (stringArray.length < 2) continue;
                 string2 = stringArray[0].trim().toUpperCase();
                 int n2 = 1;
@@ -369,9 +359,9 @@ implements Listener {
             }
         }
         if (this.A.contains("flags")) {
-            for (Object object : this.A.getStringList("flags")) {
+            for (String flagName : this.A.getStringList("flags")) {
                 try {
-                    itemMeta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf((String)object)});
+                    itemMeta.addItemFlags(new ItemFlag[]{ItemFlag.valueOf(flagName)});
                 }
                 catch (IllegalArgumentException illegalArgumentException) {}
             }
@@ -381,4 +371,3 @@ implements Listener {
         return itemStack;
     }
 }
-

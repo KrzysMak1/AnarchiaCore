@@ -96,13 +96,13 @@ import org.bukkit.util.Vector;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class k
+public class K
 implements Listener {
     private final Plugin C;
     private ConfigurationSection A;
     private boolean B;
 
-    public k(Plugin javaPlugin) {
+    public K(Plugin javaPlugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.C = javaPlugin;

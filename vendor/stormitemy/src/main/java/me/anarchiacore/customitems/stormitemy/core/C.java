@@ -61,31 +61,7 @@ import me.anarchiacore.customitems.stormitemy.items.X;
 import me.anarchiacore.customitems.stormitemy.items.Y;
 import me.anarchiacore.customitems.stormitemy.items.Z;
 import me.anarchiacore.customitems.stormitemy.items.Kosa;
-import me.anarchiacore.customitems.stormitemy.items.a;
-import me.anarchiacore.customitems.stormitemy.items.b;
-import me.anarchiacore.customitems.stormitemy.items.c;
-import me.anarchiacore.customitems.stormitemy.items.d;
-import me.anarchiacore.customitems.stormitemy.items.e;
-import me.anarchiacore.customitems.stormitemy.items.f;
-import me.anarchiacore.customitems.stormitemy.items.g;
-import me.anarchiacore.customitems.stormitemy.items.h;
-import me.anarchiacore.customitems.stormitemy.items.i;
-import me.anarchiacore.customitems.stormitemy.items.j;
-import me.anarchiacore.customitems.stormitemy.items.k;
-import me.anarchiacore.customitems.stormitemy.items.l;
-import me.anarchiacore.customitems.stormitemy.items.m;
-import me.anarchiacore.customitems.stormitemy.items.n;
-import me.anarchiacore.customitems.stormitemy.items.o;
-import me.anarchiacore.customitems.stormitemy.items.p;
-import me.anarchiacore.customitems.stormitemy.items.q;
 import me.anarchiacore.customitems.stormitemy.items.R;
-import me.anarchiacore.customitems.stormitemy.items.s;
-import me.anarchiacore.customitems.stormitemy.items.t;
-import me.anarchiacore.customitems.stormitemy.items.u;
-import me.anarchiacore.customitems.stormitemy.items.v;
-import me.anarchiacore.customitems.stormitemy.items.x;
-import me.anarchiacore.customitems.stormitemy.items.y;
-import me.anarchiacore.customitems.stormitemy.items.z;
 
 public class C {
     private final Main C;
@@ -108,36 +84,36 @@ public class C {
             try {
                 this.A("\u0141adowanie przedmiot\u00f3w... (0%)");
                 this.A("lopatagrincha", new H((Plugin)this.C));
-                this.A("piernik", new d((Plugin)this.C));
-                this.A("cieplemleko", new u((Plugin)this.C));
-                this.A("boskitopor", new n(this.C));
-                this.A("sniezka", new l(this.C));
+                this.A("piernik", new D((Plugin)this.C));
+                this.A("cieplemleko", new U((Plugin)this.C));
+                this.A("boskitopor", new N(this.C));
+                this.A("sniezka", new L(this.C));
                 this.A("sniezynka", new IA(this.C));
                 this.A("olaf", new O(this.C));
-                this.A("rozakupidyna", new p(this.C));
+                this.A("rozakupidyna", new P(this.C));
                 this.A("parawan", new T(this.C));
                 this.A("rozga", new X(this.C));
                 this.A("kupaanarchi", new B(this.C));
-                this.A("lizak", new a(this.C));
+                this.A("lizak", new A(this.C));
                 this.A("koronaanarchi", new W(this.C));
                 this.A("totemulaskawienia", new R(this.C));
                 this.A("\u0141adowanie przedmiot\u00f3w... (20%)");
-                this.A("wedkasurferka", new o((Plugin)this.C));
-                this.A("siekieragrincha", new y((Plugin)this.C));
-                this.A("smoczymiecz", new c((Plugin)this.C));
+                this.A("wedkasurferka", new O((Plugin)this.C));
+                this.A("siekieragrincha", new Y((Plugin)this.C));
+                this.A("smoczymiecz", new C((Plugin)this.C));
                 this.A("bombardamaxima", new HA(this.C));
-                this.A("lukkupidyna", new e(this.C));
-                this.A("marchewkowymiecz", new f(this.C));
+                this.A("lukkupidyna", new E(this.C));
+                this.A("marchewkowymiecz", new F(this.C));
                 this.A("kosa", new Kosa((Plugin)this.C));
                 this.A("excalibur", new EA((Plugin)this.C));
                 this.A("krewwampira", new AA((Plugin)this.C));
-                this.A("marchewkowakusza", new q(this.C));
+                this.A("marchewkowakusza", new Q(this.C));
                 this.A("lewejajko", new FA(this.C));
                 this.A("zajeczymiecz", new F(this.C));
                 this.A("\u0141adowanie przedmiot\u00f3w... (40%)");
                 this.A("zatrutyolowek", new $A(this.C));
                 this.A("splesnialakanapka", new U(this.C));
-                this.A("wampirzejablko", new h((Plugin)this.C));
+                this.A("wampirzejablko", new H((Plugin)this.C));
                 this.A("arcusmagnus", new A(this.C));
                 this.A("piekielnatarcza", new GA(this.C));
                 this.A("kostkarubika", new Q(this.C));
@@ -147,27 +123,27 @@ public class C {
                 this.A("rozgotowanakukurydza", new BA((Plugin)this.C));
                 this.A("\u0141adowanie przedmiot\u00f3w... (60%)");
                 this.A("anarchicznyhelm", new G(this.C));
-                this.A("anarchicznaklata", new t(this.C));
-                this.A("anarchicznespodnie", new v(this.C));
-                this.A("anarchicznebuty", new i(this.C));
-                this.A("anarchicznyhelm2", new z(this.C));
+                this.A("anarchicznaklata", new T(this.C));
+                this.A("anarchicznespodnie", new V(this.C));
+                this.A("anarchicznebuty", new I(this.C));
+                this.A("anarchicznyhelm2", new Z(this.C));
                 this.A("anarchicznaklata2", new KA(this.C));
-                this.A("anarchicznespodnie2", new x(this.C));
+                this.A("anarchicznespodnie2", new X(this.C));
                 this.A("anarchicznebuty2", new J(this.C));
                 this.A("anarchicznymiecz", new I(this.C));
                 this.A("anarchicznykilof", new M(this.C));
                 this.A("anarchicznyluk", new V(this.C));
                 this.A("\u0141adowanie przedmiot\u00f3w... (80%)");
-                this.A("zmutowanycreeper", new s(this.C));
+                this.A("zmutowanycreeper", new S(this.C));
                 this.A("wzmocnionaeltra", new S((Plugin)this.C));
-                this.A("antycobweb", new b((Plugin)this.C));
+                this.A("antycobweb", new B((Plugin)this.C));
                 this.A("balonikzhelem", new L(this.C));
                 this.A("blokwidmo", new me.anarchiacore.customitems.stormitemy.items.C(this.C));
-                this.A("cudownalatarnia", new m(this.C));
+                this.A("cudownalatarnia", new M(this.C));
                 this.A("przeterminowanytrunek", new Y(this.C));
-                this.A("trojzabposejdona", new k(this.C));
-                this.A("wyrzutniahydroklatki", new j(this.C));
-                this.A("watacukrowa", new g((Plugin)this.C));
+                this.A("trojzabposejdona", new K(this.C));
+                this.A("wyrzutniahydroklatki", new J(this.C));
+                this.A("watacukrowa", new G((Plugin)this.C));
                 this.A("zaczarowanie", new K((Plugin)this.C));
                 if (!this.D) {
                     this.A("rozdzkailuzjonisty", new DA(this.C));
@@ -231,17 +207,17 @@ public class C {
         if (object instanceof H) {
             return ((H)object)::getItem;
         }
-        if (object instanceof d) {
-            return ((d)object)::getItem;
+        if (object instanceof D) {
+            return ((D)object)::getItem;
         }
-        if (object instanceof u) {
-            return ((u)object)::getItem;
+        if (object instanceof U) {
+            return ((U)object)::getItem;
         }
-        if (object instanceof n) {
-            return ((n)object)::getItem;
+        if (object instanceof N) {
+            return ((N)object)::getItem;
         }
-        if (object instanceof l) {
-            return ((l)object)::getItem;
+        if (object instanceof L) {
+            return ((L)object)::getItem;
         }
         if (object instanceof IA) {
             return ((IA)object)::getItem;
@@ -249,8 +225,8 @@ public class C {
         if (object instanceof O) {
             return ((O)object)::getItem;
         }
-        if (object instanceof p) {
-            return ((p)object)::getItem;
+        if (object instanceof P) {
+            return ((P)object)::getItem;
         }
         if (object instanceof T) {
             return ((T)object)::getItem;
@@ -261,8 +237,8 @@ public class C {
         if (object instanceof B) {
             return ((B)object)::getItem;
         }
-        if (object instanceof a) {
-            return ((a)object)::getItem;
+        if (object instanceof A) {
+            return ((A)object)::getItem;
         }
         if (object instanceof W) {
             return ((W)object)::getItem;
@@ -270,23 +246,23 @@ public class C {
         if (object instanceof R) {
             return ((R)object)::getItem;
         }
-        if (object instanceof o) {
-            return ((o)object)::getItem;
+        if (object instanceof O) {
+            return ((O)object)::getItem;
         }
-        if (object instanceof y) {
-            return ((y)object)::getItem;
+        if (object instanceof Y) {
+            return ((Y)object)::getItem;
         }
-        if (object instanceof c) {
-            return ((c)object)::getItem;
+        if (object instanceof C) {
+            return ((C)object)::getItem;
         }
         if (object instanceof HA) {
             return ((HA)object)::getItem;
         }
-        if (object instanceof e) {
-            return ((e)object)::getItem;
+        if (object instanceof E) {
+            return ((E)object)::getItem;
         }
-        if (object instanceof f) {
-            return ((f)object)::getItem;
+        if (object instanceof F) {
+            return ((F)object)::getItem;
         }
         if (object instanceof Kosa) {
             return ((Kosa)object)::getItem;
@@ -297,8 +273,8 @@ public class C {
         if (object instanceof AA) {
             return ((AA)object)::getItem;
         }
-        if (object instanceof q) {
-            return ((q)object)::getItem;
+        if (object instanceof Q) {
+            return ((Q)object)::getItem;
         }
         if (object instanceof FA) {
             return ((FA)object)::getItem;
@@ -312,8 +288,8 @@ public class C {
         if (object instanceof U) {
             return ((U)object)::getItem;
         }
-        if (object instanceof h) {
-            return ((h)object)::getItem;
+        if (object instanceof H) {
+            return ((H)object)::getItem;
         }
         if (object instanceof A) {
             return ((A)object)::getItem;
@@ -339,23 +315,23 @@ public class C {
         if (object instanceof G) {
             return ((G)object)::A;
         }
-        if (object instanceof t) {
-            return ((t)object)::A;
+        if (object instanceof T) {
+            return ((T)object)::A;
         }
-        if (object instanceof v) {
-            return ((v)object)::A;
+        if (object instanceof V) {
+            return ((V)object)::A;
         }
-        if (object instanceof i) {
-            return ((i)object)::A;
+        if (object instanceof I) {
+            return ((I)object)::A;
         }
-        if (object instanceof z) {
-            return ((z)object)::A;
+        if (object instanceof Z) {
+            return ((Z)object)::A;
         }
         if (object instanceof KA) {
             return ((KA)object)::A;
         }
-        if (object instanceof x) {
-            return ((x)object)::A;
+        if (object instanceof X) {
+            return ((X)object)::A;
         }
         if (object instanceof J) {
             return ((J)object)::A;
@@ -369,14 +345,14 @@ public class C {
         if (object instanceof V) {
             return ((V)object)::A;
         }
-        if (object instanceof s) {
-            return ((s)object)::getItem;
+        if (object instanceof S) {
+            return ((S)object)::getItem;
         }
         if (object instanceof S) {
             return ((S)object)::getItem;
         }
-        if (object instanceof b) {
-            return ((b)object)::getItem;
+        if (object instanceof B) {
+            return ((B)object)::getItem;
         }
         if (object instanceof L) {
             return ((L)object)::getItem;
@@ -384,20 +360,20 @@ public class C {
         if (object instanceof me.anarchiacore.customitems.stormitemy.items.C) {
             return ((me.anarchiacore.customitems.stormitemy.items.C)object)::getItem;
         }
-        if (object instanceof m) {
-            return ((m)object)::getItem;
+        if (object instanceof M) {
+            return ((M)object)::getItem;
         }
         if (object instanceof Y) {
             return ((Y)object)::getItem;
         }
-        if (object instanceof k) {
-            return ((k)object)::getItem;
+        if (object instanceof K) {
+            return ((K)object)::getItem;
         }
-        if (object instanceof j) {
-            return ((j)object)::getItem;
+        if (object instanceof J) {
+            return ((J)object)::getItem;
         }
-        if (object instanceof g) {
-            return ((g)object)::getItem;
+        if (object instanceof G) {
+            return ((G)object)::getItem;
         }
         if (object instanceof K) {
             return ((K)object)::getItem;

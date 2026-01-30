@@ -71,12 +71,12 @@ import org.bukkit.scheduler.BukkitRunnable;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class d
+public class D
 implements Listener {
     private final Plugin B;
     private final ConfigurationSection A;
 
-    public d(Plugin plugin) {
+    public D(Plugin plugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.B = plugin;

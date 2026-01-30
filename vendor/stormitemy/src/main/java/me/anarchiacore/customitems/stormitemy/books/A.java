@@ -91,11 +91,11 @@ public class A {
     }
 
     public void A(me.anarchiacore.customitems.stormitemy.books.D d2) {
-        this.A.put((Object)d2.getIdentifier(), (Object)d2);
+        this.A.put(d2.getIdentifier(), d2);
     }
 
     public me.anarchiacore.customitems.stormitemy.books.D A(String string) {
-        return (me.anarchiacore.customitems.stormitemy.books.D)this.A.get((Object)string);
+        return this.A.get(string);
     }
 
     public List<me.anarchiacore.customitems.stormitemy.books.D> C() {
@@ -167,13 +167,13 @@ public class A {
         }
         if ((n2 = this.B(itemStack)) == 0) {
             boolean bl = false;
-            for (String string2 : itemMeta.getEnchants().keySet()) {
-                if (string2 == Enchantment.DURABILITY && itemMeta.getEnchantLevel((Enchantment)string2) <= 1) continue;
+            for (Enchantment enchantment : itemMeta.getEnchants().keySet()) {
+                if (enchantment == Enchantment.UNBREAKING && itemMeta.getEnchantLevel(enchantment) <= 1) continue;
                 bl = true;
                 break;
             }
             if (!bl) {
-                itemMeta.removeEnchant(Enchantment.DURABILITY);
+                itemMeta.removeEnchant(Enchantment.UNBREAKING);
                 if (itemMeta.getItemFlags().size() == 1 && itemMeta.hasItemFlag(ItemFlag.HIDE_ENCHANTS)) {
                     itemMeta.removeItemFlags(new ItemFlag[]{ItemFlag.HIDE_ENCHANTS});
                 }
@@ -217,14 +217,14 @@ public class A {
     }
 
     public boolean B(UUID uUID, String string) {
-        if (!this.C.containsKey((Object)uUID)) {
+        if (!this.C.containsKey(uUID)) {
             return false;
         }
-        Map map = (Map)this.C.get((Object)uUID);
-        if (!map.containsKey((Object)string)) {
+        Map<String, Long> map = this.C.get(uUID);
+        if (!map.containsKey(string)) {
             return false;
         }
-        long l2 = (Long)map.get((Object)string);
+        long l2 = map.get(string);
         return System.currentTimeMillis() < l2;
     }
 
@@ -232,19 +232,19 @@ public class A {
         if (n2 <= 0) {
             return;
         }
-        this.C.putIfAbsent((Object)uUID, (Object)new HashMap());
-        ((Map)this.C.get((Object)uUID)).put((Object)string, (Object)(System.currentTimeMillis() + (long)n2 * 1000L));
+        this.C.putIfAbsent(uUID, new HashMap());
+        this.C.get(uUID).put(string, System.currentTimeMillis() + (long)n2 * 1000L);
     }
 
     public int A(UUID uUID, String string) {
-        if (!this.C.containsKey((Object)uUID)) {
+        if (!this.C.containsKey(uUID)) {
             return 0;
         }
-        Map map = (Map)this.C.get((Object)uUID);
-        if (!map.containsKey((Object)string)) {
+        Map<String, Long> map = this.C.get(uUID);
+        if (!map.containsKey(string)) {
             return 0;
         }
-        long l2 = (Long)map.get((Object)string);
+        long l2 = map.get(string);
         long l3 = System.currentTimeMillis();
         if (l3 >= l2) {
             return 0;
@@ -253,7 +253,6 @@ public class A {
     }
 
     public void A(UUID uUID) {
-        this.C.remove((Object)uUID);
+        this.C.remove(uUID);
     }
 }
-

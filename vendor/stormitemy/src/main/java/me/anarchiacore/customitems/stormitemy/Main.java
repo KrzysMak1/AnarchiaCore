@@ -71,7 +71,6 @@ import org.bukkit.plugin.PluginLoader;
 import org.bukkit.Server;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.java.JavaPlugin;
-import com.avaje.ebean.EbeanServer;
 import java.io.InputStream;
 import java.util.logging.Logger;
 import me.anarchiacore.customitems.stormitemy.core.ItemRegistry;
@@ -81,17 +80,16 @@ import me.anarchiacore.customitems.stormitemy.items.HA;
 import me.anarchiacore.customitems.stormitemy.items.JA;
 import me.anarchiacore.customitems.stormitemy.items.R;
 import me.anarchiacore.customitems.stormitemy.items.U;
-import me.anarchiacore.customitems.stormitemy.items.c;
-import me.anarchiacore.customitems.stormitemy.items.l;
-import me.anarchiacore.customitems.stormitemy.items.n;
-import me.anarchiacore.customitems.stormitemy.items.o;
+import me.anarchiacore.customitems.stormitemy.items.C;
+import me.anarchiacore.customitems.stormitemy.items.L;
+import me.anarchiacore.customitems.stormitemy.items.N;
+import me.anarchiacore.customitems.stormitemy.items.O;
 import me.anarchiacore.customitems.stormitemy.regions.B;
 import me.anarchiacore.customitems.stormitemy.ui.gui.E;
 import me.anarchiacore.customitems.stormitemy.utils.update.A;
 import me.anarchiacore.customitems.stormitemy.zaczarowania.C;
 
-public class Main
-implements Plugin, TabExecutor, Listener {
+public class Main extends JavaPlugin implements TabExecutor, Listener {
     private static final String C = "c3Rvcm1jb2Rl";
     private static final String CUSTOM_GUI_ITEMS_PATH = "configs/STORMITEMY/gui-custom-items.yml";
     private final JavaPlugin plugin;
@@ -101,6 +99,10 @@ implements Plugin, TabExecutor, Listener {
     private String D;
     private volatile boolean F = false;
     private final Object A = new Object();
+
+    public Main() {
+        this.plugin = this;
+    }
 
     public Main(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -172,19 +174,19 @@ implements Plugin, TabExecutor, Listener {
         Object object = this.getItem("plecakdrakuli");
         if (object instanceof D) {
             d2 = (D)object;
-            Bukkit.getScheduler().runTaskLater((Plugin)this, () -> d2.restoreBackpackOnRespawn(player), 1L);
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> d2.restoreBackpackOnRespawn(player), 1L);
         }
         if (this.getConfig().getBoolean("updates.check-updates", true)) {
-            Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                 int n2 = 122499;
                 A a2 = new A(this, 122499);
                 a2.A(this.D, (Consumer<Boolean>)((Consumer)bl -> {
                     if (bl != null && bl.booleanValue()) {
-                        Bukkit.getScheduler().runTask((Plugin)this, () -> {
+                        Bukkit.getScheduler().runTask(this.plugin, () -> {
                             if (player.hasPermission("stormitemy.admin") || player.isOp()) {
                                 a2.A((Consumer<String>)((Consumer)string -> {
                                     if (string != null) {
-                                        Bukkit.getScheduler().runTask((Plugin)this, () -> player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("\u00a78[\u00a7x\u00a7B\u00a73\u00a70\u00a70\u00a7F\u00a7F\ud83e\ude93\u00a78] \u00a77Dost\u0119pna jest nowa wersja pluginu: \u00a7x\u00a7D\u00a70\u00a76\u00a70\u00a7F\u00a7F" + string + " \u00a77(aktualna: \u00a7f" + this.D + "\u00a77). Pobierz aktualizacj\u0119 ze strony: \u00a7fhttps://www.spigotmc.org/resources/122499/")));
+                                        Bukkit.getScheduler().runTask(this.plugin, () -> player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("\u00a78[\u00a7x\u00a7B\u00a73\u00a70\u00a70\u00a7F\u00a7F\ud83e\ude93\u00a78] \u00a77Dost\u0119pna jest nowa wersja pluginu: \u00a7x\u00a7D\u00a70\u00a76\u00a70\u00a7F\u00a7F" + string + " \u00a77(aktualna: \u00a7f" + this.D + "\u00a77). Pobierz aktualizacj\u0119 ze strony: \u00a7fhttps://www.spigotmc.org/resources/122499/")));
                                     }
                                 }));
                             }
@@ -194,14 +196,14 @@ implements Plugin, TabExecutor, Listener {
             }, 40L);
         }
         if (this.E != null && !this.E.Q) {
-            Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                 if (player.hasPermission("stormitemy.admin") || player.isOp()) {
                     player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("\u00a78[\u00a7x\u00a7F\u00a7F\u00a7C\u00a7F\u00a70\u00a70\u26a0\u00a78] \u00a77Nie wykryto pluginu \u00a7x\u00a7F\u00a7F\u00a7E\u00a70\u00a75\u00a7CWorldEdit\u00a77! Przedmioty \u00a7fTurboTrap \u00a77i \u00a7fTurboDomek \u00a77s\u0105 wy\u0142\u0105czone."));
                 }
             }, 60L);
         }
         if (!((d2 = Bukkit.getPluginManager().getPlugin("Citizens")) != null && d2.isEnabled() || this.E != null && this.E.k)) {
-            Bukkit.getScheduler().runTaskLater((Plugin)this, () -> {
+            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
                 if (player.hasPermission("stormitemy.admin") || player.isOp()) {
                     player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("\u00a78[\u00a7x\u00a7F\u00a7F\u00a7C\u00a7F\u00a70\u00a70\u26a0\u00a78] \u00a77Nie wykryto pluginu \u00a7x\u00a7F\u00a7F\u00a7E\u00a70\u00a75\u00a7CCitizens\u00a77! \u00a7fR\u00f3\u017cd\u017cka Iluzjonisty \u00a77wymaga Citizens do dzia\u0142ania."));
                 }
@@ -423,8 +425,8 @@ implements Plugin, TabExecutor, Listener {
         if (this.E != null && this.E.h != null) {
             this.E.h.D();
         }
-        Bukkit.getScheduler().cancelTasks((Plugin)this);
-        HandlerList.unregisterAll((Plugin)this);
+        Bukkit.getScheduler().cancelTasks(this.plugin);
+        HandlerList.unregisterAll(this.plugin);
         Bukkit.getConsoleSender().sendMessage("\u00a78\u00a7l[\u00a74StormItemy\u00a78\u00a7l] \u00a77Plugin \u00a7fStormItemy \u00a77plugin \u00a7cwy\u0142\u0105czony\u00a77!");
     }
 
@@ -567,9 +569,9 @@ implements Plugin, TabExecutor, Listener {
         }
     }
 
-    public c getSmoczyMiecz() {
+    public C getSmoczyMiecz() {
         Object object = this.getItem("smoczymiecz");
-        return object instanceof c ? (c)object : null;
+        return object instanceof C ? (C)object : null;
     }
 
     public HA getBombardaMaxima() {
@@ -577,14 +579,14 @@ implements Plugin, TabExecutor, Listener {
         return object instanceof HA ? (HA)object : null;
     }
 
-    public n getBoskiTopor() {
+    public N getBoskiTopor() {
         Object object = this.getItem("boskitopor");
-        return object instanceof n ? (n)object : null;
+        return object instanceof N ? (N)object : null;
     }
 
-    public l getSniezka() {
+    public L getSniezka() {
         Object object = this.getItem("sniezka");
-        return object instanceof l ? (l)object : null;
+        return object instanceof L ? (L)object : null;
     }
 
     public U getSplesnialaKanapka() {
@@ -602,9 +604,9 @@ implements Plugin, TabExecutor, Listener {
         return object instanceof JA ? (JA)object : null;
     }
 
-    public o getWedkaSurferka() {
+    public O getWedkaSurferka() {
         Object object = this.getItem("wedkasurferka");
-        return object instanceof o ? (o)object : null;
+        return object instanceof O ? (O)object : null;
     }
 
     public R getWedkaNielota() {
@@ -684,11 +686,6 @@ implements Plugin, TabExecutor, Listener {
     @Override
     public void setNaggable(boolean canNag) {
         this.plugin.setNaggable(canNag);
-    }
-
-    @Override
-    public EbeanServer getDatabase() {
-        return this.plugin.getDatabase();
     }
 
     @Override

@@ -33,9 +33,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.items.E;
 import me.anarchiacore.customitems.stormitemy.regions.C;
@@ -93,44 +95,30 @@ TabCompleter {
         return true;
     }
 
-    /*
-     * Exception decompiling
-     */
-    private boolean A(Player var1_1, CommandSender var2_2, String[] var3_3) {
-        /*
-         * This method has failed to decompile.  When submitting a bug report, please provide this stack trace, and (if you hold appropriate legal rights) the relevant class file.
-         * 
-         * ob.f0$e
-         *     at ob.f0.e(SourceFile:35)
-         *     at ob.f0.a(SourceFile:1)
-         *     at ob.f0$d.a(SourceFile:68)
-         *     at qb.n.i(SourceFile:13)
-         *     at qb.e.i(SourceFile:9)
-         *     at qb.l.i(SourceFile:14)
-         *     at qb.n.i(SourceFile:3)
-         *     at ob.f0.g(SourceFile:649)
-         *     at ob.f0.d(SourceFile:37)
-         *     at ib.f.d(SourceFile:235)
-         *     at ib.f.e(SourceFile:7)
-         *     at ib.f.c(SourceFile:95)
-         *     at rc.f.n(SourceFile:11)
-         *     at pc.i.m(SourceFile:5)
-         *     at pc.d.K(SourceFile:92)
-         *     at pc.d.g0(SourceFile:1)
-         *     at fb.b.d(SourceFile:191)
-         *     at fb.b.c(SourceFile:145)
-         *     at fb.a.a(SourceFile:108)
-         *     at com.thesourceofcode.jadec.decompilers.JavaExtractionWorker.decompileWithCFR(SourceFile:76)
-         *     at com.thesourceofcode.jadec.decompilers.JavaExtractionWorker.doWork(SourceFile:110)
-         *     at com.thesourceofcode.jadec.decompilers.BaseDecompiler.withAttempt(SourceFile:3)
-         *     at com.thesourceofcode.jadec.workers.DecompilerWorker.d(SourceFile:53)
-         *     at com.thesourceofcode.jadec.workers.DecompilerWorker.b(SourceFile:1)
-         *     at e7.a.run(SourceFile:1)
-         *     at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1154)
-         *     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:652)
-         *     at java.lang.Thread.run(Thread.java:1563)
-         */
-        throw new IllegalStateException("Decompilation failed");
+    private boolean A(Player player, CommandSender commandSender, String[] args) {
+        String sub = args[0].toLowerCase();
+        switch (sub) {
+            case "wand" -> {
+                return this.A(player);
+            }
+            case "create" -> {
+                return this.A(player, args);
+            }
+            case "recreate" -> {
+                return this.B(player, args);
+            }
+            case "delete" -> {
+                return this.A(commandSender, args);
+            }
+            case "list" -> {
+                this.B(commandSender);
+                return true;
+            }
+            default -> {
+                this.A(commandSender);
+                return true;
+            }
+        }
     }
 
     private boolean A(Player player) {
@@ -138,7 +126,7 @@ TabCompleter {
             return false;
         }
         try {
-            ItemStack itemStack = this.B.getWandItem();
+            ItemStack itemStack = this.createWandItem();
             player.getInventory().addItem(new ItemStack[]{itemStack});
             player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8[&x&B&3&0&0&F&F\ud83e\ude93&8] &7Otrzyma\u0142e\u015b &x&D&0&6&0&F&Fr\u00f3\u017cd\u017ck\u0119 &7do tworzenia &fregion\u00f3w&7!"));
         }
@@ -146,6 +134,16 @@ TabCompleter {
             player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cWyst\u0105pi\u0142 b\u0142\u0105d podczas dawania r\u00f3\u017cd\u017cki!"));
         }
         return true;
+    }
+
+    private ItemStack createWandItem() {
+        ItemStack wand = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta meta = wand.getItemMeta();
+        if (meta != null) {
+            meta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&x&D&0&6&0&F&F&lR\u00f3\u017cd\u017cka region\u00f3w"));
+            wand.setItemMeta(meta);
+        }
+        return wand;
     }
 
     private boolean A(Player player, String[] stringArray) {
@@ -242,10 +240,11 @@ TabCompleter {
     }
 
     private void B(Player player, String string) {
-        List list = this.A.getConfig().getStringList("disabled-regions");
-        if (!list.contains((Object)string.toLowerCase())) {
-            list.add((Object)string.toLowerCase());
-            this.A.getConfig().set("disabled-regions", (Object)list);
+        List<String> list = this.A.getConfig().getStringList("disabled-regions");
+        String regionKey = string.toLowerCase();
+        if (!list.contains(regionKey)) {
+            list.add(regionKey);
+            this.A.getConfig().set("disabled-regions", list);
             this.A.saveConfig();
             HashMap hashMap = new HashMap();
             hashMap.put((Object)"name", (Object)string);
@@ -255,29 +254,40 @@ TabCompleter {
 
     private void A(Player player, String string) {
         try {
-            List list;
-            List list2;
-            YamlConfiguration yamlConfiguration;
-            List list3;
-            File file = new File(this.A.getDataFolder(), "items");
-            File file2 = new File(file, "bombardamaxima.yml");
-            if (file2.exists() && !(list3 = (yamlConfiguration = YamlConfiguration.loadConfiguration((File)file2)).getStringList("bombarda.noDestroyRegions")).contains((Object)string.toLowerCase())) {
-                list3.add((Object)string.toLowerCase());
-                yamlConfiguration.set("bombarda.noDestroyRegions", (Object)list3);
-                yamlConfiguration.save(file2);
-                player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8[&x&B&3&0&0&F&F\ud83e\ude93&8] &7Region &x&D&0&6&0&F&F" + string + " &7zosta\u0142 dodany do listy PVP region\u00f3w dla &x&D&0&6&0&F&FBombardaMaxima&7!"));
+            File itemsDir = new File(this.A.getDataFolder(), "items");
+            String regionKey = string.toLowerCase();
+            File bombardFile = new File(itemsDir, "bombardamaxima.yml");
+            if (bombardFile.exists()) {
+                YamlConfiguration yaml = YamlConfiguration.loadConfiguration(bombardFile);
+                List<String> regions = yaml.getStringList("bombarda.noDestroyRegions");
+                if (!regions.contains(regionKey)) {
+                    regions.add(regionKey);
+                    yaml.set("bombarda.noDestroyRegions", regions);
+                    yaml.save(bombardFile);
+                    player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8[&x&B&3&0&0&F&F\ud83e\ude93&8] &7Region &x&D&0&6&0&F&F" + string + " &7zosta\u0142 dodany do listy PVP region\u00f3w dla &x&D&0&6&0&F&FBombardaMaxima&7!"));
+                }
             }
-            if ((yamlConfiguration = new File(file, "rozgotowanakukurydza.yml")).exists() && !(list2 = (list3 = YamlConfiguration.loadConfiguration((File)yamlConfiguration)).getStringList("rozgotowanakukurydza.noDestroyRegions")).contains((Object)string.toLowerCase())) {
-                list2.add((Object)string.toLowerCase());
-                list3.set("rozgotowanakukurydza.noDestroyRegions", (Object)list2);
-                list3.save((File)yamlConfiguration);
-                player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8[&x&B&3&0&0&F&F\ud83e\ude93&8] &7Region &x&D&0&6&0&F&F" + string + " &7zosta\u0142 dodany do listy PVP region\u00f3w dla &x&D&0&6&0&F&FRozgotowanaKukurydza&7!"));
+            File kukurydzaFile = new File(itemsDir, "rozgotowanakukurydza.yml");
+            if (kukurydzaFile.exists()) {
+                YamlConfiguration yaml = YamlConfiguration.loadConfiguration(kukurydzaFile);
+                List<String> regions = yaml.getStringList("rozgotowanakukurydza.noDestroyRegions");
+                if (!regions.contains(regionKey)) {
+                    regions.add(regionKey);
+                    yaml.set("rozgotowanakukurydza.noDestroyRegions", regions);
+                    yaml.save(kukurydzaFile);
+                    player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8[&x&B&3&0&0&F&F\ud83e\ude93&8] &7Region &x&D&0&6&0&F&F" + string + " &7zosta\u0142 dodany do listy PVP region\u00f3w dla &x&D&0&6&0&F&FRozgotowanaKukurydza&7!"));
+                }
             }
-            if ((list3 = new File(file, "balonikzhelem.yml")).exists() && !(list = (list2 = YamlConfiguration.loadConfiguration((File)list3)).getStringList("balonikzhelem.noDestroyRegions")).contains((Object)string.toLowerCase())) {
-                list.add((Object)string.toLowerCase());
-                list2.set("balonikzhelem.noDestroyRegions", (Object)list);
-                list2.save((File)list3);
-                player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8[&x&B&3&0&0&F&F\ud83e\ude93&8] &7Region &x&D&0&6&0&F&F" + string + " &7zosta\u0142 dodany do listy PVP region\u00f3w dla &x&D&0&6&0&F&FBalonikzHelem&7!"));
+            File balonikFile = new File(itemsDir, "balonikzhelem.yml");
+            if (balonikFile.exists()) {
+                YamlConfiguration yaml = YamlConfiguration.loadConfiguration(balonikFile);
+                List<String> regions = yaml.getStringList("balonikzhelem.noDestroyRegions");
+                if (!regions.contains(regionKey)) {
+                    regions.add(regionKey);
+                    yaml.set("balonikzhelem.noDestroyRegions", regions);
+                    yaml.save(balonikFile);
+                    player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8[&x&B&3&0&0&F&F\ud83e\ude93&8] &7Region &x&D&0&6&0&F&F" + string + " &7zosta\u0142 dodany do listy PVP region\u00f3w dla &x&D&0&6&0&F&FBalonikzHelem&7!"));
+                }
             }
         }
         catch (Exception exception) {
@@ -319,32 +329,43 @@ TabCompleter {
 
     private void A(String string) {
         try {
-            List list;
-            List list2;
-            YamlConfiguration yamlConfiguration;
-            List list3;
-            File file;
-            File file2;
-            List list4 = this.A.getConfig().getStringList("disabled-regions");
-            if (list4.contains((Object)string.toLowerCase())) {
-                list4.remove((Object)string.toLowerCase());
-                this.A.getConfig().set("disabled-regions", (Object)list4);
+            File itemsDir = new File(this.A.getDataFolder(), "items");
+            String regionKey = string.toLowerCase();
+            List<String> disabledRegions = this.A.getConfig().getStringList("disabled-regions");
+            if (disabledRegions.contains(regionKey)) {
+                disabledRegions.remove(regionKey);
+                this.A.getConfig().set("disabled-regions", disabledRegions);
                 this.A.saveConfig();
             }
-            if ((file2 = new File(file = new File(this.A.getDataFolder(), "items"), "bombardamaxima.yml")).exists() && (list3 = (yamlConfiguration = YamlConfiguration.loadConfiguration((File)file2)).getStringList("bombarda.noDestroyRegions")).contains((Object)string.toLowerCase())) {
-                list3.remove((Object)string.toLowerCase());
-                yamlConfiguration.set("bombarda.noDestroyRegions", (Object)list3);
-                yamlConfiguration.save(file2);
+            File bombardFile = new File(itemsDir, "bombardamaxima.yml");
+            if (bombardFile.exists()) {
+                YamlConfiguration yaml = YamlConfiguration.loadConfiguration(bombardFile);
+                List<String> regions = yaml.getStringList("bombarda.noDestroyRegions");
+                if (regions.contains(regionKey)) {
+                    regions.remove(regionKey);
+                    yaml.set("bombarda.noDestroyRegions", regions);
+                    yaml.save(bombardFile);
+                }
             }
-            if ((yamlConfiguration = new File(file, "rozgotowanakukurydza.yml")).exists() && (list2 = (list3 = YamlConfiguration.loadConfiguration((File)yamlConfiguration)).getStringList("rozgotowanakukurydza.noDestroyRegions")).contains((Object)string.toLowerCase())) {
-                list2.remove((Object)string.toLowerCase());
-                list3.set("rozgotowanakukurydza.noDestroyRegions", (Object)list2);
-                list3.save((File)yamlConfiguration);
+            File kukurydzaFile = new File(itemsDir, "rozgotowanakukurydza.yml");
+            if (kukurydzaFile.exists()) {
+                YamlConfiguration yaml = YamlConfiguration.loadConfiguration(kukurydzaFile);
+                List<String> regions = yaml.getStringList("rozgotowanakukurydza.noDestroyRegions");
+                if (regions.contains(regionKey)) {
+                    regions.remove(regionKey);
+                    yaml.set("rozgotowanakukurydza.noDestroyRegions", regions);
+                    yaml.save(kukurydzaFile);
+                }
             }
-            if ((list3 = new File(file, "balonikzhelem.yml")).exists() && (list = (list2 = YamlConfiguration.loadConfiguration((File)list3)).getStringList("balonikzhelem.noDestroyRegions")).contains((Object)string.toLowerCase())) {
-                list.remove((Object)string.toLowerCase());
-                list2.set("balonikzhelem.noDestroyRegions", (Object)list);
-                list2.save((File)list3);
+            File balonikFile = new File(itemsDir, "balonikzhelem.yml");
+            if (balonikFile.exists()) {
+                YamlConfiguration yaml = YamlConfiguration.loadConfiguration(balonikFile);
+                List<String> regions = yaml.getStringList("balonikzhelem.noDestroyRegions");
+                if (regions.contains(regionKey)) {
+                    regions.remove(regionKey);
+                    yaml.set("balonikzhelem.noDestroyRegions", regions);
+                    yaml.save(balonikFile);
+                }
             }
         }
         catch (Exception exception) {
@@ -379,7 +400,6 @@ TabCompleter {
             HashMap hashMap = new HashMap();
             hashMap.put((Object)"count", (Object)String.valueOf((int)list.size()));
             me.anarchiacore.customitems.stormitemy.utils.language.A.A(commandSender, "region_list_header", (Map<String, String>)hashMap);
-            List list2 = this.A.getConfig().getStringList("disabled-regions");
             for (String string : list) {
                 HashMap hashMap2 = new HashMap();
                 hashMap2.put((Object)"name", (Object)string);
@@ -390,34 +410,33 @@ TabCompleter {
 
     public List<String> onTabComplete(CommandSender commandSender, Command command, String string, String[] stringArray) {
         if (stringArray.length == 1) {
-            ArrayList arrayList = new ArrayList((Collection)Arrays.asList((Object[])new String[]{"wand", "create", "recreate", "delete", "list"}));
-            ArrayList arrayList2 = new ArrayList();
-            for (String string2 : arrayList) {
-                if (!string2.toLowerCase().startsWith(stringArray[0].toLowerCase())) continue;
-                arrayList2.add((Object)string2);
+            List<String> subcommands = Arrays.asList("wand", "create", "recreate", "delete", "list");
+            List<String> matches = new ArrayList();
+            for (String option : subcommands) {
+                if (!option.toLowerCase().startsWith(stringArray[0].toLowerCase())) continue;
+                matches.add(option);
             }
-            return arrayList2;
+            return matches;
         }
         if (stringArray.length == 2) {
             if (stringArray[0].equalsIgnoreCase("delete") || stringArray[0].equalsIgnoreCase("recreate")) {
                 List<String> list = this.C.A();
-                ArrayList arrayList = new ArrayList();
+                List<String> arrayList = new ArrayList();
                 for (String string3 : list) {
                     if (!string3.toLowerCase().startsWith(stringArray[1].toLowerCase())) continue;
-                    arrayList.add((Object)string3);
+                    arrayList.add(string3);
                 }
                 return arrayList;
             }
         } else if (stringArray.length == 3 && (stringArray[0].equalsIgnoreCase("create") || stringArray[0].equalsIgnoreCase("recreate"))) {
-            List list = Arrays.asList((Object[])new String[]{"spawn", "pvp"});
-            ArrayList arrayList = new ArrayList();
+            List<String> list = Arrays.asList("spawn", "pvp");
+            List<String> arrayList = new ArrayList();
             for (String string4 : list) {
                 if (!string4.toLowerCase().startsWith(stringArray[2].toLowerCase())) continue;
-                arrayList.add((Object)string4);
+                arrayList.add(string4);
             }
             return arrayList;
         }
         return null;
     }
 }
-

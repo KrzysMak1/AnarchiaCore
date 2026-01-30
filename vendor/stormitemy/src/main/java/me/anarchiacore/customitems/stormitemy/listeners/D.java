@@ -30,9 +30,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import me.anarchiacore.customitems.stormitemy.Main;
-import me.anarchiacore.customitems.stormitemy.messages.A;
 import me.anarchiacore.customitems.stormitemy.messages.C;
 import me.anarchiacore.customitems.stormitemy.ui.gui.A;
 import me.anarchiacore.customitems.stormitemy.ui.gui.B;
@@ -94,7 +94,7 @@ implements Listener {
             } else if (n3 == 41) {
                 if (this.C.isWorldGuardPresent()) {
                     player.closeInventory();
-                    this.A.put((Object)player.getUniqueId(), (Object)true);
+                    this.A.put(player.getUniqueId(), true);
                     player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8\u00bb &7Wpisz nazw\u0119 &#FFD300regionu &7z pluginu &fWorldGuard&7! &8(&7Wpisz &#FF0000anuluj&7, aby anulowa\u0107&8)&7!"));
                 } else {
                     player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8[&x&B&3&0&0&F&F\ud83e\ude93&8] &cPrzycisk jest wy\u0142\u0105czony! &7Zainstaluj plugin &fWorldGuard &7aby dodawa\u0107 regiony z niego."));
@@ -104,15 +104,13 @@ implements Listener {
                 String string5;
                 int[] nArray = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25};
                 boolean bl = false;
-                Object object = nArray;
-                int n4 = ((int[])object).length;
-                for (int i2 = 0; i2 < n4; ++i2) {
-                    int n5 = object[i2];
-                    if (n3 != n5) continue;
+                for (int slot : nArray) {
+                    if (n3 != slot) continue;
                     bl = true;
                     break;
                 }
-                if (bl && inventoryClickEvent.getCurrentItem() != null && (string5 = this.A(string4 = (object = (Object)inventoryClickEvent.getCurrentItem()).getItemMeta().getDisplayName())) != null && inventoryClickEvent.getClick() == ClickType.SHIFT_RIGHT) {
+                ItemStack currentItem = inventoryClickEvent.getCurrentItem();
+                if (bl && currentItem != null && currentItem.getItemMeta() != null && (string5 = this.A(string4 = currentItem.getItemMeta().getDisplayName())) != null && inventoryClickEvent.getClick() == ClickType.SHIFT_RIGHT) {
                     this.B.B(player, string5);
                     player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8\u00bb &#FF0000Usunieto&7 region &f" + string5));
                     this.B.A(player);
@@ -125,35 +123,35 @@ implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent asyncPlayerChatEvent) {
         Player player = asyncPlayerChatEvent.getPlayer();
         UUID uUID = player.getUniqueId();
-        if (((Boolean)this.A.getOrDefault((Object)uUID, (Object)false)).booleanValue()) {
+        if (this.A.getOrDefault(uUID, false)) {
             asyncPlayerChatEvent.setCancelled(true);
             String string = asyncPlayerChatEvent.getMessage().trim();
             if (string.equalsIgnoreCase("anuluj")) {
-                me.anarchiacore.customitems.stormitemy.messages.A a2 = new A._A().B(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&fDodawanie regionu &7zosta\u0142a &#FF0000anulowana&7!")).A(10).B(60).C(15).A();
+                me.anarchiacore.customitems.stormitemy.messages.A a2 = new me.anarchiacore.customitems.stormitemy.messages.A._A().B(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&fDodawanie regionu &7zosta\u0142a &#FF0000anulowana&7!")).A(10).B(60).C(15).A();
                 this.C.getServer().getScheduler().runTask((Plugin)this.C, () -> {
                     me.anarchiacore.customitems.stormitemy.messages.C.A(player, a2);
                     this.A(player, "ENTITY_ENDERMAN_TELEPORT");
                 });
-                this.A.remove((Object)uUID);
+                this.A.remove(uUID);
                 return;
             }
             if (!this.C.isWorldGuardPresent()) {
-                me.anarchiacore.customitems.stormitemy.messages.A a3 = new A._A().D(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8\u00bb &7Plugin &fWorldGuard &7nie jest &#FF0000zainstalowany&7!")).B(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&fWorldGuard &7nie jest &#FF0000dost\u0119pny&7!")).A(10).B(60).C(15).A();
+                me.anarchiacore.customitems.stormitemy.messages.A a3 = new me.anarchiacore.customitems.stormitemy.messages.A._A().D(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8\u00bb &7Plugin &fWorldGuard &7nie jest &#FF0000zainstalowany&7!")).B(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&fWorldGuard &7nie jest &#FF0000dost\u0119pny&7!")).A(10).B(60).C(15).A();
                 this.C.getServer().getScheduler().runTask((Plugin)this.C, () -> {
                     me.anarchiacore.customitems.stormitemy.messages.C.A(player, a3);
                     this.A(player, "ENTITY_ENDERMAN_TELEPORT");
                 });
-                this.A.remove((Object)uUID);
+                this.A.remove(uUID);
                 return;
             }
             this.B.A(player, string);
-            me.anarchiacore.customitems.stormitemy.messages.A a4 = new A._A().D(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8\u00bb &7Region &f" + string + " &7zosta\u0142 &#27FF00dodany&7!")).B(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&fRegion &7zosta\u0142 &#27FF00dodany&7!")).A(10).B(60).C(15).A();
+            me.anarchiacore.customitems.stormitemy.messages.A a4 = new me.anarchiacore.customitems.stormitemy.messages.A._A().D(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8\u00bb &7Region &f" + string + " &7zosta\u0142 &#27FF00dodany&7!")).B(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&fRegion &7zosta\u0142 &#27FF00dodany&7!")).A(10).B(60).C(15).A();
             this.C.getServer().getScheduler().runTask((Plugin)this.C, () -> {
                 me.anarchiacore.customitems.stormitemy.messages.C.A(player, a4);
                 this.A(player, "ENTITY_PLAYER_LEVELUP");
                 this.B.A(player);
             });
-            this.A.remove((Object)uUID);
+            this.A.remove(uUID);
         }
     }
 
@@ -175,4 +173,3 @@ implements Listener {
         return string2.trim();
     }
 }
-
