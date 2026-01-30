@@ -76,7 +76,7 @@ implements CommandExecutor {
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setCustomModelData(Integer.valueOf((int)1));
         itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFPrzedmioty"));
-        itemMeta.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7zobaczy\u0107 i wzi\u0105\u015b\u0107 do EQ!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7wszystkie &fcustom przedmioty&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")}));
+        itemMeta.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7zobaczy\u0107 i wzi\u0105\u015b\u0107 do EQ!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7wszystkie &fcustom przedmioty&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")));
         itemMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE});
         itemStack.setItemMeta(itemMeta);
         inventory.setItem(11, itemStack);
@@ -84,14 +84,14 @@ implements CommandExecutor {
         ItemMeta itemMeta2 = itemStack2.getItemMeta();
         itemMeta2.setCustomModelData(Integer.valueOf((int)24));
         itemMeta2.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFKsi\u0119gi"));
-        itemMeta2.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7zobaczy\u0107 i wzi\u0105\u015b\u0107 do EQ!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7wszystkie &fcustom ksi\u0119gi&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")}));
+        itemMeta2.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7zobaczy\u0107 i wzi\u0105\u015b\u0107 do EQ!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7wszystkie &fcustom ksi\u0119gi&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")));
         itemMeta2.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE});
         itemStack2.setItemMeta(itemMeta2);
         inventory.setItem(12, itemStack2);
         ItemStack itemStack3 = new ItemStack(Material.PURPLE_BANNER);
         ItemMeta itemMeta3 = itemStack3.getItemMeta();
         itemMeta3.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFRegiony"));
-        itemMeta3.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7edytowa\u0107 &fregiony &7w pluginie!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")}));
+        itemMeta3.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7edytowa\u0107 &fregiony &7w pluginie!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")));
         itemMeta3.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE});
         itemStack3.setItemMeta(itemMeta3);
         inventory.setItem(13, itemStack3);
@@ -99,14 +99,14 @@ implements CommandExecutor {
             ItemStack itemStack4 = new ItemStack(Material.CRAFTING_TABLE);
             ItemMeta itemMeta4 = itemStack4.getItemMeta();
             itemMeta4.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFKreator przedmiot\u00f3w"));
-            itemMeta4.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu b\u0119dziesz m\u00f3g\u0142"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7tworzy\u0107 w\u0142asne &fcustom przedmioty&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")}));
+            itemMeta4.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu b\u0119dziesz m\u00f3g\u0142"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7tworzy\u0107 w\u0142asne &fcustom przedmioty&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")));
             itemMeta4.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE});
             itemStack4.setItemMeta(itemMeta4);
             inventory.setItem(15, itemStack4);
             ItemStack itemStack5 = new ItemStack(Material.OAK_SIGN);
             ItemMeta itemMeta5 = itemStack5.getItemMeta();
             itemMeta5.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFEdytor przedmiot\u00f3w"));
-            itemMeta5.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7edytowa\u0107 przedmioty z"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7poziomu &fGUI&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")}));
+            itemMeta5.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7edytowa\u0107 przedmioty z"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7poziomu &fGUI&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")));
             itemMeta5.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE});
             itemStack5.setItemMeta(itemMeta5);
             inventory.setItem(31, itemStack5);
@@ -114,7 +114,7 @@ implements CommandExecutor {
             ItemStack itemStack6 = new ItemStack(Material.OAK_SIGN);
             ItemMeta itemMeta6 = itemStack6.getItemMeta();
             itemMeta6.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFEdytor przedmiot\u00f3w"));
-            itemMeta6.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7edytowa\u0107 przedmioty z"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7poziomu &fGUI&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")}));
+            itemMeta6.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7edytowa\u0107 przedmioty z"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7poziomu &fGUI&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d0f\u1d1b\u1d21\u1d0f\u0280\u1d22\u028f\u0107!")));
             itemMeta6.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE});
             itemStack6.setItemMeta(itemMeta6);
             inventory.setItem(15, itemStack6);
@@ -122,4 +122,3 @@ implements CommandExecutor {
         player.openInventory(inventory);
     }
 }
-

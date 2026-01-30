@@ -118,14 +118,14 @@ import org.bukkit.util.Vector;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class j
+public class J
 implements Listener {
     private final Plugin C;
     private ConfigurationSection A;
     private final Map<String, _A> D = new ConcurrentHashMap();
     private final Map<String, Map<Location, _B>> B = new ConcurrentHashMap();
 
-    public j(Plugin javaPlugin) {
+    public J(Plugin javaPlugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.C = javaPlugin;

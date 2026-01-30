@@ -29,7 +29,6 @@ package me.anarchiacore.customitems.stormitemy.zaczarowania;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.bukkit.Bukkit;
@@ -67,14 +66,14 @@ implements Listener {
         Material material;
         Material material2;
         Inventory inventory = Bukkit.createInventory(null, (int)27, (String)this.A);
-        this.C.put((Object)player, (Object)itemStack);
+        this.C.put(player, itemStack);
         ItemStack itemStack2 = this.A();
         String string = this.E.getConfig().getString("zaczarowania.menu.select_button.material", "PAPER");
         String string2 = this.E.getConfig().getString("zaczarowania.menu.select_button.name", "&6WYBIERZ PRZEDMIOT");
-        List list = this.E.getConfig().getStringList("zaczarowania.menu.select_button.lore");
+        List<String> list = this.E.getConfig().getStringList("zaczarowania.menu.select_button.lore");
         int n2 = this.E.getConfig().getInt("zaczarowania.menu.select_button.customModelData", 0);
         if (list.isEmpty()) {
-            list = List.of((Object)"&7Kliknij na miecz w ekwipunku,", (Object)"&7kt\u00f3ry chcia\u0142by\u015b zaczarowa\u0107.");
+            list = List.of("&7Kliknij na miecz w ekwipunku,", "&7kt\u00f3ry chcia\u0142by\u015b zaczarowa\u0107.");
         }
         try {
             material2 = Material.valueOf((String)string);
@@ -85,10 +84,10 @@ implements Listener {
         ItemStack itemStack3 = this.A(material2, string2, (List<String>)list, n2);
         String string3 = this.E.getConfig().getString("zaczarowania.menu.close_button.material", "BARRIER");
         String string4 = this.E.getConfig().getString("zaczarowania.menu.close_button.name", "&cZamknij");
-        List list2 = this.E.getConfig().getStringList("zaczarowania.menu.close_button.lore");
+        List<String> list2 = this.E.getConfig().getStringList("zaczarowania.menu.close_button.lore");
         int n3 = this.E.getConfig().getInt("zaczarowania.menu.close_button.customModelData", 0);
         if (list2.isEmpty()) {
-            list2 = List.of((Object)"&7Zamyka menu zaczarowa\u0144.");
+            list2 = List.of("&7Zamyka menu zaczarowa\u0144.");
         }
         try {
             material = Material.valueOf((String)string3);
@@ -107,10 +106,10 @@ implements Listener {
         Material material;
         String string = this.E.getConfig().getString("zaczarowania.menu.przeboj_button.material", "BLUE_DYE");
         String string2 = this.E.getConfig().getString("zaczarowania.menu.przeboj_button.name", "&3&lPrzebouj przedmiot");
-        List list = this.E.getConfig().getStringList("zaczarowania.menu.przeboj_button.lore");
+        List<String> list = this.E.getConfig().getStringList("zaczarowania.menu.przeboj_button.lore");
         int n2 = this.E.getConfig().getInt("zaczarowania.menu.przeboj_button.customModelData", 0);
         if (list.isEmpty()) {
-            list = List.of((Object)"&7", (Object)"&4 UWAGA! &cKlikaj\u0105c ten przedmiot", (Object)"&c zmienisz bonusowe obra\u017cenia", (Object)"&c bezpowrotnie!", (Object)"&7", (Object)"&8 \u00bb &7Koszt: &bZaczarowany przedmiot x1", (Object)"&7", (Object)"&aKliknij aby to zrobi\u0107!");
+            list = List.of("&7", "&4 UWAGA! &cKlikaj\u0105c ten przedmiot", "&c zmienisz bonusowe obra\u017cenia", "&c bezpowrotnie!", "&7", "&8 \u00bb &7Koszt: &bZaczarowany przedmiot x1", "&7", "&aKliknij aby to zrobi\u0107!");
         }
         try {
             material = Material.valueOf((String)string);
@@ -122,7 +121,6 @@ implements Listener {
     }
 
     private ItemStack A(ItemStack itemStack) {
-        Iterator iterator;
         int n2 = this.D.C(itemStack);
         int n3 = this.E.getConfig().getInt("zaczarowania.effects.negative_threshold", 0);
         int n4 = this.E.getConfig().getInt("zaczarowania.effects.high_threshold", 40);
@@ -132,22 +130,23 @@ implements Listener {
         String string4 = n2 < n3 ? string.replace((CharSequence)"{percent}", (CharSequence)String.valueOf((int)n2)) : (n2 >= n4 ? string3.replace((CharSequence)"{percent}", (CharSequence)String.valueOf((int)n2)) : string2.replace((CharSequence)"{percent}", (CharSequence)String.valueOf((int)n2)));
         String string5 = this.E.getConfig().getString("zaczarowania.menu.przeboj_button.material", "BLUE_DYE");
         String string6 = this.E.getConfig().getString("zaczarowania.menu.przeboj_button.name", "&3&lPrzebouj przedmiot");
-        List list = this.E.getConfig().getStringList("zaczarowania.menu.przeboj_button.lore_selected");
+        List<String> list = this.E.getConfig().getStringList("zaczarowania.menu.przeboj_button.lore_selected");
         int n5 = this.E.getConfig().getInt("zaczarowania.menu.przeboj_button.customModelData", 0);
         if (list.isEmpty()) {
-            list = List.of((Object[])new String[]{"&7", "&8 \u00bb &7Ostatnie wylosowane obra\u017cenia: ", "&8 \u00bb {bonus_text}", "", "&4 UWAGA! &cKlikaj\u0105c ten przedmiot", "&c zmienisz bonusowe obra\u017cenia", "&c bezpowrotnie!", "&7", "&8 \u00bb &7Koszt: &bZaczarowany przedmiot x1", "&7", "&aKliknij aby to zrobi\u0107!"});
+            list = List.of("&7", "&8 \u00bb &7Ostatnie wylosowane obra\u017cenia: ", "&8 \u00bb {bonus_text}", "", "&4 UWAGA! &cKlikaj\u0105c ten przedmiot", "&c zmienisz bonusowe obra\u017cenia", "&c bezpowrotnie!", "&7", "&8 \u00bb &7Koszt: &bZaczarowany przedmiot x1", "&7", "&aKliknij aby to zrobi\u0107!");
         }
-        ArrayList arrayList = new ArrayList();
+        List<String> arrayList = new ArrayList();
         for (String string7 : list) {
-            arrayList.add((Object)string7.replace((CharSequence)"{bonus_text}", (CharSequence)string4));
+            arrayList.add(string7.replace("{bonus_text}", string4));
         }
+        Material material;
         try {
-            iterator = Material.valueOf((String)string5);
+            material = Material.valueOf((String)string5);
         }
         catch (IllegalArgumentException illegalArgumentException) {
-            iterator = Material.BLUE_DYE;
+            material = Material.BLUE_DYE;
         }
-        return this.A((Material)iterator, string6, (List<String>)arrayList, n5);
+        return this.A(material, string6, arrayList, n5);
     }
 
     private ItemStack A(Material material, String string, List<String> list) {
@@ -229,7 +228,7 @@ implements Listener {
                 return;
             }
             if (itemStack != null && this.D.B(itemStack)) {
-                this.B.put((Object)player, (Object)inventoryClickEvent.getSlot());
+                this.B.put(player, inventoryClickEvent.getSlot());
                 inventoryClickEvent.getInventory().setItem(13, itemStack.clone());
                 inventoryClickEvent.getInventory().setItem(11, this.A(itemStack));
                 me.anarchiacore.customitems.stormitemy.utils.language.A.A(player, "zaczarowania_item_selected");
@@ -256,8 +255,8 @@ implements Listener {
             return;
         }
         Player player = (Player)inventoryCloseEvent.getPlayer();
-        this.C.remove((Object)player);
-        this.B.remove((Object)player);
+        this.C.remove(player);
+        this.B.remove(player);
     }
 
     private void A(Player player) {
@@ -274,4 +273,3 @@ implements Listener {
         }
     }
 }
-

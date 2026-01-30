@@ -63,10 +63,10 @@ public class A {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if (this.A.isWorldGuardPresent()) {
             itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#2EFF12Dodaj region"));
-            itemMeta.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz doda\u0107"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7region z pluginu &fworldguard&7."), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#75FF3F\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a &#3DDA00\u1d18\u0280\u1d00\u1d21\u028f\u1d0d&#75FF3F, \u1d00\u0299\u028f \u1d05\u1d0f\u1d05\u1d00\u0107!")}));
+            itemMeta.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz doda\u0107"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7region z pluginu &fworldguard&7."), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#75FF3F\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a &#3DDA00\u1d18\u0280\u1d00\u1d21\u028f\u1d0d&#75FF3F, \u1d00\u0299\u028f \u1d05\u1d0f\u1d05\u1d00\u0107!")));
         } else {
             itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#FF0000Dodaj region &8[WY\u0141\u0104CZONY]"));
-            itemMeta.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz doda\u0107"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7region z pluginu &fworldguard&7."), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Aby doda\u0107 region nie instaluj\u0105c"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7tego pluginu &f/stormitemy region&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Nie posiadasz pluginu &#FF0000WorldGuard&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#E13636\u1d05\u1d0f\u1d05\u1d00\u1d0a &#CF0000\u1d21\u1d0f\u0280\u029f\u1d05\u0262\u1d1c\u1d00\u0280\u1d05&#E13636, \u1d00\u0299\u028f \ua731\u1d0b\u1d0f\u0280\u1d22\u028f\u1d1b\u1d00\u0107!")}));
+            itemMeta.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7W tym miejscu mo\u017cesz doda\u0107"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7region z pluginu &fworldguard&7."), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Aby doda\u0107 region nie instaluj\u0105c"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7tego pluginu &f/stormitemy region&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Nie posiadasz pluginu &#FF0000WorldGuard&7!"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#E13636\u1d05\u1d0f\u1d05\u1d00\u1d0a &#CF0000\u1d21\u1d0f\u0280\u029f\u1d05\u0262\u1d1c\u1d00\u0280\u1d05&#E13636, \u1d00\u0299\u028f \ua731\u1d0b\u1d0f\u0280\u1d22\u028f\u1d1b\u1d00\u0107!")));
         }
         itemMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE});
         itemStack.setItemMeta(itemMeta);
@@ -82,28 +82,27 @@ public class A {
     }
 
     private void A(Inventory inventory, Player player) {
-        String string2;
         int[] nArray = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25};
-        HashSet hashSet = new HashSet();
-        List<String> list = this.A.getRegionManager().A();
-        for (String string2 : list) {
-            hashSet.add((Object)string2);
-            this.B.put((Object)string2, (Object)"STORMITEMY");
+        Set<String> regions = new HashSet();
+        List<String> stormItemyRegions = this.A.getRegionManager().A();
+        for (String regionName : stormItemyRegions) {
+            regions.add(regionName);
+            this.B.put(regionName, "STORMITEMY");
         }
         if (this.A.isWorldGuardPresent()) {
             // empty if block
         }
-        Iterator iterator = (Set)this.C.getOrDefault((Object)player.getUniqueId(), (Object)new HashSet());
-        hashSet.addAll((Collection)iterator);
-        string2 = new ArrayList((Collection)hashSet);
-        Collections.sort((List)string2);
-        for (int i2 = 0; i2 < Math.min((int)string2.size(), (int)nArray.length); ++i2) {
-            String string3 = (String)string2.get(i2);
-            String string4 = (String)this.B.getOrDefault((Object)string3, (Object)"STORMITEMY");
+        Set<String> customRegions = this.C.getOrDefault(player.getUniqueId(), new HashSet());
+        regions.addAll(customRegions);
+        List<String> allRegions = new ArrayList(regions);
+        Collections.sort(allRegions);
+        for (int i2 = 0; i2 < Math.min(allRegions.size(), nArray.length); ++i2) {
+            String string3 = allRegions.get(i2);
+            String string4 = this.B.getOrDefault(string3, "STORMITEMY");
             ItemStack itemStack = new ItemStack(Material.PAPER);
             ItemMeta itemMeta = itemStack.getItemMeta();
             itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&f" + string3 + " &8(" + string4 + ")"));
-            itemMeta.setLore(Arrays.asList((Object[])new String[]{me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a &#FF0000&n\ua731\u029c\u026a\ua730\u1d1b + \u1d18\u0280\u1d00\u1d21\u028f&7, \u1d00\u0299\u028f \u1d1c\ua731\u1d1c\u0274\u1d00\u0106!")}));
+            itemMeta.setLore(Arrays.asList(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"), me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a &#FF0000&n\ua731\u029c\u026a\ua730\u1d1b + \u1d18\u0280\u1d00\u1d21\u028f&7, \u1d00\u0299\u028f \u1d1c\ua731\u1d1c\u0274\u1d00\u0106!")));
             itemMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_UNBREAKABLE});
             itemStack.setItemMeta(itemMeta);
             inventory.setItem(nArray[i2], itemStack);
@@ -111,31 +110,30 @@ public class A {
     }
 
     public void A(Player player, String string) {
-        Set set = (Set)this.C.computeIfAbsent((Object)player.getUniqueId(), uUID -> new HashSet());
-        set.add((Object)string);
+        Set<String> set = this.C.computeIfAbsent(player.getUniqueId(), uUID -> new HashSet());
+        set.add(string);
         String string2 = this.A.isWorldGuardPresent() ? "WORLDGUARD" : "STORMITEMY";
-        this.B.put((Object)string, (Object)string2);
+        this.B.put(string, string2);
     }
 
     public void B(Player player, String string) {
-        Set set = (Set)this.C.get((Object)player.getUniqueId());
+        Set<String> set = this.C.get(player.getUniqueId());
         if (set != null) {
-            set.remove((Object)string);
+            set.remove(string);
             if (set.isEmpty()) {
-                this.C.remove((Object)player.getUniqueId());
+                this.C.remove(player.getUniqueId());
             }
         }
-        this.B.remove((Object)string);
+        this.B.remove(string);
     }
 
     public void B(String string) {
-        String string2 = (String)this.B.getOrDefault((Object)string, (Object)"STORMITEMY");
+        String string2 = this.B.getOrDefault(string, "STORMITEMY");
         String string3 = string2.equals((Object)"WORLDGUARD") ? "STORMITEMY" : (this.A.isWorldGuardPresent() ? "WORLDGUARD" : "STORMITEMY");
-        this.B.put((Object)string, (Object)string3);
+        this.B.put(string, string3);
     }
 
     public String A(String string) {
-        return (String)this.B.getOrDefault((Object)string, (Object)"STORMITEMY");
+        return this.B.getOrDefault(string, "STORMITEMY");
     }
 }
-

@@ -21,6 +21,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -30,7 +31,6 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.event.player.PlayerToggleGlideEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
@@ -367,8 +367,10 @@ public class CombatLogManager implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onGlide(PlayerToggleGlideEvent event) {
-        Player player = event.getPlayer();
+    public void onGlide(EntityToggleGlideEvent event) {
+        if (!(event.getEntity() instanceof Player player)) {
+            return;
+        }
         if (!config.isBlockGliding()) {
             return;
         }
@@ -468,7 +470,7 @@ public class CombatLogManager implements Listener {
         combatStates.remove(event.getEntity().getUniqueId());
         if (config.isAutorespawn()) {
             Player player = event.getEntity();
-            Bukkit.getScheduler().runTask(plugin, player::respawn);
+            Bukkit.getScheduler().runTask(plugin, () -> player.spigot().respawn());
         }
     }
 

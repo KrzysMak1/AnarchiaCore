@@ -49,12 +49,12 @@ import org.bukkit.util.Vector;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class o
+public class O
 implements Listener {
     private final Plugin B;
     private final ConfigurationSection A;
 
-    public o(Plugin plugin) {
+    public O(Plugin plugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.B = plugin;

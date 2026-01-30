@@ -66,12 +66,12 @@ import org.bukkit.util.Vector;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class n
+public class N
 implements Listener {
     private final Main B;
     private final ConfigurationSection A;
 
-    public n(Main main) {
+    public N(Main main) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.B = main;

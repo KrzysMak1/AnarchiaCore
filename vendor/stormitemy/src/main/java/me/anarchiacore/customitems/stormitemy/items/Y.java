@@ -66,13 +66,13 @@ import org.bukkit.plugin.Plugin;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class y
+public class Y
 implements Listener {
     private final Plugin C;
     private final ConfigurationSection A;
     private final Map<UUID, Long> B = new HashMap();
 
-    public y(Plugin plugin) {
+    public Y(Plugin plugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.C = plugin;

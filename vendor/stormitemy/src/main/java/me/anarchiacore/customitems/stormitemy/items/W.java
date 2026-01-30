@@ -17,7 +17,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
-public class w {
+public class W {
     private final Plugin B;
     private ConfigurationSection A;
     private final String C = "template";
@@ -39,7 +39,7 @@ public class w {
         }
     }
 
-    public w(Plugin plugin) {
+    public W(Plugin plugin) {
         this.B = plugin;
     }
 }

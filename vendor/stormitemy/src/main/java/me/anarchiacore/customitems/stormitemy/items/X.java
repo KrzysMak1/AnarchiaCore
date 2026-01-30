@@ -36,11 +36,11 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class x {
+public class X {
     private final Plugin B;
     private final ConfigurationSection A;
 
-    public x(Plugin javaPlugin) {
+    public X(Plugin javaPlugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.B = javaPlugin;

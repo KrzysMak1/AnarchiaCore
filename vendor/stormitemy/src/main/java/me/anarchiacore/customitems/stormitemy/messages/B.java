@@ -31,7 +31,6 @@
 package me.anarchiacore.customitems.stormitemy.messages;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -84,22 +83,22 @@ implements Listener {
     }
 
     private void A() {
-        this.C.put((Object)"0", (Object)"&#000000");
-        this.C.put((Object)"1", (Object)"&#0000AA");
-        this.C.put((Object)"2", (Object)"&#00AA00");
-        this.C.put((Object)"3", (Object)"&#00AAAA");
-        this.C.put((Object)"4", (Object)"&#AA0000");
-        this.C.put((Object)"5", (Object)"&#AA00AA");
-        this.C.put((Object)"6", (Object)"&#FFAA00");
-        this.C.put((Object)"7", (Object)"&#AAAAAA");
-        this.C.put((Object)"8", (Object)"&#555555");
-        this.C.put((Object)"9", (Object)"&#5555FF");
-        this.C.put((Object)"a", (Object)"&#55FF55");
-        this.C.put((Object)"b", (Object)"&#55FFFF");
-        this.C.put((Object)"c", (Object)"&#FF5555");
-        this.C.put((Object)"d", (Object)"&#FF55FF");
-        this.C.put((Object)"e", (Object)"&#FFFF55");
-        this.C.put((Object)"f", (Object)"&#FFFFFF");
+        this.C.put("0", "&#000000");
+        this.C.put("1", "&#0000AA");
+        this.C.put("2", "&#00AA00");
+        this.C.put("3", "&#00AAAA");
+        this.C.put("4", "&#AA0000");
+        this.C.put("5", "&#AA00AA");
+        this.C.put("6", "&#FFAA00");
+        this.C.put("7", "&#AAAAAA");
+        this.C.put("8", "&#555555");
+        this.C.put("9", "&#5555FF");
+        this.C.put("a", "&#55FF55");
+        this.C.put("b", "&#55FFFF");
+        this.C.put("c", "&#FF5555");
+        this.C.put("d", "&#FF55FF");
+        this.C.put("e", "&#FFFF55");
+        this.C.put("f", "&#FFFFFF");
     }
 
     public void loadConfig() {
@@ -126,16 +125,16 @@ implements Listener {
         this.F.clear();
         for (String string : configurationSection2.getKeys(false)) {
             String string2 = configurationSection2.getString(string);
-            this.F.put((Object)string, (Object)string2);
+            this.F.put(string, string2);
         }
-        Iterator iterator = configurationSection.getConfigurationSection("display_names");
-        if (iterator == null) {
-            iterator = configurationSection.createSection("display_names");
+        ConfigurationSection displayNames = configurationSection.getConfigurationSection("display_names");
+        if (displayNames == null) {
+            displayNames = configurationSection.createSection("display_names");
         }
         this.O.clear();
-        for (String string2 : iterator.getKeys(false)) {
-            String string = iterator.getString(string2);
-            this.O.put((Object)string2, (Object)string);
+        for (String string2 : displayNames.getKeys(false)) {
+            String string = displayNames.getString(string2);
+            this.O.put(string2, string);
         }
         this.A("smoczymiecz", "&#FF5722");
         this.A("bombardamaxima", "&#9C27B0");
@@ -268,7 +267,7 @@ implements Listener {
         ConfigurationSection configurationSection = this.H.getConfig().getConfigurationSection("actionbar.colors");
         if (configurationSection != null && !configurationSection.contains(string)) {
             configurationSection.set(string, (Object)string2);
-            this.F.put((Object)string, (Object)string2);
+            this.F.put(string, string2);
         }
     }
 
@@ -276,7 +275,7 @@ implements Listener {
         ConfigurationSection configurationSection = this.H.getConfig().getConfigurationSection("actionbar.display_names");
         if (configurationSection != null && !configurationSection.contains(string)) {
             configurationSection.set(string, (Object)string2);
-            this.O.put((Object)string, (Object)string2);
+            this.O.put(string, string2);
         }
     }
 
@@ -332,7 +331,7 @@ implements Listener {
         }
         catch (IllegalArgumentException illegalArgumentException) {
             UUID uUID2 = player.getUniqueId();
-            ((Map)this.J.computeIfAbsent((Object)uUID2, uUID -> new HashMap())).put((Object)string, (Object)n2);
+            ((Map)this.J.computeIfAbsent((Object)uUID2, uUID -> new HashMap())).put(string, n2);
             this.A(player);
             return;
         }
@@ -343,7 +342,7 @@ implements Listener {
             return;
         }
         UUID uUID = player.getUniqueId();
-        this.P.put((Object)uUID, (Object)string);
+        this.P.put(uUID, string);
         this.A(player);
     }
 
@@ -430,7 +429,7 @@ implements Listener {
                     map.remove((Object)string3);
                     continue;
                 }
-                map.put((Object)string3, (Object)n2);
+                map.put(string3, n2);
             }
         }
         if (stringBuilder.length() > 0) {
@@ -549,4 +548,3 @@ implements Listener {
         throw new IllegalStateException("Decompilation failed");
     }
 }
-

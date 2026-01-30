@@ -58,12 +58,12 @@ import org.bukkit.potion.PotionEffectType;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.utils.color.A;
 
-public class h
+public class H
 implements Listener {
     private final Plugin B;
     private final ConfigurationSection A;
 
-    public h(Plugin plugin) {
+    public H(Plugin plugin) {
         YamlConfiguration yamlConfiguration;
         File file;
         this.B = plugin;
