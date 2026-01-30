@@ -2,7 +2,14 @@ name: AnarchiaCore
 main: me.anarchiacore.AnarchiaCorePlugin
 version: 1.0.0
 api-version: 1.21
-softdepend: [WorldGuard, PlaceholderAPI]
+dependencies:
+  server:
+    WorldGuard:
+      load: BEFORE
+      required: false
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
 commands:
   anarchiacore:
     aliases: [acore, anarchia]
