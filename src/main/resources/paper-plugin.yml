@@ -24,3 +24,7 @@ commands:
 permissions:
   anarchiacore.admin:
     default: op
+    children:
+      anarchiacore.admin.dripstone: true
+  anarchiacore.admin.dripstone:
+    default: op

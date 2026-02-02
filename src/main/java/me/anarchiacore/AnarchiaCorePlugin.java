@@ -7,6 +7,7 @@ import me.anarchiacore.customitems.CustomItemsManager;
 import me.anarchiacore.customitems.stormitemy.Main;
 import me.anarchiacore.customitems.stormitemy.StormItemyConfigInstaller;
 import me.anarchiacore.customitems.stormitemy.core.B;
+import me.anarchiacore.dripstone.DripstoneDamageManager;
 import me.anarchiacore.hearts.HeartsManager;
 import me.anarchiacore.papi.AnarchiaCorePlaceholderExpansion;
 import me.anarchiacore.stats.StatsManager;
@@ -37,6 +38,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private CustomItemsManager customItemsManager;
     private CombatLogManager combatLogManager;
     private StatsManager statsManager;
+    private DripstoneDamageManager dripstoneDamageManager;
     private Main stormItemyMain;
     private B stormItemyInitializer;
     private StormItemyConfigInstaller stormItemyConfigInstaller;
@@ -68,6 +70,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         customItemsManager = new CustomItemsManager(this, configManager, messageService);
         combatLogManager = new CombatLogManager(this, configManager.getPrefix(), customItemsManager, dataStore);
         statsManager = new StatsManager(this, configManager, dataStore);
+        dripstoneDamageManager = new DripstoneDamageManager(this, messageService);
         int customItemsCount = configManager.getCustomItemsConfig().getAllItemIds().size();
         if (customItemsCount == 0) {
             getLogger().severe("CustomItems configs are empty: " + new java.io.File(getDataFolder(), "configs/customitems").getAbsolutePath());
@@ -78,6 +81,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         getServer().getPluginManager().registerEvents(customItemsManager, this);
         getServer().getPluginManager().registerEvents(combatLogManager, this);
         getServer().getPluginManager().registerEvents(statsManager, this);
+        getServer().getPluginManager().registerEvents(dripstoneDamageManager, this);
         getServer().getPluginManager().registerEvents(new EndCrystalBlocker(this, configManager, messageService), this);
 
         Objects.requireNonNull(getCommand("anarchiacore")).setExecutor(this);
@@ -174,6 +178,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (args[0].equalsIgnoreCase("customitems")) {
             return handleCustomItemsCommand(sender, Arrays.copyOfRange(args, 1, args.length));
         }
+        if (args[0].equalsIgnoreCase("dripstone")) {
+            return handleDripstoneCommand(sender, Arrays.copyOfRange(args, 1, args.length));
+        }
         return false;
     }
 
@@ -209,6 +216,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         }
         if (statsManager != null) {
             statsManager.reload();
+        }
+        if (dripstoneDamageManager != null) {
+            dripstoneDamageManager.reload();
         }
         if (combatLogManager != null) {
             combatLogManager.reload();
@@ -315,6 +325,13 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         return combatLogManager.handleCommand(sender, args);
     }
 
+    private boolean handleDripstoneCommand(CommandSender sender, String[] args) {
+        if (dripstoneDamageManager == null) {
+            return false;
+        }
+        return dripstoneDamageManager.handleCommand(sender, args);
+    }
+
     private boolean handleCustomItemsCommand(CommandSender sender, String[] args) {
         if (args.length == 0) {
             return false;
@@ -368,7 +385,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return Collections.emptyList();
         }
         if (args.length == 1) {
-            return List.of("reload", "heart", "combatlog", "customitems");
+            return List.of("reload", "heart", "combatlog", "customitems", "dripstone");
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("heart")) {
             return List.of("give", "setitem");
@@ -395,6 +412,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         }
         if (args.length >= 2 && args[0].equalsIgnoreCase("combatlog") && combatLogManager != null) {
             return combatLogManager.tabComplete(Arrays.copyOfRange(args, 1, args.length));
+        }
+        if (args.length >= 2 && args[0].equalsIgnoreCase("dripstone") && dripstoneDamageManager != null) {
+            return dripstoneDamageManager.tabComplete(Arrays.copyOfRange(args, 1, args.length));
         }
         return Collections.emptyList();
     }
