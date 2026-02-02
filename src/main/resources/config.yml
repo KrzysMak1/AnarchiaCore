@@ -18,6 +18,10 @@ anarchiczneSerceCustomModelData: 0
 blockedEndCrystalDimensions:
   - NETHER
 
+dripstone-damage:
+  enabled: true
+  multiplier: 1.0
+
 stats:
   topCacheSeconds: 60
   topLimit: 10
@@ -45,6 +49,12 @@ trash:
 messages:
   prefix: "<dark_gray>[</dark_gray><red>Anarchia</red><dark_gray>] </dark_gray><gray>"
   noPermission: "{prefix}<red>Brak uprawnień.</red>"
+  dripstone:
+    usage: "{prefix}<red>Użycie: /anarchiacore dripstone <get|multiplier|reload> [value]</red>"
+    get: "{prefix}<gray>Aktualny mnożnik: </gray><yellow>{value}</yellow>"
+    set: "{prefix}<green>Ustawiono mnożnik obrażeń dripstone na </green><yellow>{value}</yellow>"
+    reload: "{prefix}<green>Przeładowano konfigurację dripstone.</green>"
+    invalid: "{prefix}<red>Błędna wartość. Podaj liczbę >= 0.0 (np. 1.5)</red>"
   reloadDone: "{prefix}<green>Przeładowano config.</green>"
   giveUsage: "{prefix}<red>Użycie: /anarchiacore heart give <player> [amount]</red>"
   setItemUsage: "{prefix}<red>Użycie: /anarchiacore heart setitem (trzymaj item w ręce)</red>"
