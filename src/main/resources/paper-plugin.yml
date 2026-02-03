@@ -10,17 +10,6 @@ dependencies:
     PlaceholderAPI:
       load: BEFORE
       required: false
-commands:
-  anarchiacore:
-    aliases: [acore, anarchia]
-  antylogout:
-    aliases: [combatlog]
-  kosz:
-    aliases: [trash, bin]
-  stormitemy:
-    aliases: [stormitems]
-  menuprzedmioty:
-    aliases: [przedmioty]
 permissions:
   anarchiacore.admin:
     default: op

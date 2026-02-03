@@ -16,6 +16,8 @@ import me.anarchiacore.util.EndCrystalBlocker;
 import me.anarchiacore.util.MiniMessageUtil;
 import me.anarchiacore.util.ResourceExporter;
 import me.anarchiacore.util.ZipExtractor;
+import io.papermc.paper.command.brigadier.BasicCommand;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
@@ -86,11 +88,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         getServer().getPluginManager().registerEvents(dripstoneDamageManager, this);
         getServer().getPluginManager().registerEvents(new EndCrystalBlocker(this, configManager, messageService), this);
 
-        Objects.requireNonNull(getCommand("anarchiacore")).setExecutor(this);
-        Objects.requireNonNull(getCommand("anarchiacore")).setTabCompleter(this);
-        Objects.requireNonNull(getCommand("antylogout")).setExecutor(this);
-        Objects.requireNonNull(getCommand("antylogout")).setTabCompleter(this);
-        Objects.requireNonNull(getCommand("kosz")).setExecutor(new TrashCommand(trashManager, messageService, this));
+        registerCommand("anarchiacore", List.of("acore", "anarchia"), this, this);
+        registerCommand("antylogout", List.of("combatlog"), this, this);
+        registerCommand("kosz", List.of("trash", "bin"), new TrashCommand(trashManager, messageService, this), null);
 
         initializeStormItemy();
 
@@ -228,10 +228,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             stormConfigs = getStormItemyConfigCount();
 
             if (stormItemyMain instanceof CommandExecutor) {
-                Objects.requireNonNull(getCommand("stormitemy")).setExecutor((CommandExecutor) stormItemyMain);
-            }
-            if (stormItemyMain instanceof TabCompleter) {
-                Objects.requireNonNull(getCommand("stormitemy")).setTabCompleter((TabCompleter) stormItemyMain);
+                registerCommand("stormitemy", List.of("stormitems"), (CommandExecutor) stormItemyMain,
+                    stormItemyMain instanceof TabCompleter ? (TabCompleter) stormItemyMain : null);
             }
 
             getLogger().info("StormItemy integrated: " + stormSource + "; registered listeners: " + stormListeners
@@ -275,10 +273,51 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         Method getMenuCommand = stormItemyInitializer.getClass().getMethod("getMenuCommand");
         Object menuCommand = getMenuCommand.invoke(stormItemyInitializer);
         if (menuCommand instanceof CommandExecutor) {
-            Objects.requireNonNull(getCommand("menuprzedmioty")).setExecutor((CommandExecutor) menuCommand);
+            registerCommand("menuprzedmioty", List.of("przedmioty"), (CommandExecutor) menuCommand,
+                menuCommand instanceof TabCompleter ? (TabCompleter) menuCommand : null);
             return 2;
         }
         return 1;
+    }
+
+    private void registerCommand(String name, Collection<String> aliases, CommandExecutor executor, TabCompleter completer) {
+        Command command = new Command(name) {
+            @Override
+            public boolean execute(CommandSender sender, String label, String[] args) {
+                return executor.onCommand(sender, this, label, args);
+            }
+
+            @Override
+            public List<String> tabComplete(CommandSender sender, String label, String[] args) {
+                if (completer == null) {
+                    return Collections.emptyList();
+                }
+                List<String> results = completer.onTabComplete(sender, this, label, args);
+                return results != null ? results : Collections.emptyList();
+            }
+        };
+
+        BasicCommand basicCommand = new BasicCommand() {
+            @Override
+            public void execute(CommandSourceStack stack, String[] args) {
+                executor.onCommand(stack.getSender(), command, name, args);
+            }
+
+            @Override
+            public Collection<String> suggest(CommandSourceStack stack, String[] args) {
+                if (completer == null) {
+                    return Collections.emptyList();
+                }
+                List<String> results = completer.onTabComplete(stack.getSender(), command, name, args);
+                return results != null ? results : Collections.emptyList();
+            }
+        };
+
+        if (aliases == null || aliases.isEmpty()) {
+            registerCommand(name, basicCommand);
+        } else {
+            registerCommand(name, aliases, basicCommand);
+        }
     }
 
     private int getStormItemyConfigCount() throws Exception {
