@@ -85,47 +85,49 @@ public class B {
     }
 
     private void A() {
-        Object object;
         this.F.clear();
         this.A.clear();
         Map<String, Object> map = this.E.getItems();
-        ArrayList arrayList = new ArrayList();
-        ArrayList arrayList2 = new ArrayList();
-        Map.Entry entry3 = null;
-        for (Map.Entry entry4 : map.entrySet()) {
-            Object object2 = (String)entry4.getKey();
-            object = entry4.getValue();
-            if (object == null) continue;
-            if (object2.toLowerCase().equals((Object)"zaczarowanie")) {
-                entry3 = entry4;
+        List<Map.Entry<String, Object>> regularItems = new ArrayList<>();
+        List<Map.Entry<String, Object>> anarchicItems = new ArrayList<>();
+        Map.Entry<String, Object> enchantmentEntry = null;
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if (value == null) {
                 continue;
             }
-            if (object2.toLowerCase().contains((CharSequence)"anarchicz")) {
-                arrayList2.add((Object)entry4);
+            String lowerKey = key.toLowerCase();
+            if (lowerKey.equals("zaczarowanie")) {
+                enchantmentEntry = entry;
                 continue;
             }
-            arrayList.add((Object)entry4);
+            if (lowerKey.contains("anarchicz")) {
+                anarchicItems.add(entry);
+                continue;
+            }
+            regularItems.add(entry);
         }
-        arrayList.sort((entry, entry2) -> ((String)entry.getKey()).compareToIgnoreCase((String)entry2.getKey()));
-        arrayList2.sort((entry, entry2) -> ((String)entry.getKey()).compareToIgnoreCase((String)entry2.getKey()));
-        this.A((List<Map.Entry<String, Object>>)arrayList);
-        this.A((List<Map.Entry<String, Object>>)arrayList2);
-        if (entry3 != null) {
-            this.A((String)entry3.getKey(), entry3.getValue());
+        regularItems.sort((left, right) -> left.getKey().compareToIgnoreCase(right.getKey()));
+        anarchicItems.sort((left, right) -> left.getKey().compareToIgnoreCase(right.getKey()));
+        this.A(regularItems);
+        this.A(anarchicItems);
+        if (enchantmentEntry != null) {
+            this.A(enchantmentEntry.getKey(), enchantmentEntry.getValue());
         }
         try {
             me.anarchiacore.customitems.stormitemy.books.A a2 = this.E.getEnchantedBooksManager();
             if (a2 != null) {
-                for (Object object2 : a2.C()) {
-                    object = ((D)object2).getIdentifier();
-                    ItemStack itemStack = ItemRegistry.getItemStack((String)object);
+                for (D book : a2.C()) {
+                    String identifier = book.getIdentifier();
+                    ItemStack itemStack = ItemRegistry.getItemStack(identifier);
                     if (itemStack == null) {
-                        itemStack = ((D)object2).getBookItem();
+                        itemStack = book.getBookItem();
                     }
                     if (itemStack == null || !itemStack.hasItemMeta() || !itemStack.getItemMeta().hasDisplayName()) continue;
-                    String string = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
-                    this.F.put(object, (Object)itemStack.clone());
-                    this.A.put((Object)string, object);
+                    String displayName = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
+                    this.F.put(identifier, itemStack.clone());
+                    this.A.put(displayName, identifier);
                 }
             }
         }
@@ -135,28 +137,27 @@ public class B {
     }
 
     private void A(List<Map.Entry<String, Object>> list) {
-        for (Map.Entry entry : list) {
-            this.A((String)entry.getKey(), entry.getValue());
+        for (Map.Entry<String, Object> entry : list) {
+            this.A(entry.getKey(), entry.getValue());
         }
     }
 
     private void A(String string, Object object) {
         try {
-            Object object2;
             ItemStack itemStack = ItemRegistry.getItemStack(string);
             if (itemStack == null) {
                 try {
-                    object2 = object.getClass().getMethod("getItem", new Class[0]);
-                    itemStack = (ItemStack)object2.invoke(object, new Object[0]);
+                    java.lang.reflect.Method method = object.getClass().getMethod("getItem");
+                    itemStack = (ItemStack)method.invoke(object);
                 }
                 catch (Exception exception) {
                     // empty catch block
                 }
             }
             if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
-                object2 = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
-                this.F.put((Object)string, (Object)itemStack.clone());
-                this.A.put(object2, (Object)string);
+                String displayName = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
+                this.F.put(string, itemStack.clone());
+                this.A.put(displayName, string);
             }
         }
         catch (Exception exception) {
@@ -221,8 +222,7 @@ public class B {
         String string2;
         ItemStack itemStack2;
         ItemMeta itemMeta2;
-        ItemFlag itemFlag2;
-        Map map;
+        Map<Enchantment, Integer> enchantments;
         if (itemStack == null || !itemStack.hasItemMeta()) {
             player.sendMessage(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&cB\u0142\u0105d: Nie mo\u017cna edytowa\u0107 tego przedmiotu!"));
             return;
@@ -281,14 +281,14 @@ public class B {
         arrayList3.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
         arrayList3.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Aktualne enchantmenty:"));
         if (itemStack.getItemMeta().hasEnchants()) {
-            map = itemStack.getItemMeta().getEnchants();
+            enchantments = itemStack.getItemMeta().getEnchants();
             int n4 = 0;
-            for (Map.Entry entry : map.entrySet()) {
+            for (Map.Entry<Enchantment, Integer> entry : enchantments.entrySet()) {
                 if (n4 >= 9) {
-                    arrayList3.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7... (+" + (map.size() - 9) + " wi\u0119cej)"));
+                    arrayList3.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7... (+" + (enchantments.size() - 9) + " wi\u0119cej)"));
                     break;
                 }
-                arrayList3.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&f" + ((Enchantment)entry.getKey()).getName() + " " + String.valueOf((Object)entry.getValue())));
+                arrayList3.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&f" + entry.getKey().getName() + " " + entry.getValue()));
                 ++n4;
             }
         } else {
@@ -300,40 +300,40 @@ public class B {
         itemMeta6.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
         itemStack6.setItemMeta(itemMeta6);
         inventory.setItem(14, itemStack6);
-        map = new ItemStack(Material.MAGENTA_BANNER);
-        ItemMeta itemMeta7 = map.getItemMeta();
+        ItemStack flagItem = new ItemStack(Material.MAGENTA_BANNER);
+        ItemMeta itemMeta7 = flagItem.getItemMeta();
         itemMeta7.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFZmie\u0144 flagi przedmiotu"));
-        Iterator iterator = new ArrayList();
-        iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
-        iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Tutaj mo\u017cesz &fedytowa\u0107"));
-        iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &fflagi &7przedmiotu!"));
-        iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
-        iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Aktualne flagi:"));
+        List<String> flagLore = new ArrayList<>();
+        flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
+        flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Tutaj mo\u017cesz &fedytowa\u0107"));
+        flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &fflagi &7przedmiotu!"));
+        flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
+        flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Aktualne flagi:"));
         if (itemStack.getItemMeta().getItemFlags().size() > 0) {
             int n5 = 0;
             for (ItemFlag itemFlag2 : itemStack.getItemMeta().getItemFlags()) {
                 if (n5 >= 9) {
-                    iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7... (+" + (itemStack.getItemMeta().getItemFlags().size() - 9) + " wi\u0119cej)"));
+                    flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7... (+" + (itemStack.getItemMeta().getItemFlags().size() - 9) + " wi\u0119cej)"));
                     break;
                 }
-                iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&f" + itemFlag2.name()));
+                flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&f" + itemFlag2.name()));
                 ++n5;
             }
         } else {
-            iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&fBRAK FLAG"));
+            flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&fBRAK FLAG"));
         }
-        iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
-        iterator.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d07\u1d05\u028f\u1d1b\u1d0f\u1d21\u1d00\u0107!"));
-        itemMeta7.setLore((List)iterator);
+        flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
+        flagLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d07\u1d05\u028f\u1d1b\u1d0f\u1d21\u1d00\u0107!"));
+        itemMeta7.setLore(flagLore);
         itemMeta7.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
-        map.setItemMeta(itemMeta7);
-        inventory.setItem(15, (ItemStack)map);
-        String string8 = (String)this.A.get((Object)string3);
+        flagItem.setItemMeta(itemMeta7);
+        inventory.setItem(15, flagItem);
+        String string8 = this.A.get(string3);
         int n6 = this.E(string8);
         if (n6 > 0) {
-            itemFlag2 = new ItemStack(Material.CLOCK);
-            itemMeta2 = itemFlag2.getItemMeta();
-            itemMeta2.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFZmie\u0144 cooldown przedmiotu"));
+            ItemStack cooldownItem = new ItemStack(Material.CLOCK);
+            ItemMeta cooldownMeta = cooldownItem.getItemMeta();
+            cooldownMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFZmie\u0144 cooldown przedmiotu"));
             ArrayList arrayList4 = new ArrayList();
             arrayList4.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
             arrayList4.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Tutaj mo\u017cesz &fedytowa\u0107"));
@@ -342,15 +342,15 @@ public class B {
             arrayList4.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Aktualny cooldown: &f" + n6 + "s"));
             arrayList4.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
             arrayList4.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d07\u1d05\u028f\u1d1b\u1d0f\u1d21\u1d00\u0107!"));
-            itemMeta2.setLore((List)arrayList4);
-            itemMeta2.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
-            itemFlag2.setItemMeta(itemMeta2);
-            inventory.setItem(21, (ItemStack)itemFlag2);
+            cooldownMeta.setLore((List)arrayList4);
+            cooldownMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
+            cooldownItem.setItemMeta(cooldownMeta);
+            inventory.setItem(21, cooldownItem);
         }
-        itemFlag2 = new ItemStack(Material.BEDROCK);
-        itemMeta2 = itemFlag2.getItemMeta();
+        ItemStack unbreakableItem = new ItemStack(Material.BEDROCK);
+        ItemMeta unbreakableMeta = unbreakableItem.getItemMeta();
         boolean bl = itemStack.getItemMeta().isUnbreakable();
-        itemMeta2.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFCzy ma posiada\u0107 Unbreakable"));
+        unbreakableMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFCzy ma posiada\u0107 Unbreakable"));
         ArrayList arrayList5 = new ArrayList();
         arrayList5.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
         arrayList5.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Tutaj mo\u017cesz &fw\u0142\u0105czy\u0107 i wy\u0142\u0105czy\u0107"));
@@ -359,25 +359,25 @@ public class B {
         arrayList5.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Status: " + (bl ? "&fW\u0141\u0104CZONE" : "&fWY\u0141\u0104CZONE")));
         arrayList5.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
         arrayList5.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d18\u0280\u1d22\u1d07\u029f\u1d00\u1d04\u1d22\u028f\u0107!"));
-        itemMeta2.setLore((List)arrayList5);
-        itemMeta2.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
-        itemFlag2.setItemMeta(itemMeta2);
-        inventory.setItem(22, (ItemStack)itemFlag2);
+        unbreakableMeta.setLore((List)arrayList5);
+        unbreakableMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
+        unbreakableItem.setItemMeta(unbreakableMeta);
+        inventory.setItem(22, unbreakableItem);
         if (string8 != null && n6 > 0) {
             itemStack2 = new ItemStack(Material.LIGHT_BLUE_CANDLE);
             ItemMeta itemMeta8 = itemStack2.getItemMeta();
             itemMeta8.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FFZmie\u0144 kolor cooldownu"));
             string2 = this.D(string8);
             string = string2.replace((CharSequence)"&", (CharSequence)"");
-            itemMeta = new ArrayList();
-            itemMeta.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
-            itemMeta.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Tutaj mo\u017cesz &fedytowa\u0107"));
-            itemMeta.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &fkolor cooldownu &7na actionbarze!"));
-            itemMeta.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
-            itemMeta.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Aktualny kolor: " + string2 + string));
-            itemMeta.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
-            itemMeta.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d07\u1d05\u028f\u1d1b\u1d0f\u1d21\u1d00\u0107!"));
-            itemMeta8.setLore((List)itemMeta);
+            List<String> colorLore = new ArrayList<>();
+            colorLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
+            colorLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Tutaj mo\u017cesz &fedytowa\u0107"));
+            colorLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &fkolor cooldownu &7na actionbarze!"));
+            colorLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
+            colorLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Aktualny kolor: " + string2 + string));
+            colorLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
+            colorLore.add(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d07\u1d05\u028f\u1d1b\u1d0f\u1d21\u1d00\u0107!"));
+            itemMeta8.setLore(colorLore);
             itemMeta8.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
             itemStack2.setItemMeta(itemMeta8);
             inventory.setItem(23, itemStack2);
@@ -385,10 +385,10 @@ public class B {
         itemStack2 = this.A(Material.BARRIER, me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#FF0000Powr\u00f3t do edytora"));
         inventory.setItem(39, itemStack2);
         boolean bl2 = string8 != null ? !this.C(string8) : true;
-        string2 = bl2 ? Material.LIME_DYE : Material.RED_DYE;
-        string = new ItemStack((Material)string2);
-        itemMeta = string.getItemMeta();
-        itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C(bl2 ? "&#1DFF1AW\u0142\u0105czony" : "&#FF0000Wy\u0142\u0105czony"));
+        Material toggleMaterial = bl2 ? Material.LIME_DYE : Material.RED_DYE;
+        ItemStack toggleItem = new ItemStack(toggleMaterial);
+        ItemMeta toggleMeta = toggleItem.getItemMeta();
+        toggleMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C(bl2 ? "&#1DFF1AW\u0142\u0105czony" : "&#FF0000Wy\u0142\u0105czony"));
         ArrayList arrayList6 = new ArrayList();
         arrayList6.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
         arrayList6.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Tutaj mo\u017cesz &fw\u0142\u0105czy\u0107 &7i &fwy\u0142\u0105czy\u0107"));
@@ -397,10 +397,10 @@ public class B {
         arrayList6.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&8 \u00bb &7Status: " + (bl2 ? "&fW\u0141\u0104CZONY" : "&fWY\u0141\u0104CZONY")));
         arrayList6.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
         arrayList6.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1A\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a, \u1d00\u0299\u028f \u1d18\u0280\u1d22\u1d07\u029f\u1d00\u1d04\u1d22\u028f\u0107!"));
-        itemMeta.setLore((List)arrayList6);
-        itemMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
-        string.setItemMeta(itemMeta);
-        inventory.setItem(41, (ItemStack)string);
+        toggleMeta.setLore((List)arrayList6);
+        toggleMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
+        toggleItem.setItemMeta(toggleMeta);
+        inventory.setItem(41, toggleItem);
         player.openInventory(inventory);
     }
 
@@ -531,7 +531,7 @@ public class B {
         String string2 = this.F(string);
         String string3 = me.anarchiacore.customitems.stormitemy.utils.color.A.C("\u00a7x\u00a7F\u00a7F\u00a7F\u00a79\u00a71\u00a7A\u26a1 \u00a78\u1d07\u1d05\u028f\u1d1b\u1d0f\u0280 \u029f\u1d0f\u0280\u1d07 " + string2);
         Inventory inventory = Bukkit.createInventory(null, (int)45, (String)string3);
-        ArrayList arrayList = itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList();
+        List<String> arrayList = itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>();
         int[] nArray = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25};
         for (int i2 = 0; i2 < arrayList.size() && i2 < nArray.length; ++i2) {
             inventory.setItem(nArray[i2], this.A((String)arrayList.get(i2), i2 + 1));
@@ -583,7 +583,7 @@ public class B {
             return;
         }
         String string2 = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
-        String string3 = (String)this.A.get((Object)string2);
+        String string3 = this.A.get(string2);
         if (string3 == null) {
             me.anarchiacore.customitems.stormitemy.messages.A a3 = new A._A().D("&cNie znaleziono klucza przedmiotu!").B("&cNie znaleziono przedmiotu!").A(10).B(60).C(15).A();
             me.anarchiacore.customitems.stormitemy.messages.C.A(player, a3);
@@ -599,9 +599,9 @@ public class B {
         ItemMeta itemMeta = itemStack.getItemMeta();
         itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#FFD700" + string));
         itemStack.setItemMeta(itemMeta);
-        this.F.put((Object)string3, (Object)itemStack);
-        this.A.remove((Object)string2);
-        this.A.put((Object)string, (Object)string3);
+        this.F.put(string3, itemStack);
+        this.A.remove(string2);
+        this.A.put(string, string3);
         String string4 = "&8\u00bb &7Zmieniono nazw\u0119 z &f" + string2 + " &7na &#27FF00" + string + "&7!";
         String string5 = "&fNowa &7nazwa zosta\u0142a &#27FF00ustawiona&7!";
         me.anarchiacore.customitems.stormitemy.messages.A a5 = new A._A().D(me.anarchiacore.customitems.stormitemy.utils.color.A.C(string4)).B(me.anarchiacore.customitems.stormitemy.utils.color.A.C(string5)).A(10).B(60).C(15).A();
@@ -611,85 +611,81 @@ public class B {
     }
 
     public void A(Player player, ItemStack itemStack, List<String> list) {
-        String string;
-        File file;
         if (itemStack == null || !itemStack.hasItemMeta()) {
             return;
         }
-        String string2 = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
-        String string3 = (String)this.A.get((Object)string2);
-        if (string3 == null) {
+        String displayName = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
+        String key = this.A.get(displayName);
+        if (key == null) {
             return;
         }
-        File file2 = new File(this.E.getDataFolder(), "items");
-        if (!file2.exists()) {
-            file2.mkdirs();
+        File itemsDir = new File(this.E.getDataFolder(), "items");
+        if (!itemsDir.exists()) {
+            itemsDir.mkdirs();
         }
-        if (!(file = new File(file2, string3 + ".yml")).exists()) {
-            string = string3.replace((CharSequence)"_", (CharSequence)"");
-            file = new File(file2, string + ".yml");
+        File file = new File(itemsDir, key + ".yml");
+        if (!file.exists()) {
+            String altKey = key.replace("_", "");
+            file = new File(itemsDir, altKey + ".yml");
         }
         if (!file.exists()) {
             return;
         }
         try {
-            string = YamlConfiguration.loadConfiguration((File)file);
-            Set set = string.getKeys(false);
-            if (set.isEmpty()) {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            Set<String> keys = config.getKeys(false);
+            if (keys.isEmpty()) {
                 return;
             }
-            String string4 = (String)set.iterator().next();
-            string.set(string4 + ".lore", list);
-            string.save(file);
+            String root = keys.iterator().next();
+            config.set(root + ".lore", list);
+            config.save(file);
             ItemMeta itemMeta = itemStack.getItemMeta();
             itemMeta.setLore(list);
             itemStack.setItemMeta(itemMeta);
-            this.F.put((Object)string3, (Object)itemStack.clone());
-            this.A(string3, player);
-        }
-        catch (IOException iOException) {
+            this.F.put(key, itemStack.clone());
+            this.A(key, player);
+        } catch (IOException iOException) {
             iOException.printStackTrace();
         }
     }
 
     public void A(Player player, ItemStack itemStack, int n2) {
-        String string;
-        File file;
         if (itemStack == null || !itemStack.hasItemMeta()) {
             return;
         }
-        String string2 = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
-        String string3 = (String)this.A.get((Object)string2);
-        if (string3 == null) {
+        String displayName = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
+        String key = this.A.get(displayName);
+        if (key == null) {
             return;
         }
-        File file2 = new File(this.E.getDataFolder(), "items");
-        if (!file2.exists()) {
-            file2.mkdirs();
+        File itemsDir = new File(this.E.getDataFolder(), "items");
+        if (!itemsDir.exists()) {
+            itemsDir.mkdirs();
         }
-        if (!(file = new File(file2, string3 + ".yml")).exists()) {
-            string = string3.replace((CharSequence)"_", (CharSequence)"");
-            file = new File(file2, string + ".yml");
+        File file = new File(itemsDir, key + ".yml");
+        if (!file.exists()) {
+            String altKey = key.replace("_", "");
+            file = new File(itemsDir, altKey + ".yml");
         }
         if (!file.exists()) {
             return;
         }
         try {
-            string = YamlConfiguration.loadConfiguration((File)file);
-            Set set = string.getKeys(false);
-            if (set.isEmpty()) {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            Set<String> keys = config.getKeys(false);
+            if (keys.isEmpty()) {
                 return;
             }
-            String string4 = (String)set.iterator().next();
-            string.set(string4 + ".customModelData", (Object)n2);
-            string.save(file);
+            String root = keys.iterator().next();
+            config.set(root + ".customModelData", n2);
+            config.save(file);
             ItemMeta itemMeta = itemStack.getItemMeta();
-            itemMeta.setCustomModelData(Integer.valueOf((int)n2));
+            itemMeta.setCustomModelData(n2);
             itemStack.setItemMeta(itemMeta);
-            this.F.put((Object)string3, (Object)itemStack.clone());
-            this.A(string3, player);
-        }
-        catch (IOException iOException) {
+            this.F.put(key, itemStack.clone());
+            this.A(key, player);
+        } catch (IOException iOException) {
             iOException.printStackTrace();
         }
     }
@@ -704,31 +700,34 @@ public class B {
     }
 
     private boolean B(String string, String string2) {
-        YamlConfiguration yamlConfiguration;
-        File file;
-        File file2 = new File(this.E.getDataFolder(), "items");
-        if (!file2.exists()) {
-            file2.mkdirs();
+        File itemsDir = new File(this.E.getDataFolder(), "items");
+        if (!itemsDir.exists()) {
+            itemsDir.mkdirs();
         }
-        if (!(file = new File(file2, string + ".yml")).exists()) {
-            yamlConfiguration = string.replace((CharSequence)"_", (CharSequence)"");
-            file = new File(file2, (String)yamlConfiguration + ".yml");
+        File file = new File(itemsDir, string + ".yml");
+        if (!file.exists()) {
+            String altKey = string.replace("_", "");
+            file = new File(itemsDir, altKey + ".yml");
         }
-        if (!file.exists() && (yamlConfiguration = file2.listFiles()) != null) {
-            for (YamlConfiguration yamlConfiguration2 : yamlConfiguration) {
-                if (!yamlConfiguration2.getName().endsWith(".yml")) continue;
-                try {
-                    YamlConfiguration yamlConfiguration3 = YamlConfiguration.loadConfiguration((File)yamlConfiguration2);
-                    for (String string3 : yamlConfiguration3.getKeys(false)) {
-                        if (!string3.equalsIgnoreCase(string)) continue;
-                        file = yamlConfiguration2;
-                        break;
+        if (!file.exists()) {
+            File[] files = itemsDir.listFiles((dir, name) -> name.endsWith(".yml"));
+            if (files != null) {
+                for (File candidate : files) {
+                    try {
+                        YamlConfiguration config = YamlConfiguration.loadConfiguration(candidate);
+                        for (String root : config.getKeys(false)) {
+                            if (!root.equalsIgnoreCase(string)) {
+                                continue;
+                            }
+                            file = candidate;
+                            break;
+                        }
+                        if (file.exists()) {
+                            break;
+                        }
+                    } catch (Exception exception) {
+                        // empty catch block
                     }
-                    if (!file.exists()) continue;
-                    break;
-                }
-                catch (Exception exception) {
-                    // empty catch block
                 }
             }
         }
@@ -736,18 +735,17 @@ public class B {
             return false;
         }
         try {
-            yamlConfiguration = YamlConfiguration.loadConfiguration((File)file);
-            YamlConfiguration yamlConfiguration4 = yamlConfiguration.getKeys(false);
-            if (yamlConfiguration4.isEmpty()) {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            Set<String> keys = config.getKeys(false);
+            if (keys.isEmpty()) {
                 return false;
             }
-            String string4 = (String)yamlConfiguration4.iterator().next();
-            yamlConfiguration.set(string4 + ".name", (Object)string2);
-            yamlConfiguration.save(file);
+            String root = keys.iterator().next();
+            config.set(root + ".name", string2);
+            config.save(file);
             this.G(string);
             return true;
-        }
-        catch (IOException iOException) {
+        } catch (IOException iOException) {
             iOException.printStackTrace();
             return false;
         }
@@ -758,84 +756,77 @@ public class B {
     }
 
     private void A(String string, Player player) {
-        String string2;
-        Object object;
-        File file;
-        Object object2;
-        block20: {
-            object2 = this.E.getItem(string);
-            if (object2 == null) {
-                return;
-            }
-            try {
-                Field field;
-                file = new File(this.E.getDataFolder(), "items");
-                object = new File(file, string + ".yml");
-                if (!object.exists()) {
-                    string2 = string.replace((CharSequence)"_", (CharSequence)"");
-                    object = new File(file, string2 + ".yml");
+        Object item = this.E.getItem(string);
+        if (item == null) {
+            return;
+        }
+        File itemsDir = new File(this.E.getDataFolder(), "items");
+        File file = new File(itemsDir, string + ".yml");
+        if (!file.exists()) {
+            String altKey = string.replace("_", "");
+            file = new File(itemsDir, altKey + ".yml");
+        }
+        if (!file.exists()) {
+            String altKey = string.replace("_", "").toLowerCase();
+            File[] files = itemsDir.listFiles((dir, name) -> name.endsWith(".yml"));
+            if (files != null) {
+                for (File candidate : files) {
+                    String base = candidate.getName().replace(".yml", "").toLowerCase();
+                    if (base.equals(altKey) || base.replace("_", "").equals(altKey)) {
+                        file = candidate;
+                        break;
+                    }
                 }
-                if (!object.exists()) {
-                    string2 = string.replace((CharSequence)"_", (CharSequence)"").toLowerCase();
-                    field = file.listFiles();
-                    if (field != null) {
-                        for (Field field2 : field) {
-                            String string3;
-                            if (!field2.getName().endsWith(".yml") || !(string3 = field2.getName().replace((CharSequence)".yml", (CharSequence)"").toLowerCase()).equals((Object)string2) && !string3.replace((CharSequence)"_", (CharSequence)"").equals((Object)string2)) continue;
-                            object = field2;
-                            break;
+            }
+        }
+        if (file.exists()) {
+            try {
+                YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+                try {
+                    Field configField = item.getClass().getDeclaredField("config");
+                    configField.setAccessible(true);
+                    Set<String> keys = config.getKeys(false);
+                    if (!keys.isEmpty()) {
+                        String root = keys.iterator().next();
+                        ConfigurationSection section = config.getConfigurationSection(root);
+                        if (section != null) {
+                            configField.set(item, section);
                         }
                     }
+                } catch (NoSuchFieldException noSuchFieldException) {
+                    // empty catch block
                 }
-                if (!object.exists()) break block20;
-                string2 = YamlConfiguration.loadConfiguration((File)object);
-                try {
-                    String string4;
-                    ConfigurationSection configurationSection;
-                    field = object2.getClass().getDeclaredField("config");
-                    field.setAccessible(true);
-                    Field field3 = string2.getKeys(false);
-                    if (!field3.isEmpty() && (configurationSection = string2.getConfigurationSection(string4 = (String)field3.iterator().next())) != null) {
-                        field.set(object2, (Object)configurationSection);
-                    }
-                }
-                catch (NoSuchFieldException noSuchFieldException) {}
-            }
-            catch (Exception exception) {
+            } catch (Exception exception) {
                 // empty catch block
             }
         }
         try {
-            file = object2.getClass().getMethod("reload", new Class[0]);
-            file.invoke(object2, new Object[0]);
-        }
-        catch (NoSuchMethodException noSuchMethodException) {
-        }
-        catch (Exception exception) {
+            item.getClass().getMethod("reload").invoke(item);
+        } catch (NoSuchMethodException noSuchMethodException) {
+            // empty catch block
+        } catch (Exception exception) {
             // empty catch block
         }
         try {
-            file = ItemRegistry.getItemStack(string);
-            if (file == null) {
+            ItemStack itemStack = ItemRegistry.getItemStack(string);
+            if (itemStack == null) {
                 try {
-                    object = object2.getClass().getMethod("getItem", new Class[0]);
-                    file = (ItemStack)object.invoke(object2, new Object[0]);
-                }
-                catch (Exception exception) {
+                    java.lang.reflect.Method method = item.getClass().getMethod("getItem");
+                    itemStack = (ItemStack)method.invoke(item);
+                } catch (Exception exception) {
                     // empty catch block
                 }
             }
-            if (file != null && file.hasItemMeta() && file.getItemMeta().hasDisplayName()) {
-                object = me.anarchiacore.customitems.stormitemy.utils.color.A.B(file.getItemMeta().getDisplayName());
-                this.F.put((Object)string, (Object)file.clone());
-                this.A.put(object, (Object)string);
-                string2 = file;
+            if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
+                String displayName = me.anarchiacore.customitems.stormitemy.utils.color.A.B(itemStack.getItemMeta().getDisplayName());
+                this.F.put(string, itemStack.clone());
+                this.A.put(displayName, string);
                 if (player != null) {
-                    this.E.getServer().getScheduler().runTask((Plugin)this.E, () -> this.D(player, (ItemStack)string2));
+                    ItemStack finalStack = itemStack;
+                    this.E.getServer().getScheduler().runTask(this.E, () -> this.D(player, finalStack));
                 }
             }
-        }
-        catch (Exception exception) {
+        } catch (Exception exception) {
             // empty catch block
         }
     }
@@ -844,7 +835,6 @@ public class B {
         ArrayList arrayList;
         ItemMeta itemMeta;
         ItemStack itemStack2;
-        Map.Entry entry2;
         if (itemStack == null || !itemStack.hasItemMeta()) {
             return;
         }
@@ -852,14 +842,14 @@ public class B {
         String string2 = this.F(string);
         String string3 = me.anarchiacore.customitems.stormitemy.utils.color.A.C("\u00a7x\u00a7F\u00a7F\u00a7F\u00a79\u00a71\u00a7A\u26a1 \u00a78\u1d07\u1d05\u028f\u1d1b\u1d0f\u0280 \u1d07\u0274\u1d04\u029c\u1d00\u0274\u1d1b\u00f3\u1d21 " + string2);
         Inventory inventory = Bukkit.createInventory(null, (int)45, (String)string3);
-        HashMap hashMap = itemStack.getItemMeta().hasEnchants() ? itemStack.getItemMeta().getEnchants() : new HashMap();
+        Map<Enchantment, Integer> hashMap = itemStack.getItemMeta().hasEnchants() ? itemStack.getItemMeta().getEnchants() : new HashMap<>();
         int[] nArray = new int[]{10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25};
         int n2 = 0;
-        for (Map.Entry entry2 : hashMap.entrySet()) {
+        for (Map.Entry<Enchantment, Integer> entry2 : hashMap.entrySet()) {
             if (n2 >= nArray.length) break;
             itemStack2 = new ItemStack(Material.ENCHANTED_BOOK);
             itemMeta = itemStack2.getItemMeta();
-            itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FF" + ((Enchantment)entry2.getKey()).getName() + " " + String.valueOf((Object)entry2.getValue())));
+            itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#DD00FF" + entry2.getKey().getName() + " " + entry2.getValue()));
             arrayList = new ArrayList();
             arrayList.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7"));
             arrayList.add((Object)me.anarchiacore.customitems.stormitemy.utils.color.A.C("&7\u1d0b\u029f\u026a\u1d0b\u0274\u026a\u1d0a &#FF0000&n\ua731\u029c\u026a\ua730\u1d1b + \u1d18\u0280\u1d00\u1d21\u028f&7, \u1d00\u0299\u028f \u1d1c\ua731\u1d1c\u0274\u1d00\u0107!"));
@@ -869,12 +859,12 @@ public class B {
             inventory.setItem(nArray[n2], itemStack2);
             ++n2;
         }
-        Iterator iterator = new ItemStack(Material.BARRIER);
-        entry2 = iterator.getItemMeta();
-        entry2.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#FF0000Powr\u00f3t do edycji"));
-        entry2.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
-        iterator.setItemMeta((ItemMeta)entry2);
-        inventory.setItem(39, (ItemStack)iterator);
+        ItemStack backItem = new ItemStack(Material.BARRIER);
+        ItemMeta backMeta = backItem.getItemMeta();
+        backMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#FF0000Powr\u00f3t do edycji"));
+        backMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
+        backItem.setItemMeta(backMeta);
+        inventory.setItem(39, backItem);
         itemStack2 = new ItemStack(Material.LIME_DYE);
         itemMeta = itemStack2.getItemMeta();
         itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1ADodaj enchantment"));
@@ -921,12 +911,12 @@ public class B {
             inventory.setItem(nArray[n2], itemStack2);
             ++n2;
         }
-        Iterator iterator = new ItemStack(Material.BARRIER);
-        itemFlag2 = iterator.getItemMeta();
-        itemFlag2.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#FF0000Powr\u00f3t do edycji"));
-        itemFlag2.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
-        iterator.setItemMeta((ItemMeta)itemFlag2);
-        inventory.setItem(39, (ItemStack)iterator);
+        ItemStack backItem = new ItemStack(Material.BARRIER);
+        ItemMeta backMeta = backItem.getItemMeta();
+        backMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#FF0000Powr\u00f3t do edycji"));
+        backMeta.addItemFlags(new ItemFlag[]{ItemFlag.HIDE_ATTRIBUTES});
+        backItem.setItemMeta(backMeta);
+        inventory.setItem(39, backItem);
         itemStack2 = new ItemStack(Material.LIME_DYE);
         itemMeta = itemStack2.getItemMeta();
         itemMeta.setDisplayName(me.anarchiacore.customitems.stormitemy.utils.color.A.C("&#1DFF1ADodaj flag\u0119"));
@@ -947,49 +937,20 @@ public class B {
     }
 
     public void A(String string, boolean bl, Player player) {
-        YamlConfiguration yamlConfiguration;
-        File file;
-        File file2 = new File(this.E.getDataFolder(), "items");
-        if (!file2.exists()) {
-            file2.mkdirs();
-        }
-        if (!(file = new File(file2, string + ".yml")).exists()) {
-            yamlConfiguration = string.replace((CharSequence)"_", (CharSequence)"");
-            file = new File(file2, (String)yamlConfiguration + ".yml");
-        }
-        if (!file.exists() && (yamlConfiguration = file2.listFiles()) != null) {
-            for (YamlConfiguration yamlConfiguration2 : yamlConfiguration) {
-                if (!yamlConfiguration2.getName().endsWith(".yml")) continue;
-                try {
-                    YamlConfiguration yamlConfiguration3 = YamlConfiguration.loadConfiguration((File)yamlConfiguration2);
-                    for (String string2 : yamlConfiguration3.getKeys(false)) {
-                        if (!string2.equalsIgnoreCase(string)) continue;
-                        file = yamlConfiguration2;
-                        break;
-                    }
-                    if (!file.exists()) continue;
-                    break;
-                }
-                catch (Exception exception) {
-                    // empty catch block
-                }
-            }
-        }
-        if (!file.exists()) {
+        File file = resolveItemFile(string);
+        if (file == null || !file.exists()) {
             return;
         }
         try {
-            yamlConfiguration = YamlConfiguration.loadConfiguration((File)file);
-            YamlConfiguration yamlConfiguration4 = yamlConfiguration.getKeys(false);
-            if (yamlConfiguration4.isEmpty()) {
+            YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+            String root = resolveRootKey(file);
+            if (root == null) {
                 return;
             }
-            String string3 = (String)yamlConfiguration4.iterator().next();
-            yamlConfiguration.set(string3 + ".unbreakable", (Object)bl);
-            yamlConfiguration.save(file);
+            config.set(root + ".unbreakable", bl);
+            config.save(file);
             this.A(string, player);
-        }
-        catch (IOException iOException) {
+        } catch (IOException iOException) {
             iOException.printStackTrace();
         }
     }

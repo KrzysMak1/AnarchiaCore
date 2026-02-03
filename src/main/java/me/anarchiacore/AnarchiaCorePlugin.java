@@ -4,8 +4,8 @@ import me.anarchiacore.combatlog.CombatLogManager;
 import me.anarchiacore.config.ConfigManager;
 import me.anarchiacore.config.MessageService;
 import me.anarchiacore.customitems.CustomItemsManager;
+import me.anarchiacore.customitems.config.CustomItemsConfigInstaller;
 import me.anarchiacore.customitems.stormitemy.Main;
-import me.anarchiacore.customitems.stormitemy.StormItemyConfigInstaller;
 import me.anarchiacore.customitems.stormitemy.core.B;
 import me.anarchiacore.dripstone.DripstoneDamageManager;
 import me.anarchiacore.hearts.HeartsManager;
@@ -41,7 +41,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private DripstoneDamageManager dripstoneDamageManager;
     private Main stormItemyMain;
     private B stormItemyInitializer;
-    private StormItemyConfigInstaller stormItemyConfigInstaller;
+    private CustomItemsConfigInstaller customItemsConfigInstaller;
     private AnarchiaCorePlaceholderExpansion placeholderExpansion;
 
     @Override
@@ -58,8 +58,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             entryName -> !entryName.endsWith(".schem") && !entryName.endsWith("data.db")
         );
 
-        stormItemyConfigInstaller = new StormItemyConfigInstaller(this);
-        stormItemyConfigInstaller.installMissing();
+        customItemsConfigInstaller = new CustomItemsConfigInstaller(this);
+        customItemsConfigInstaller.installMissing();
 
         configManager = new ConfigManager(this);
         configManager.reload();
@@ -110,13 +110,13 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         int stormCommands = stormItemyInitializer != null && stormItemyInitializer.getMenuCommand() != null ? 2 : 1;
         int stormConfigs = stormItemyInitializer != null ? stormItemyInitializer.getLoadedConfigCount() : 0;
         int expectedStormConfigs = 4;
-        String stormSource = stormItemyConfigInstaller.isResourceSourceDirectory() ? "source" : "jar";
+        String stormSource = customItemsConfigInstaller.isResourceSourceDirectory() ? "source" : "jar";
         getLogger().info("StormItemy integrated: " + stormSource + "; registered listeners: " + stormListeners
             + "; commands: " + stormCommands + "; configs loaded: " + stormConfigs);
         if (stormConfigs < expectedStormConfigs) {
             getLogger().severe("StormItemy configs loaded < expected: " + stormConfigs + "/" + expectedStormConfigs);
         }
-        int missingEventConfigs = stormItemyConfigInstaller.getMissingEventConfigCount();
+        int missingEventConfigs = customItemsConfigInstaller.getMissingEventConfigCount();
         if (missingEventConfigs == 4) {
             getLogger().severe("StormItemy event configs missing: " + missingEventConfigs + "/4");
         }

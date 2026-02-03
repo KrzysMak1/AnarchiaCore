@@ -1,33 +1,3 @@
-/*
- * Decompiled with CFR 0.152.
- * 
- * Could not load the following classes:
- *  java.lang.CharSequence
- *  java.lang.Object
- *  java.lang.String
- *  java.util.HashSet
- *  java.util.Map
- *  java.util.Map$Entry
- *  java.util.Set
- *  java.util.UUID
- *  java.util.concurrent.ConcurrentHashMap
- *  org.bukkit.Bukkit
- *  org.bukkit.Material
- *  org.bukkit.entity.Player
- *  org.bukkit.event.EventHandler
- *  org.bukkit.event.EventPriority
- *  org.bukkit.event.Listener
- *  org.bukkit.event.player.PlayerDropItemEvent
- *  org.bukkit.event.player.PlayerInteractEvent
- *  org.bukkit.event.player.PlayerItemHeldEvent
- *  org.bukkit.event.player.PlayerJoinEvent
- *  org.bukkit.event.player.PlayerQuitEvent
- *  org.bukkit.event.player.PlayerSwapHandItemsEvent
- *  org.bukkit.inventory.ItemStack
- *  org.bukkit.plugin.Plugin
- *  org.bukkit.scheduler.BukkitRunnable
- *  org.bukkit.scheduler.BukkitTask
- */
 package me.anarchiacore.customitems.stormitemy.listeners;
 
 import java.util.HashSet;
@@ -35,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import me.anarchiacore.customitems.stormitemy.Main;
+import me.anarchiacore.customitems.stormitemy.messages.B;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -51,262 +23,268 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import me.anarchiacore.customitems.stormitemy.Main;
-import me.anarchiacore.customitems.stormitemy.messages.B;
-import me.anarchiacore.customitems.stormitemy.utils.cooldown.A;
 
-public class F
-implements Listener {
-    private final Main D;
-    private final Map<UUID, Map<Material, BukkitTask>> C = new ConcurrentHashMap();
-    private final Map<UUID, Map<Material, ItemStack>> A = new ConcurrentHashMap();
-    private final Set<UUID> E = ConcurrentHashMap.newKeySet();
-    private BukkitTask B;
+public class F implements Listener {
+    private final Main plugin;
+    private final Map<UUID, Map<Material, BukkitTask>> cooldownTasks = new ConcurrentHashMap<>();
+    private final Map<UUID, Map<Material, ItemStack>> lastKnownItems = new ConcurrentHashMap<>();
+    private final Set<UUID> activePlayers = ConcurrentHashMap.newKeySet();
+    private BukkitTask refreshTask;
 
     public F(Main main) {
-        this.D = main;
-        main.getServer().getPluginManager().registerEvents((Listener)this, (Plugin)main);
-        this.A();
+        this.plugin = main;
+        main.getServer().getPluginManager().registerEvents(this, main);
+        scheduleRefreshTask();
     }
 
-    private void A() {
-        if (this.B != null) {
-            this.B.cancel();
+    private void scheduleRefreshTask() {
+        if (this.refreshTask != null) {
+            this.refreshTask.cancel();
         }
-        this.B = new BukkitRunnable(){
-
+        this.refreshTask = new BukkitRunnable() {
+            @Override
             public void run() {
-                if (F.this.E.isEmpty()) {
+                if (activePlayers.isEmpty()) {
                     return;
                 }
-                HashSet hashSet = new HashSet(F.this.E);
-                for (UUID uUID : hashSet) {
-                    Player player = Bukkit.getPlayer((UUID)uUID);
+                Set<UUID> snapshot = new HashSet<>(activePlayers);
+                for (UUID uuid : snapshot) {
+                    Player player = Bukkit.getPlayer(uuid);
                     if (player != null && player.isOnline()) {
-                        F.this.checkNewPlayerCooldowns(player);
+                        checkNewPlayerCooldowns(player);
                         continue;
                     }
-                    F.this.E.remove((Object)uUID);
-                    F.this.D(uUID);
+                    activePlayers.remove(uuid);
+                    removePlayer(uuid);
                 }
             }
-        }.runTaskTimer((Plugin)this.D, 0L, 20L);
+        }.runTaskTimer(this.plugin, 0L, 20L);
     }
 
-    @EventHandler(priority=EventPriority.LOWEST)
-    public void onPlayerPreInteract(PlayerInteractEvent playerInteractEvent) {
-        Player player = playerInteractEvent.getPlayer();
-        ItemStack itemStack = playerInteractEvent.getItem();
+    @EventHandler(priority = EventPriority.LOWEST)
+    public void onPlayerPreInteract(PlayerInteractEvent event) {
+        Player player = event.getPlayer();
+        ItemStack itemStack = event.getItem();
         if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
-            UUID uUID2 = player.getUniqueId();
-            Map map = (Map)this.A.computeIfAbsent((Object)uUID2, uUID -> new ConcurrentHashMap());
-            map.put((Object)itemStack.getType(), (Object)itemStack.clone());
+            UUID uuid = player.getUniqueId();
+            Map<Material, ItemStack> items = lastKnownItems.computeIfAbsent(uuid, key -> new ConcurrentHashMap<>());
+            items.put(itemStack.getType(), itemStack.clone());
         }
     }
 
-    @EventHandler(priority=EventPriority.MONITOR, ignoreCancelled=true)
-    public void onPlayerInteract(PlayerInteractEvent playerInteractEvent) {
-        Player player = playerInteractEvent.getPlayer();
-        this.checkNewPlayerCooldowns(player);
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        checkNewPlayerCooldowns(event.getPlayer());
     }
 
     public void checkNewPlayerCooldowns(Player player) {
         if (player == null || !player.isOnline()) {
             return;
         }
-        UUID uUID2 = player.getUniqueId();
-        Map map = (Map)this.C.computeIfAbsent((Object)uUID2, uUID -> new ConcurrentHashMap());
-        Map map2 = (Map)this.A.computeIfAbsent((Object)uUID2, uUID -> new ConcurrentHashMap());
-        HashSet hashSet = new HashSet();
-        this.A(player, player.getInventory().getItemInMainHand(), (Set<Material>)hashSet);
-        this.A(player, player.getInventory().getItemInOffHand(), (Set<Material>)hashSet);
-        for (int i2 = 0; i2 < 9; ++i2) {
-            this.A(player, player.getInventory().getItem(i2), (Set<Material>)hashSet);
+        UUID uuid = player.getUniqueId();
+        Map<Material, BukkitTask> taskMap = cooldownTasks.computeIfAbsent(uuid, key -> new ConcurrentHashMap<>());
+        Map<Material, ItemStack> cachedItems = lastKnownItems.computeIfAbsent(uuid, key -> new ConcurrentHashMap<>());
+        Set<Material> seen = new HashSet<>();
+        registerCooldown(player, player.getInventory().getItemInMainHand(), seen);
+        registerCooldown(player, player.getInventory().getItemInOffHand(), seen);
+        for (int slot = 0; slot < 9; ++slot) {
+            registerCooldown(player, player.getInventory().getItem(slot), seen);
         }
         for (ItemStack itemStack : player.getInventory().getContents()) {
-            Material material;
-            if (itemStack == null || hashSet.contains((Object)(material = itemStack.getType()))) continue;
-            hashSet.add((Object)material);
-            int n2 = player.getCooldown(material);
-            if (n2 < 20 || map.containsKey((Object)material)) continue;
-            this.A(player, material, itemStack);
+            if (itemStack == null) {
+                continue;
+            }
+            Material material = itemStack.getType();
+            if (seen.contains(material)) {
+                continue;
+            }
+            seen.add(material);
+            int cooldown = player.getCooldown(material);
+            if (cooldown < 20 || taskMap.containsKey(material)) {
+                continue;
+            }
+            registerCooldown(player, material, itemStack);
         }
-        for (Map.Entry entry : map2.entrySet()) {
-            Material material = (Material)entry.getKey();
-            if (hashSet.contains((Object)material)) continue;
-            hashSet.add((Object)material);
-            int n3 = player.getCooldown(material);
-            if (n3 < 20 || map.containsKey((Object)material)) continue;
-            this.A(player, material, (ItemStack)entry.getValue());
+        for (Map.Entry<Material, ItemStack> entry : cachedItems.entrySet()) {
+            Material material = entry.getKey();
+            if (seen.contains(material)) {
+                continue;
+            }
+            seen.add(material);
+            int cooldown = player.getCooldown(material);
+            if (cooldown < 20 || taskMap.containsKey(material)) {
+                continue;
+            }
+            registerCooldown(player, material, entry.getValue());
         }
     }
 
-    private void A(final Player player, final Material material, ItemStack itemStack) {
-        String string;
-        int n2;
-        BukkitTask bukkitTask;
-        final UUID uUID2 = player.getUniqueId();
-        final Map map = (Map)this.C.computeIfAbsent((Object)uUID2, uUID -> new ConcurrentHashMap());
-        if (map.containsKey((Object)material) && (bukkitTask = (BukkitTask)map.get((Object)material)) != null) {
-            bukkitTask.cancel();
+    private void registerCooldown(final Player player, final Material material, ItemStack itemStack) {
+        final UUID uuid = player.getUniqueId();
+        final Map<Material, BukkitTask> taskMap = cooldownTasks.computeIfAbsent(uuid, key -> new ConcurrentHashMap<>());
+        BukkitTask existing = taskMap.get(material);
+        if (existing != null) {
+            existing.cancel();
         }
-        if ((n2 = player.getCooldown(material)) < 20) {
+        int cooldown = player.getCooldown(material);
+        if (cooldown < 20) {
             return;
         }
+        String identifier;
         if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()) {
-            string = me.anarchiacore.customitems.stormitemy.utils.cooldown.A.A(itemStack);
+            identifier = me.anarchiacore.customitems.stormitemy.utils.cooldown.A.A(itemStack);
         } else if (material == Material.CREEPER_SPAWN_EGG) {
-            boolean bl = false;
-            for (ItemStack itemStack2 : player.getInventory().getContents()) {
-                String string2;
-                if (itemStack2 == null || itemStack2.getType() != Material.CREEPER_SPAWN_EGG || !itemStack2.hasItemMeta() || !itemStack2.getItemMeta().hasDisplayName() || !(string2 = itemStack2.getItemMeta().getDisplayName().toLowerCase()).contains((CharSequence)"zmutowany") || !string2.contains((CharSequence)"creeper")) continue;
-                bl = true;
-                break;
+            boolean mutated = false;
+            for (ItemStack stack : player.getInventory().getContents()) {
+                if (stack == null || stack.getType() != Material.CREEPER_SPAWN_EGG || !stack.hasItemMeta()
+                    || !stack.getItemMeta().hasDisplayName()) {
+                    continue;
+                }
+                String name = stack.getItemMeta().getDisplayName().toLowerCase();
+                if (name.contains("zmutowany") && name.contains("creeper")) {
+                    mutated = true;
+                    break;
+                }
             }
-            string = bl ? "zmutowanycreeper" : material.name().toLowerCase();
+            identifier = mutated ? "zmutowanycreeper" : material.name().toLowerCase();
         } else {
-            string = material.name().toLowerCase();
+            identifier = material.name().toLowerCase();
         }
-        if (string == null || string.isEmpty()) {
-            string = material.name().toLowerCase();
+        if (identifier == null || identifier.isEmpty()) {
+            identifier = material.name().toLowerCase();
         }
-        String string3 = string;
-        B b2 = this.D.getActionbarManager();
-        if (b2 != null && b2.isEnabled()) {
-            int n3 = 0;
-            if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName() && itemStack.getItemMeta().hasLore()) {
-                n3 = 1;
-            } else if (b2.isPluginItem(string3)) {
-                n3 = 1;
+        B actionbar = this.plugin.getActionbarManager();
+        if (actionbar != null && actionbar.isEnabled()) {
+            boolean shouldRegister = false;
+            if (itemStack != null && itemStack.hasItemMeta() && itemStack.getItemMeta().hasDisplayName()
+                && itemStack.getItemMeta().hasLore()) {
+                shouldRegister = true;
+            } else if (actionbar.isPluginItem(identifier)) {
+                shouldRegister = true;
             }
-            if (n3 != 0) {
-                if (string3.equals((Object)"creeper_spawn_egg")) {
-                    b2.registerCooldown(player, "zmutowanycreeper", n2 / 20);
+            if (shouldRegister) {
+                if ("creeper_spawn_egg".equals(identifier)) {
+                    actionbar.registerCooldown(player, "zmutowanycreeper", cooldown / 20);
                 } else {
-                    b2.registerCooldown(player, string3, n2 / 20);
+                    actionbar.registerCooldown(player, identifier, cooldown / 20);
                 }
             }
         }
-        BukkitTask bukkitTask2 = new BukkitRunnable(this){
-            private int A;
-            final /* synthetic */ F this$0;
-            {
-                this.this$0 = f2;
-                this.A = n2;
-            }
+        BukkitTask task = new BukkitRunnable() {
+            private int lastCooldown = cooldown;
 
+            @Override
             public void run() {
                 if (!player.isOnline()) {
                     this.cancel();
-                    map.remove((Object)material);
+                    taskMap.remove(material);
                     return;
                 }
-                int n22 = player.getCooldown(material);
-                if (n22 == 0 || n22 > this.A) {
+                int current = player.getCooldown(material);
+                if (current == 0 || current > this.lastCooldown) {
                     this.cancel();
-                    map.remove((Object)material);
-                    if (map.isEmpty()) {
-                        this.this$0.E.remove((Object)uUID2);
+                    taskMap.remove(material);
+                    if (taskMap.isEmpty()) {
+                        activePlayers.remove(uuid);
                     }
                     return;
                 }
-                this.A = n22;
+                this.lastCooldown = current;
             }
-        }.runTaskTimer((Plugin)this.D, 0L, 1L);
-        map.put((Object)material, (Object)bukkitTask2);
-        this.E.add((Object)uUID2);
+        }.runTaskTimer(this.plugin, 0L, 1L);
+        taskMap.put(material, task);
+        activePlayers.add(uuid);
     }
 
-    private void A(Player player, ItemStack itemStack, Set<Material> set) {
+    private void registerCooldown(Player player, ItemStack itemStack, Set<Material> seen) {
         if (itemStack == null) {
             return;
         }
         Material material = itemStack.getType();
-        if (set.contains((Object)material)) {
+        if (seen.contains(material)) {
             return;
         }
-        set.add((Object)material);
-        int n2 = player.getCooldown(material);
-        if (n2 >= 20) {
-            UUID uUID2 = player.getUniqueId();
-            Map map = (Map)this.C.get((Object)uUID2);
-            if (map == null || !map.containsKey((Object)material)) {
-                this.A(player, material, itemStack);
+        seen.add(material);
+        int cooldown = player.getCooldown(material);
+        if (cooldown >= 20) {
+            UUID uuid = player.getUniqueId();
+            Map<Material, BukkitTask> taskMap = cooldownTasks.get(uuid);
+            if (taskMap == null || !taskMap.containsKey(material)) {
+                registerCooldown(player, material, itemStack);
             }
-            Map map2 = (Map)this.A.computeIfAbsent((Object)uUID2, uUID -> new ConcurrentHashMap());
-            map2.put((Object)material, (Object)itemStack.clone());
+            Map<Material, ItemStack> items = lastKnownItems.computeIfAbsent(uuid, key -> new ConcurrentHashMap<>());
+            items.put(material, itemStack.clone());
         }
     }
 
     @EventHandler
-    public void onItemHeldChange(PlayerItemHeldEvent playerItemHeldEvent) {
-        this.checkNewPlayerCooldowns(playerItemHeldEvent.getPlayer());
+    public void onItemHeldChange(PlayerItemHeldEvent event) {
+        checkNewPlayerCooldowns(event.getPlayer());
     }
 
     @EventHandler
-    public void onPlayerJoin(PlayerJoinEvent playerJoinEvent) {
-        this.checkNewPlayerCooldowns(playerJoinEvent.getPlayer());
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        checkNewPlayerCooldowns(event.getPlayer());
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent playerQuitEvent) {
-        this.D(playerQuitEvent.getPlayer().getUniqueId());
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        removePlayer(event.getPlayer().getUniqueId());
     }
 
     @EventHandler
-    public void onPlayerDropItem(PlayerDropItemEvent playerDropItemEvent) {
-        final Player player = playerDropItemEvent.getPlayer();
-        new BukkitRunnable(this){
-            final /* synthetic */ F this$0;
-            {
-                this.this$0 = f2;
-            }
-
+    public void onPlayerDropItem(PlayerDropItemEvent event) {
+        final Player player = event.getPlayer();
+        new BukkitRunnable() {
+            @Override
             public void run() {
-                this.this$0.checkNewPlayerCooldowns(player);
+                checkNewPlayerCooldowns(player);
             }
-        }.runTaskLater((Plugin)this.D, 1L);
+        }.runTaskLater(this.plugin, 1L);
     }
 
     @EventHandler
-    public void onPlayerSwapItems(PlayerSwapHandItemsEvent playerSwapHandItemsEvent) {
-        this.checkNewPlayerCooldowns(playerSwapHandItemsEvent.getPlayer());
+    public void onPlayerSwapItems(PlayerSwapHandItemsEvent event) {
+        checkNewPlayerCooldowns(event.getPlayer());
     }
 
     public void checkAllPlayerItems(Player player) {
-        this.checkNewPlayerCooldowns(player);
+        checkNewPlayerCooldowns(player);
     }
 
     public boolean hasActiveCooldowns(Player player) {
-        return this.E.contains((Object)player.getUniqueId());
+        return activePlayers.contains(player.getUniqueId());
     }
 
-    private void D(UUID uUID) {
-        Map map = (Map)this.C.remove((Object)uUID);
-        if (map != null) {
-            for (BukkitTask bukkitTask : map.values()) {
-                if (bukkitTask == null) continue;
-                bukkitTask.cancel();
+    private void removePlayer(UUID uuid) {
+        Map<Material, BukkitTask> tasks = cooldownTasks.remove(uuid);
+        if (tasks != null) {
+            for (BukkitTask task : tasks.values()) {
+                if (task == null) {
+                    continue;
+                }
+                task.cancel();
             }
         }
-        this.A.remove((Object)uUID);
-        this.E.remove((Object)uUID);
+        lastKnownItems.remove(uuid);
+        activePlayers.remove(uuid);
     }
 
     public void disable() {
-        if (this.B != null) {
-            this.B.cancel();
-            this.B = null;
+        if (this.refreshTask != null) {
+            this.refreshTask.cancel();
+            this.refreshTask = null;
         }
-        for (Map map : this.C.values()) {
-            for (BukkitTask bukkitTask : map.values()) {
-                if (bukkitTask == null) continue;
-                bukkitTask.cancel();
+        for (Map<Material, BukkitTask> tasks : cooldownTasks.values()) {
+            for (BukkitTask task : tasks.values()) {
+                if (task == null) {
+                    continue;
+                }
+                task.cancel();
             }
         }
-        this.C.clear();
-        this.A.clear();
-        this.E.clear();
+        cooldownTasks.clear();
+        lastKnownItems.clear();
+        activePlayers.clear();
     }
 }
-
