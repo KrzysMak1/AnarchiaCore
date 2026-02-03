@@ -143,7 +143,22 @@ public final class ItemUtil {
         if (key == null) {
             return null;
         }
-        String namespaced = key.toLowerCase(Locale.ROOT);
+        String trimmed = key.trim();
+        if (trimmed.isEmpty()) {
+            return null;
+        }
+        String legacy = trimmed.toUpperCase(Locale.ROOT);
+        switch (legacy) {
+            case "PROTECTION_ENVIRONMENTAL":
+                trimmed = "minecraft:protection";
+                break;
+            case "DURABILITY":
+                trimmed = "minecraft:unbreaking";
+                break;
+            default:
+                break;
+        }
+        String namespaced = trimmed.toLowerCase(Locale.ROOT);
         NamespacedKey nsKey;
         if (namespaced.contains(":")) {
             String[] parts = namespaced.split(":", 2);

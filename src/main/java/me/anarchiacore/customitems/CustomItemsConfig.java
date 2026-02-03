@@ -89,13 +89,14 @@ public class CustomItemsConfig {
         boolean spawnFire = section.getBoolean("spawnFire", false);
         double fireChance = section.getDouble("fireChance", 0.0);
         MessageDefinition message = readMessage(section.getConfigurationSection("messages"));
+        AnimationDefinition animation = readAnimation(section.getConfigurationSection("animation"));
         List<String> noDestroyRegions = section.getStringList("noDestroyRegions");
         List<String> noPlaceRegions = section.getStringList("noPlaceRegions");
         boolean preventRegionDestruction = section.getBoolean("preventRegionDestruction", false);
         List<AttributeModifierDefinition> attributes = readAttributes(section.getConfigurationSection("attributes"));
         return new EventItemDefinition(id, material, displayName, lore, enchants, flags, cmd, unbreakable, attributes,
                 cooldown, explosionRadius, explosionParticleCount, useProjectileMode, projectileSpeed, projectileLifeTimeTicks,
-                protectedBlocks, spawnFire, fireChance, message, noDestroyRegions, noPlaceRegions, preventRegionDestruction);
+                protectedBlocks, spawnFire, fireChance, message, animation, noDestroyRegions, noPlaceRegions, preventRegionDestruction);
     }
 
     private MessageDefinition readMessage(ConfigurationSection section) {
@@ -120,6 +121,29 @@ public class CustomItemsConfig {
             return new TitleMessage("", "");
         }
         return new TitleMessage(section.getString("title", ""), section.getString("subtitle", ""));
+    }
+
+    private AnimationDefinition readAnimation(ConfigurationSection section) {
+        if (section == null) {
+            return new AnimationDefinition(false, 100, 250, true, new SoundDefinition(false, "", 1.0f, 1.0f));
+        }
+        boolean enabled = section.getBoolean("enabled", true);
+        int minDelay = section.getInt("min_delay", 100);
+        int maxDelay = section.getInt("max_delay", 250);
+        boolean particles = section.getBoolean("particles", true);
+        SoundDefinition sound = readSound(section.getConfigurationSection("sound"));
+        return new AnimationDefinition(enabled, minDelay, maxDelay, particles, sound);
+    }
+
+    private SoundDefinition readSound(ConfigurationSection section) {
+        if (section == null) {
+            return new SoundDefinition(false, "", 1.0f, 1.0f);
+        }
+        boolean enabled = section.getBoolean("enabled", true);
+        String sound = section.getString("type", "");
+        float volume = (float) section.getDouble("volume", 1.0);
+        float pitch = (float) section.getDouble("pitch", 1.0);
+        return new SoundDefinition(enabled, sound, volume, pitch);
     }
 
     private Map<String, Integer> parseEnchantments(List<String> enchantments) {
@@ -225,6 +249,7 @@ public class CustomItemsConfig {
             boolean spawnFire,
             double fireChance,
             MessageDefinition messages,
+            AnimationDefinition animation,
             List<String> noDestroyRegions,
             List<String> noPlaceRegions,
             boolean preventRegionDestruction
@@ -235,6 +260,12 @@ public class CustomItemsConfig {
     }
 
     public record TitleMessage(String title, String subtitle) {
+    }
+
+    public record SoundDefinition(boolean enabled, String sound, float volume, float pitch) {
+    }
+
+    public record AnimationDefinition(boolean enabled, int minDelayMs, int maxDelayMs, boolean particles, SoundDefinition sound) {
     }
 
     public record AttributeModifierDefinition(
