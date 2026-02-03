@@ -11,11 +11,7 @@ public class CustomItemsConfig {
     private final WorldGuardRules worldGuardRules;
 
     public CustomItemsConfig(ConfigurationSection section, Map<String, ConfigurationSection> eventItemSections) {
-        if (section == null) {
-            worldGuardRules = new WorldGuardRules(false, List.of(), List.of());
-            return;
-        }
-        ConfigurationSection itemsSection = section.getConfigurationSection("items");
+        ConfigurationSection itemsSection = section != null ? section.getConfigurationSection("items") : null;
         if (itemsSection != null) {
             for (String key : itemsSection.getKeys(false)) {
                 ConfigurationSection itemSection = itemsSection.getConfigurationSection(key);
@@ -42,7 +38,7 @@ public class CustomItemsConfig {
                 items.put(key.toLowerCase(Locale.ROOT), new CustomItemDefinition(key, material, displayName, lore, enchants, flags, cmd, unbreakable, attributes));
             }
         }
-        ConfigurationSection eventSection = section.getConfigurationSection("eventItems");
+        ConfigurationSection eventSection = section != null ? section.getConfigurationSection("eventItems") : null;
         if (eventSection != null) {
             for (String key : eventSection.getKeys(false)) {
                 ConfigurationSection itemSection = eventSection.getConfigurationSection(key);
@@ -61,11 +57,15 @@ public class CustomItemsConfig {
                 eventItems.putIfAbsent(key.toLowerCase(Locale.ROOT), readEventItem(key, entry.getValue()));
             }
         }
-        ConfigurationSection wgSection = section.getConfigurationSection("worldguard");
-        boolean wgEnabled = wgSection != null && wgSection.getBoolean("enabled", true);
-        List<String> allowAll = wgSection != null ? wgSection.getStringList("allowAllEventItemsRegions") : List.of();
-        List<String> allowExceptExplosives = wgSection != null ? wgSection.getStringList("allowEventItemsExceptExplosivesRegions") : List.of();
-        worldGuardRules = new WorldGuardRules(wgEnabled, allowAll, allowExceptExplosives);
+        if (section == null) {
+            worldGuardRules = new WorldGuardRules(false, List.of(), List.of());
+        } else {
+            ConfigurationSection wgSection = section.getConfigurationSection("worldguard");
+            boolean wgEnabled = wgSection != null && wgSection.getBoolean("enabled", true);
+            List<String> allowAll = wgSection != null ? wgSection.getStringList("allowAllEventItemsRegions") : List.of();
+            List<String> allowExceptExplosives = wgSection != null ? wgSection.getStringList("allowEventItemsExceptExplosivesRegions") : List.of();
+            worldGuardRules = new WorldGuardRules(wgEnabled, allowAll, allowExceptExplosives);
+        }
     }
 
     private EventItemDefinition readEventItem(String id, ConfigurationSection section) {
