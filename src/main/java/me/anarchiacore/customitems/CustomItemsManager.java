@@ -9,9 +9,14 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Egg;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
-import org.bukkit.entity.Snowball;
+import org.bukkit.entity.SmallFireball;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,15 +26,16 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomItemsManager implements Listener {
@@ -40,9 +46,9 @@ public class CustomItemsManager implements Listener {
     private final NamespacedKey bombardaProjectileKey;
     private final WorldGuardIntegration worldGuardIntegration;
     private final SchematicService schematicService;
-    private final Map<UUID, Map<String, Long>> cooldowns = new ConcurrentHashMap<>();
     private final Map<String, Set<String>> cachedNoPlaceRegions = new ConcurrentHashMap<>();
     private final Map<String, Set<String>> cachedNoDestroyRegions = new ConcurrentHashMap<>();
+    private final Random random = new Random();
 
     public CustomItemsManager(Plugin plugin, ConfigManager configManager, MessageService messageService) {
         this.plugin = plugin;
@@ -127,8 +133,10 @@ public class CustomItemsManager implements Listener {
         if (eventItem == null) {
             return;
         }
-        event.setCancelled(true);
         boolean explosive = isExplosiveItem(normalized);
+        if (!isHandledEventItem(normalized)) {
+            return;
+        }
         if (!eventItem.noPlaceRegions().isEmpty()
                 && worldGuardIntegration.isInRegions(event.getPlayer().getLocation(), getCachedRegions(eventItem.id(), eventItem.noPlaceRegions(), cachedNoPlaceRegions))) {
             messageService.send(event.getPlayer(), plugin.getConfig().getString("messages.customItems.regionBlocked"));
@@ -137,33 +145,15 @@ public class CustomItemsManager implements Listener {
         if (!checkRegion(event.getPlayer(), explosive)) {
             return;
         }
-        if (isOnCooldown(event.getPlayer(), normalized, eventItem.cooldown())) {
-            sendCooldownMessage(event.getPlayer(), eventItem);
-            return;
-        }
         switch (normalized) {
             case "bombarda", "bombardamaxima" -> {
-                if (eventItem.useProjectileMode()) {
-                    launchBombarda(event.getPlayer(), eventItem);
-                } else {
-                    Location location = event.getClickedBlock() != null
-                            ? event.getClickedBlock().getLocation().add(0.5, 0.5, 0.5)
-                            : event.getPlayer().getLocation();
-                    explode(location, eventItem);
-                }
-                sendConsumerMessage(event.getPlayer(), eventItem);
-                consumeItem(event.getPlayer(), item);
+                handleBombarda(event, item, eventItem);
             }
             case "turbotrap" -> {
-                if (placeTurboTrap(event.getPlayer(), eventItem)) {
-                    sendConsumerMessage(event.getPlayer(), eventItem);
-                    consumeItem(event.getPlayer(), item);
-                }
+                handleTurboTrap(event, item, eventItem);
             }
             case "dynamit" -> {
-                spawnDynamite(event.getPlayer(), eventItem);
-                sendConsumerMessage(event.getPlayer(), eventItem);
-                consumeItem(event.getPlayer(), item);
+                handleDynamit(event, item, eventItem);
             }
             default -> {
             }
@@ -191,26 +181,91 @@ public class CustomItemsManager implements Listener {
         return true;
     }
 
-    private void launchBombarda(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
-        Snowball projectile = player.launchProjectile(Snowball.class);
-        projectile.setVelocity(player.getLocation().getDirection().normalize().multiply(eventItem.projectileSpeed()));
-        projectile.getPersistentDataContainer().set(bombardaProjectileKey, PersistentDataType.STRING, eventItem.id());
-        int lifeTimeTicks = Math.max(1, eventItem.projectileLifeTimeTicks());
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (projectile.isDead() || !projectile.isValid()) {
-                    return;
-                }
-                explode(projectile.getLocation(), eventItem);
-                projectile.remove();
+    private void handleBombarda(PlayerInteractEvent event, ItemStack item, CustomItemsConfig.EventItemDefinition eventItem) {
+        Player player = event.getPlayer();
+        int remaining = player.getCooldown(item.getType());
+        if (remaining > 0) {
+            sendCooldownMessage(player, eventItem, remaining, "&cBombarda maxima jest na cooldownie! {TIME}s pozostało.");
+            event.setCancelled(true);
+            return;
+        }
+        int cooldownSeconds = Math.max(0, eventItem.cooldown());
+        if (cooldownSeconds > 0) {
+            player.setCooldown(item.getType(), cooldownSeconds * 20);
+        }
+        if (eventItem.useProjectileMode()) {
+            launchBombarda(player, eventItem);
+        } else {
+            Location location = event.getClickedBlock() != null
+                    ? event.getClickedBlock().getLocation().add(0.5, 0.5, 0.5)
+                    : player.getLocation();
+            if (location.getWorld() != null) {
+                location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+                int particles = Math.max(0, eventItem.explosionParticleCount());
+                location.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, location, particles, 1.0, 1.0, 1.0);
             }
-        }.runTaskLater(plugin, lifeTimeTicks);
+            explodeBombarda(location, eventItem);
+            sendConsumerMessage(player, eventItem);
+        }
+        consumeItemFromHand(player, event.getHand());
+        event.setCancelled(true);
+    }
+
+    private void handleTurboTrap(PlayerInteractEvent event, ItemStack item, CustomItemsConfig.EventItemDefinition eventItem) {
+        Player player = event.getPlayer();
+        int remaining = player.getCooldown(item.getType());
+        if (remaining > 0) {
+            sendCooldownMessage(player, eventItem, remaining, "");
+            event.setCancelled(true);
+            return;
+        }
+        int cooldownSeconds = Math.max(0, eventItem.cooldown());
+        if (cooldownSeconds > 0) {
+            player.setCooldown(item.getType(), cooldownSeconds * 20);
+        }
+        consumeItemFromHand(player, event.getHand());
+        Egg egg = player.launchProjectile(Egg.class);
+        egg.setMetadata("turboTrap", new FixedMetadataValue(plugin, true));
+        event.setCancelled(true);
+    }
+
+    private void handleDynamit(PlayerInteractEvent event, ItemStack item, CustomItemsConfig.EventItemDefinition eventItem) {
+        Player player = event.getPlayer();
+        int remaining = player.getCooldown(item.getType());
+        if (remaining > 0) {
+            sendCooldownMessage(player, eventItem, remaining, "");
+            event.setCancelled(true);
+            return;
+        }
+        int cooldownSeconds = Math.max(0, eventItem.cooldown());
+        if (cooldownSeconds > 0) {
+            player.setCooldown(item.getType(), cooldownSeconds * 20);
+        }
+        spawnDynamite(player, eventItem);
+        sendConsumerMessage(player, eventItem);
+        consumeItemFromHand(player, event.getHand());
+        event.setCancelled(true);
+    }
+
+    private void launchBombarda(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
+        SmallFireball projectile = player.launchProjectile(SmallFireball.class);
+        projectile.setMetadata("bombardaMaxima", new FixedMetadataValue(plugin, true));
+        projectile.setMetadata("bombardaPlayer", new FixedMetadataValue(plugin, player.getUniqueId().toString()));
+        projectile.setVelocity(player.getLocation().getDirection().multiply(eventItem.projectileSpeed()));
+        player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1.0f, 0.8f);
     }
 
     @EventHandler
     public void onProjectileHit(ProjectileHitEvent event) {
         Projectile projectile = event.getEntity();
+        if (projectile instanceof SmallFireball && projectile.hasMetadata("bombardaMaxima")) {
+            handleBombardaProjectileHit(projectile, event);
+            return;
+        }
+        if (projectile instanceof Egg && projectile.hasMetadata("turboTrap")) {
+            handleTurboTrapProjectileHit(projectile, event);
+            return;
+        }
         String value = projectile.getPersistentDataContainer().get(bombardaProjectileKey, PersistentDataType.STRING);
         if (value == null) {
             return;
@@ -220,32 +275,153 @@ public class CustomItemsManager implements Listener {
             return;
         }
         Location location = event.getHitBlock() != null ? event.getHitBlock().getLocation().add(0.5, 0.5, 0.5) : projectile.getLocation();
-        explode(location, eventItem);
+        explodeBombarda(location, eventItem);
         projectile.remove();
     }
 
-    private void explode(Location location, CustomItemsConfig.EventItemDefinition eventItem) {
-        if (location.getWorld() == null) {
+    private void handleBombardaProjectileHit(Projectile projectile, ProjectileHitEvent event) {
+        CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition("bombarda");
+        if (eventItem == null) {
+            eventItem = configManager.getCustomItemsConfig().getEventItemDefinition("bombardamaxima");
+        }
+        if (eventItem == null) {
             return;
         }
-        if (eventItem.preventRegionDestruction()) {
-            Set<String> blocked = getCachedRegions(eventItem.id(), eventItem.noDestroyRegions(), cachedNoDestroyRegions);
+        Location location = event.getHitBlock() != null ? event.getHitBlock().getLocation().add(0.5, 0.5, 0.5) : projectile.getLocation();
+        if (location.getWorld() != null) {
+            location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
+            int particles = Math.max(0, eventItem.explosionParticleCount());
+            location.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, location, particles, 1.0, 1.0, 1.0);
+        }
+        explodeBombarda(location, eventItem);
+        projectile.remove();
+    }
+
+    private void handleTurboTrapProjectileHit(Projectile projectile, ProjectileHitEvent event) {
+        if (!(projectile.getShooter() instanceof Player player)) {
+            return;
+        }
+        CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition("turbotrap");
+        if (eventItem == null) {
+            return;
+        }
+        Location location = projectile.getLocation();
+        if (eventItem.noPlaceRegions() != null && !eventItem.noPlaceRegions().isEmpty()) {
+            Set<String> blocked = getCachedRegions(eventItem.id(), eventItem.noPlaceRegions(), cachedNoPlaceRegions);
             if (!blocked.isEmpty() && worldGuardIntegration.isInRegions(location, blocked)) {
+                messageService.send(player, plugin.getConfig().getString("messages.customItems.regionBlocked"));
                 return;
             }
         }
-        float power = Math.max(0.0f, eventItem.explosionRadius());
-        location.getWorld().createExplosion(location, power, eventItem.spawnFire(), true);
+        if (!placeTurboTrap(player, location, eventItem)) {
+            return;
+        }
+        sendConsumerMessage(player, eventItem);
+        player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1.0f, 0.5f);
+        event.setCancelled(true);
     }
 
-    private boolean placeTurboTrap(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
-        Location base = player.getLocation().getBlock().getLocation();
+    private void explodeBombarda(Location location, CustomItemsConfig.EventItemDefinition eventItem) {
+        if (location.getWorld() == null) {
+            return;
+        }
+        int radius = Math.max(0, eventItem.explosionRadius());
+        Set<Material> protectedBlocks = parseProtectedBlocks(eventItem.protectedBlocks());
+        Set<String> blockedRegions = eventItem.preventRegionDestruction()
+            ? getCachedRegions(eventItem.id(), eventItem.noDestroyRegions(), cachedNoDestroyRegions)
+            : Set.of();
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
+                    Location target = location.clone().add(x, y, z);
+                    if (target.distance(location) > radius) {
+                        continue;
+                    }
+                    Block block = target.getBlock();
+                    if (protectedBlocks.contains(block.getType())) {
+                        continue;
+                    }
+                    if (!blockedRegions.isEmpty() && worldGuardIntegration.isInRegions(target, blockedRegions)) {
+                        location.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, target, 1, 0.0, 0.0, 0.0, 0.0);
+                        continue;
+                    }
+                    if (block.hasMetadata("hydro_cage_block")) {
+                        location.getWorld().spawnParticle(Particle.FALLING_WATER, target, 3, 0.2, 0.2, 0.2, 0.1);
+                        continue;
+                    }
+                    block.setType(Material.AIR);
+                    if (eventItem.spawnFire() && random.nextDouble() < eventItem.fireChance()) {
+                        Block above = block.getRelative(BlockFace.UP);
+                        if (above.getType() == Material.AIR) {
+                            above.setType(Material.FIRE);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private Set<Material> parseProtectedBlocks(java.util.List<String> protectedBlocks) {
+        Set<Material> result = new HashSet<>();
+        if (protectedBlocks == null) {
+            return result;
+        }
+        for (String name : protectedBlocks) {
+            if (name == null || name.isBlank()) {
+                continue;
+            }
+            Material material = Material.matchMaterial(name);
+            if (material != null) {
+                result.add(material);
+            }
+        }
+        return result;
+    }
+
+    private boolean placeTurboTrap(Player player, Location location, CustomItemsConfig.EventItemDefinition eventItem) {
         String schematic = "configs/customitems/trapanarchia.schem";
-        if (!schematicService.paste(schematic, base)) {
+        if (schematicService.getSchematicData(schematic) == null) {
             messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
             return false;
         }
-        return true;
+        CustomItemsConfig.AnimationDefinition animation = eventItem.animation();
+        boolean enabled = animation != null && animation.enabled();
+        SchematicService.AnimationOptions options = new SchematicService.AnimationOptions(
+            animation != null ? animation.minDelayMs() : 100,
+            animation != null ? animation.maxDelayMs() : 250,
+            animation != null && animation.particles(),
+            animation != null && animation.sound() != null && animation.sound().enabled(),
+            animation != null && animation.sound() != null ? animation.sound().sound() : "",
+            animation != null && animation.sound() != null ? animation.sound().volume() : 1.0f,
+            animation != null && animation.sound() != null ? animation.sound().pitch() : 0.8f
+        );
+        if (enabled) {
+            boolean placed = schematicService.pasteAnimated(schematic, location, options, this::isTurboTrapBlocked);
+            if (!placed) {
+                messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
+            }
+            return placed;
+        }
+        boolean placed = schematicService.pasteIgnoringAir(schematic, location, this::isTurboTrapBlocked);
+        if (!placed) {
+            messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
+        }
+        return placed;
+    }
+
+    private boolean isTurboTrapBlocked(Block block) {
+        if (block == null) {
+            return true;
+        }
+        Material type = block.getType();
+        if (type == Material.BLUE_GLAZED_TERRACOTTA
+                || type == Material.BLUE_TERRACOTTA
+                || type == Material.BUBBLE_CORAL_BLOCK
+                || type == Material.LIGHT_BLUE_TERRACOTTA
+                || type == Material.BEDROCK) {
+            return true;
+        }
+        return block.hasMetadata("hydro_cage_block");
     }
 
     private void spawnDynamite(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
@@ -256,11 +432,23 @@ public class CustomItemsManager implements Listener {
         primed.setIsIncendiary(eventItem.spawnFire());
     }
 
-    private void consumeItem(Player player, ItemStack item) {
+    private void consumeItemFromHand(Player player, EquipmentSlot hand) {
         if (player.getGameMode() == GameMode.CREATIVE) {
             return;
         }
-        item.setAmount(item.getAmount() - 1);
+        if (hand == EquipmentSlot.OFF_HAND) {
+            ItemStack offHand = player.getInventory().getItemInOffHand();
+            if (offHand != null && offHand.getType() != Material.AIR) {
+                offHand.setAmount(offHand.getAmount() - 1);
+                player.getInventory().setItemInOffHand(offHand.getAmount() > 0 ? offHand : null);
+            }
+            return;
+        }
+        ItemStack mainHand = player.getInventory().getItemInMainHand();
+        if (mainHand != null && mainHand.getType() != Material.AIR) {
+            mainHand.setAmount(mainHand.getAmount() - 1);
+            player.getInventory().setItemInMainHand(mainHand.getAmount() > 0 ? mainHand : null);
+        }
     }
 
     public boolean consumeTotemForCombatLogout(Player player) {
@@ -291,28 +479,16 @@ public class CustomItemsManager implements Listener {
         return getEventItemIdByDisplayName(item, meta);
     }
 
-    private boolean isOnCooldown(Player player, String itemId, int cooldownSeconds) {
-        if (cooldownSeconds <= 0) {
-            return false;
-        }
-        Map<String, Long> playerCooldowns = cooldowns.computeIfAbsent(player.getUniqueId(), key -> new ConcurrentHashMap<>());
-        long now = System.currentTimeMillis();
-        Long next = playerCooldowns.get(itemId);
-        if (next != null && next > now) {
-            return true;
-        }
-        if (next != null) {
-            playerCooldowns.remove(itemId);
-        }
-        playerCooldowns.put(itemId, now + cooldownSeconds * 1000L);
-        return false;
-    }
-
-    private void sendCooldownMessage(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
+    private void sendCooldownMessage(Player player, CustomItemsConfig.EventItemDefinition eventItem, int remainingTicks, String fallback) {
         String message = eventItem.messages().cooldown();
+        if (message == null || message.isBlank()) {
+            message = fallback;
+        }
         if (message == null || message.isBlank()) {
             return;
         }
+        int seconds = Math.max(1, remainingTicks / 20);
+        message = message.replace("{TIME}", String.valueOf(seconds));
         messageService.send(player, message);
     }
 
@@ -329,7 +505,7 @@ public class CustomItemsManager implements Listener {
             Title title = Title.title(
                     MiniMessageUtil.parseComponent(titleMessage.title()),
                     MiniMessageUtil.parseComponent(titleMessage.subtitle()),
-                    Title.Times.times(Duration.ZERO, Duration.ofSeconds(2), Duration.ofMillis(500))
+                    Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(1000))
             );
             player.showTitle(title);
         }
@@ -337,6 +513,13 @@ public class CustomItemsManager implements Listener {
 
     private boolean isExplosiveItem(String itemId) {
         return "bombarda".equals(itemId) || "bombardamaxima".equals(itemId) || "dynamit".equals(itemId);
+    }
+
+    private boolean isHandledEventItem(String itemId) {
+        return "bombarda".equals(itemId)
+            || "bombardamaxima".equals(itemId)
+            || "turbotrap".equals(itemId)
+            || "dynamit".equals(itemId);
     }
 
     private Set<String> getCachedRegions(String itemId, java.util.List<String> regions, Map<String, Set<String>> cache) {
