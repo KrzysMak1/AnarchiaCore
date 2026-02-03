@@ -16,8 +16,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Base64;
+import java.util.Locale;
 import java.util.Map;
 import java.util.LinkedHashMap;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
@@ -26,6 +28,7 @@ public class CustomItemsConfigInstaller {
     private static final String LEGACY_RESOURCE_ROOT = "stormitemy/";
     private static final String TARGET_ROOT = "configs/STORMITEMY";
     private static final String ITEM_TARGET_ROOT = "configs/customitems";
+    private static final String STORMITEMY_ITEMS_ROOT = "items";
     private static final String ITEMS_PREFIX = "items/";
     private static final String TRAP_SCHEM_BASE64 = "H4sIAAAAAAAAA5yTTW/TQBCGZ73xZxQJ8QM4wDUH4ISQcgARBFKrFiERaISqtT22V3V2o/VU4cQP5kdQdmNTO41Ea2yPvfP49ey7H04g/pxVuBEkMw7Td4LEFzSN1ApgFnMIbzPwPPBXMqcKuAfBB5RlRTCzzRNUpaXBFIKzomiQrJjb+GnjxMaTBKJTJJHb4hzi1bJVfb2xxyD/die/sOlv6+n9m9Wyd+FKJ+eiRiI8FT9sHicQdoDDbCMVZkYU9FpI08of90ynjcylcIUYh0f9i0ynO0zdKDk86/GukoSXqVAKzdpostOk1eLFy++uMIdPg8ri6rJAleEaRUMLMtc4V9pQ1TYbfW2bhagbnO8Eoal1WWL+l2D3ias74fD0PgfPndB/oIG2j9bBHt9jIHiAgVdOGHK4ODRARmxzrc26EJlU5cLVnVeiLhapJtKbud6i6vrc6h2a3sFdT66DCEKI39Y6u3Ib04JfbkUZMGYDusM2PcY4s/cO2ueEMZ+x4JDwAWlhOEhbwo+I/1+a/dldtwQONdERYT2JYbYf+VKRJIlN4uZjCvxcN93/xbrwIvA+5sPd3K4WHKm9UWo+Sj0ZpfZHqYNR6nCUOvqXOoZoOP8AfwAAAP//AwCt18hRMAUAAA==";
     private static final String DOM_SCHEM_BASE64 = "H4sIAAAAAAAAA3SPT0vEMBDFXxt2u0npzU8jXhQrgi4KgnW9yNBNt6HdVNo5+OnVSSsbPTiQP+/3XoaJgX6qW3skdrVCfk1Mz3ac3OCBQitkJ4U0xapye26xSrG+te7QMpRc760/BJpj/dA0k2UJqy8pOS9k7Qw2W8u0l+YKuiqX1IskPn/pHcK7qF8XP7+5rMo4RYiYR+ots93SR5jLIPsBCsXReVuP1PA5uXGJn0U2UPf23pPvJnESZNBX/VB34dsC7pAkiWCx4jaz/425TpHINIq5denZsbOTWeDmj8Y3AAAA//8DAGIlyjt/AQAA";
@@ -58,6 +61,7 @@ public class CustomItemsConfigInstaller {
     public int installMissing() {
         File targetRoot = new File(plugin.getDataFolder(), TARGET_ROOT);
         File itemsRoot = new File(plugin.getDataFolder(), ITEM_TARGET_ROOT);
+        File stormItemsRoot = new File(plugin.getDataFolder(), STORMITEMY_ITEMS_ROOT);
         List<String> resources = listResourcePaths();
         int copied = 0;
         for (String relativePath : resources) {
@@ -84,6 +88,8 @@ public class CustomItemsConfigInstaller {
         }
         ensureDatabaseFile(targetRoot);
         ensureSchematicFiles(itemsRoot);
+        ensureStormItemyItems(stormItemsRoot, resources);
+        ensureStormItemySchematics(plugin.getDataFolder());
         validateInstallation(targetRoot, itemsRoot, resources);
         return copied;
     }
@@ -125,6 +131,83 @@ public class CustomItemsConfigInstaller {
             } catch (IllegalArgumentException | IOException e) {
                 plugin.getLogger().warning("Nie można utworzyć schematu " + entry.getKey() + ": " + e.getMessage());
             }
+        }
+    }
+
+    private void ensureStormItemyItems(File stormItemsRoot, List<String> resources) {
+        if (!stormItemsRoot.exists() && !stormItemsRoot.mkdirs()) {
+            plugin.getLogger().warning("Nie można utworzyć katalogu: " + stormItemsRoot.getAbsolutePath());
+            return;
+        }
+        for (String relativePath : resources) {
+            if (!relativePath.startsWith(ITEMS_PREFIX)) {
+                continue;
+            }
+            String trimmed = relativePath.substring(ITEMS_PREFIX.length());
+            File target = new File(stormItemsRoot, trimmed);
+            if (!target.exists()) {
+                File parent = target.getParentFile();
+                if (parent != null && !parent.exists() && !parent.mkdirs()) {
+                    plugin.getLogger().warning("Nie można utworzyć katalogu: " + parent.getAbsolutePath());
+                    continue;
+                }
+                String resourcePath = LEGACY_RESOURCE_ROOT + relativePath;
+                try (InputStream input = plugin.getResource(resourcePath)) {
+                    if (input == null) {
+                        plugin.getLogger().warning("Nie znaleziono zasobu: " + resourcePath);
+                        continue;
+                    }
+                    Files.copy(input, target.toPath());
+                } catch (IOException e) {
+                    plugin.getLogger().warning("Nie można skopiować zasobu " + resourcePath + ": " + e.getMessage());
+                }
+            }
+            if (isManagedByCustomItems(trimmed)) {
+                ensureStormItemyDisabled(target);
+            }
+        }
+    }
+
+    private void ensureStormItemySchematics(File dataFolder) {
+        Map<String, String> schematics = new LinkedHashMap<>();
+        schematics.put("trapanarchia.schem", TRAP_SCHEM_BASE64);
+        schematics.put("turbodomek.schem", DOM_SCHEM_BASE64);
+        for (Map.Entry<String, String> entry : schematics.entrySet()) {
+            File target = new File(dataFolder, entry.getKey());
+            if (target.exists()) {
+                continue;
+            }
+            try {
+                byte[] data = Base64.getDecoder().decode(entry.getValue());
+                Files.write(target.toPath(), data);
+            } catch (IllegalArgumentException | IOException e) {
+                plugin.getLogger().warning("Nie można utworzyć schematu " + entry.getKey() + ": " + e.getMessage());
+            }
+        }
+    }
+
+    private boolean isManagedByCustomItems(String fileName) {
+        String normalized = fileName.toLowerCase(Locale.ROOT);
+        return "bombardamaxima.yml".equals(normalized)
+            || "turbotrap.yml".equals(normalized)
+            || "dynamit.yml".equals(normalized);
+    }
+
+    private void ensureStormItemyDisabled(File file) {
+        if (!file.exists()) {
+            return;
+        }
+        try {
+            org.bukkit.configuration.file.YamlConfiguration yaml = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(file);
+            Set<String> keys = yaml.getKeys(false);
+            if (keys.isEmpty()) {
+                return;
+            }
+            String root = keys.iterator().next();
+            yaml.set(root + ".disabled", true);
+            yaml.save(file);
+        } catch (IOException e) {
+            plugin.getLogger().warning("Nie można zaktualizować pliku eventowego: " + file.getName() + ": " + e.getMessage());
         }
     }
 
