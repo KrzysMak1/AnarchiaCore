@@ -99,8 +99,14 @@ public class CustomItemsManager implements Listener {
 
     @EventHandler
     public void onUse(PlayerInteractEvent event) {
-        if (event.getHand() != EquipmentSlot.HAND) {
+        if (event.getHand() == null) {
             return;
+        }
+        if (event.getHand() == EquipmentSlot.OFF_HAND) {
+            ItemStack mainHand = event.getPlayer().getInventory().getItemInMainHand();
+            if (getCustomItemId(mainHand) != null) {
+                return;
+            }
         }
         if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
@@ -113,8 +119,11 @@ public class CustomItemsManager implements Listener {
         if (customId == null) {
             return;
         }
-        String normalized = customId.toLowerCase(Locale.ROOT);
-        CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(normalized);
+        String normalized = normalizeItemId(customId);
+        CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(customId);
+        if (eventItem == null) {
+            eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(normalized);
+        }
         if (eventItem == null) {
             return;
         }
@@ -133,8 +142,15 @@ public class CustomItemsManager implements Listener {
             return;
         }
         switch (normalized) {
-            case "bombardamaxima" -> {
-                launchBombarda(event.getPlayer(), eventItem);
+            case "bombarda", "bombardamaxima" -> {
+                if (eventItem.useProjectileMode()) {
+                    launchBombarda(event.getPlayer(), eventItem);
+                } else {
+                    Location location = event.getClickedBlock() != null
+                            ? event.getClickedBlock().getLocation().add(0.5, 0.5, 0.5)
+                            : event.getPlayer().getLocation();
+                    explode(location, eventItem);
+                }
                 sendConsumerMessage(event.getPlayer(), eventItem);
                 consumeItem(event.getPlayer(), item);
             }
@@ -268,7 +284,11 @@ public class CustomItemsManager implements Listener {
         if (meta == null) {
             return null;
         }
-        return meta.getPersistentDataContainer().get(itemKey, PersistentDataType.STRING);
+        String value = meta.getPersistentDataContainer().get(itemKey, PersistentDataType.STRING);
+        if (value != null && !value.isBlank()) {
+            return value;
+        }
+        return getEventItemIdByDisplayName(item, meta);
     }
 
     private boolean isOnCooldown(Player player, String itemId, int cooldownSeconds) {
@@ -316,7 +336,7 @@ public class CustomItemsManager implements Listener {
     }
 
     private boolean isExplosiveItem(String itemId) {
-        return "bombardamaxima".equals(itemId) || "dynamit".equals(itemId);
+        return "bombarda".equals(itemId) || "bombardamaxima".equals(itemId) || "dynamit".equals(itemId);
     }
 
     private Set<String> getCachedRegions(String itemId, java.util.List<String> regions, Map<String, Set<String>> cache) {
@@ -327,5 +347,33 @@ public class CustomItemsManager implements Listener {
                 .filter(value -> value != null && !value.isBlank())
                 .map(value -> value.toLowerCase(Locale.ROOT))
                 .collect(java.util.stream.Collectors.toSet()));
+    }
+
+    private String getEventItemIdByDisplayName(ItemStack item, ItemMeta meta) {
+        if (meta.displayName() == null) {
+            return null;
+        }
+        for (CustomItemsConfig.EventItemDefinition eventItem : configManager.getCustomItemsConfig().getEventItems()) {
+            if (eventItem == null || eventItem.displayName() == null || eventItem.displayName().isBlank()) {
+                continue;
+            }
+            if (eventItem.material() != null && eventItem.material() != item.getType()) {
+                continue;
+            }
+            if (eventItem.customModelData() > 0 && (!meta.hasCustomModelData() || meta.getCustomModelData() != eventItem.customModelData())) {
+                continue;
+            }
+            if (meta.displayName().equals(MiniMessageUtil.parseComponent(eventItem.displayName()))) {
+                return eventItem.id();
+            }
+        }
+        return null;
+    }
+
+    private String normalizeItemId(String id) {
+        if (id == null) {
+            return "";
+        }
+        return id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
     }
 }

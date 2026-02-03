@@ -148,6 +148,13 @@ public class ConfigManager {
                 continue;
             }
             sections.put(key, section);
+            String fileKey = file.getName().toLowerCase(Locale.ROOT);
+            if (fileKey.endsWith(".yml")) {
+                fileKey = fileKey.substring(0, fileKey.length() - 4);
+            }
+            if (!fileKey.isBlank()) {
+                sections.putIfAbsent(fileKey, section);
+            }
         }
         return sections;
     }
