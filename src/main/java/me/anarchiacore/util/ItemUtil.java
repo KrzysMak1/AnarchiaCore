@@ -120,7 +120,12 @@ public final class ItemUtil {
                 continue;
             }
             NamespacedKey key = new NamespacedKey(plugin, "attr_" + itemId + "_" + modifier.attribute().name().toLowerCase(Locale.ROOT) + "_" + index);
-            AttributeModifier attributeModifier = new AttributeModifier(key, modifier.amount(), modifier.operation(), modifier.slot());
+            AttributeModifier attributeModifier = new AttributeModifier(
+                key,
+                modifier.amount(),
+                modifier.operation(),
+                modifier.slot().getGroup()
+            );
             if (meta.hasAttributeModifiers()) {
                 var existing = meta.getAttributeModifiers(modifier.attribute());
                 if (existing != null && existing.stream().anyMatch(existingModifier -> key.equals(existingModifier.getKey()))) {
