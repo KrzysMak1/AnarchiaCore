@@ -1,4 +1,4 @@
-package me.anarchiacore.customitems.stormitemy;
+package me.anarchiacore.customitems.config;
 
 import org.bukkit.plugin.Plugin;
 
@@ -22,8 +22,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.stream.Stream;
 
-public class StormItemyConfigInstaller {
-    private static final String RESOURCE_ROOT = "stormitemy/";
+public class CustomItemsConfigInstaller {
+    private static final String LEGACY_RESOURCE_ROOT = "stormitemy/";
     private static final String TARGET_ROOT = "configs/STORMITEMY";
     private static final String ITEM_TARGET_ROOT = "configs/customitems";
     private static final String ITEMS_PREFIX = "items/";
@@ -32,7 +32,7 @@ public class StormItemyConfigInstaller {
 
     private final Plugin plugin;
 
-    public StormItemyConfigInstaller(Plugin plugin) {
+    public CustomItemsConfigInstaller(Plugin plugin) {
         this.plugin = plugin;
     }
 
@@ -45,7 +45,7 @@ public class StormItemyConfigInstaller {
             Path basePath = Paths.get(codeSource.toURI());
             return Files.isDirectory(basePath);
         } catch (URISyntaxException e) {
-            plugin.getLogger().warning("Nie można odczytać ścieżki zasobów StormItemy: " + e.getMessage());
+            plugin.getLogger().warning("Nie można odczytać ścieżki zasobów CustomItems: " + e.getMessage());
             return false;
         }
     }
@@ -70,7 +70,7 @@ public class StormItemyConfigInstaller {
                 plugin.getLogger().warning("Nie można utworzyć katalogu: " + parent.getAbsolutePath());
                 continue;
             }
-            String resourcePath = RESOURCE_ROOT + relativePath;
+            String resourcePath = LEGACY_RESOURCE_ROOT + relativePath;
             try (InputStream input = plugin.getResource(resourcePath)) {
                 if (input == null) {
                     plugin.getLogger().warning("Nie znaleziono zasobu: " + resourcePath);
@@ -138,20 +138,20 @@ public class StormItemyConfigInstaller {
         }
         int total = resources.size();
         int done = total - missingFiles.size();
-        plugin.getLogger().info("StormItemy configs installed: " + done + "/" + total
+        plugin.getLogger().info("CustomItems legacy configs installed: " + done + "/" + total
             + " (configs: " + targetRoot.getAbsolutePath() + ", items: " + itemsRoot.getAbsolutePath() + ")");
         if (done < total) {
-            plugin.getLogger().severe("Brakuje plików StormItemy: " + String.join(", ", missingFiles));
+            plugin.getLogger().severe("Brakuje plików CustomItems legacy: " + String.join(", ", missingFiles));
         }
         if (!hasAnyFile(targetRoot)) {
-            plugin.getLogger().severe("Folder StormItemy jest pusty: " + targetRoot.getAbsolutePath());
+            plugin.getLogger().severe("Folder CustomItems legacy jest pusty: " + targetRoot.getAbsolutePath());
         }
         if (!hasAnyFile(itemsRoot)) {
-            plugin.getLogger().severe("Folder eventowych itemów StormItemy jest pusty: " + itemsRoot.getAbsolutePath());
+            plugin.getLogger().severe("Folder eventowych itemów CustomItems legacy jest pusty: " + itemsRoot.getAbsolutePath());
         }
         List<String> missingEvents = validateEventConfigs(itemsRoot);
         if (!missingEvents.isEmpty()) {
-            plugin.getLogger().severe("Brakuje konfiguracji eventów StormItemy w "
+            plugin.getLogger().severe("Brakuje konfiguracji eventów CustomItems legacy w "
                 + itemsRoot.getAbsolutePath() + ": " + String.join(", ", missingEvents));
         }
     }
@@ -163,7 +163,7 @@ public class StormItemyConfigInstaller {
         try (Stream<Path> paths = Files.walk(targetRoot.toPath())) {
             return paths.anyMatch(Files::isRegularFile);
         } catch (IOException e) {
-            plugin.getLogger().warning("Nie można sprawdzić plików StormItemy: " + e.getMessage());
+            plugin.getLogger().warning("Nie można sprawdzić plików CustomItems legacy: " + e.getMessage());
             return false;
         }
     }
@@ -180,7 +180,7 @@ public class StormItemyConfigInstaller {
             try (Stream<Path> paths = Files.walk(targetRoot.toPath())) {
                 paths.filter(path -> path.toString().endsWith(".yml")).forEach(ymlFiles::add);
             } catch (IOException e) {
-                plugin.getLogger().warning("Nie można odczytać plików yml StormItemy: " + e.getMessage());
+                plugin.getLogger().warning("Nie można odczytać plików yml CustomItems legacy: " + e.getMessage());
             }
         }
 
@@ -205,7 +205,7 @@ public class StormItemyConfigInstaller {
             try {
                 content = Files.readString(path, StandardCharsets.UTF_8).toLowerCase();
             } catch (IOException e) {
-                plugin.getLogger().warning("Nie można odczytać pliku StormItemy: " + path + ": " + e.getMessage());
+                plugin.getLogger().warning("Nie można odczytać pliku CustomItems legacy: " + path + ": " + e.getMessage());
                 continue;
             }
             for (String token : tokens) {
@@ -227,17 +227,17 @@ public class StormItemyConfigInstaller {
         try {
             Path basePath = Paths.get(codeSource.toURI());
             if (Files.isDirectory(basePath)) {
-            return filterBinaryResources(listFromDirectory(basePath));
-        }
-        return filterBinaryResources(listFromJar(basePath));
+                return filterBinaryResources(listFromDirectory(basePath));
+            }
+            return filterBinaryResources(listFromJar(basePath));
         } catch (URISyntaxException | IOException e) {
-            plugin.getLogger().warning("Nie można odczytać zasobów StormItemy: " + e.getMessage());
+            plugin.getLogger().warning("Nie można odczytać zasobów CustomItems legacy: " + e.getMessage());
             return Collections.emptyList();
         }
     }
 
     private List<String> listFromDirectory(Path basePath) throws IOException {
-        Path resourceRoot = basePath.resolve(RESOURCE_ROOT);
+        Path resourceRoot = basePath.resolve(LEGACY_RESOURCE_ROOT);
         if (!Files.exists(resourceRoot)) {
             return Collections.emptyList();
         }
@@ -260,10 +260,10 @@ public class StormItemyConfigInstaller {
                     continue;
                 }
                 String name = entry.getName();
-                if (!name.startsWith(RESOURCE_ROOT)) {
+                if (!name.startsWith(LEGACY_RESOURCE_ROOT)) {
                     continue;
                 }
-                String relative = name.substring(RESOURCE_ROOT.length());
+                String relative = name.substring(LEGACY_RESOURCE_ROOT.length());
                 if (relative.isBlank()) {
                     continue;
                 }
