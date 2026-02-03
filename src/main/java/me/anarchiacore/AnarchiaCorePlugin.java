@@ -5,8 +5,6 @@ import me.anarchiacore.config.ConfigManager;
 import me.anarchiacore.config.MessageService;
 import me.anarchiacore.customitems.CustomItemsManager;
 import me.anarchiacore.customitems.config.CustomItemsConfigInstaller;
-import me.anarchiacore.customitems.stormitemy.Main;
-import me.anarchiacore.customitems.stormitemy.core.B;
 import me.anarchiacore.dripstone.DripstoneDamageManager;
 import me.anarchiacore.hearts.HeartsManager;
 import me.anarchiacore.papi.AnarchiaCorePlaceholderExpansion;
@@ -21,12 +19,16 @@ import me.anarchiacore.util.ZipExtractor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.command.*;
+import org.bukkit.event.Listener;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, TabCompleter {
@@ -39,8 +41,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private CombatLogManager combatLogManager;
     private StatsManager statsManager;
     private DripstoneDamageManager dripstoneDamageManager;
-    private Main stormItemyMain;
-    private B stormItemyInitializer;
+    private Object stormItemyMain;
+    private Object stormItemyInitializer;
     private CustomItemsConfigInstaller customItemsConfigInstaller;
     private AnarchiaCorePlaceholderExpansion placeholderExpansion;
 
@@ -90,36 +92,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         Objects.requireNonNull(getCommand("antylogout")).setTabCompleter(this);
         Objects.requireNonNull(getCommand("kosz")).setExecutor(new TrashCommand(trashManager, messageService, this));
 
-        stormItemyMain = new Main(this);
-        stormItemyMain.onEnable();
-        stormItemyInitializer = stormItemyMain.getInitializer();
-        int stormListeners = 0;
-        if (stormItemyInitializer != null) {
-            List<org.bukkit.event.Listener> listeners = stormItemyInitializer.getListeners();
-            stormListeners = listeners.size();
-            for (org.bukkit.event.Listener listener : listeners) {
-                getServer().getPluginManager().registerEvents(listener, this);
-            }
-            if (stormItemyInitializer.getMenuCommand() != null) {
-                Objects.requireNonNull(getCommand("menuprzedmioty")).setExecutor(stormItemyInitializer.getMenuCommand());
-            }
-        }
-        Objects.requireNonNull(getCommand("stormitemy")).setExecutor(stormItemyMain);
-        Objects.requireNonNull(getCommand("stormitemy")).setTabCompleter(stormItemyMain);
-
-        int stormCommands = stormItemyInitializer != null && stormItemyInitializer.getMenuCommand() != null ? 2 : 1;
-        int stormConfigs = stormItemyInitializer != null ? stormItemyInitializer.getLoadedConfigCount() : 0;
-        int expectedStormConfigs = 4;
-        String stormSource = customItemsConfigInstaller.isResourceSourceDirectory() ? "source" : "jar";
-        getLogger().info("StormItemy integrated: " + stormSource + "; registered listeners: " + stormListeners
-            + "; commands: " + stormCommands + "; configs loaded: " + stormConfigs);
-        if (stormConfigs < expectedStormConfigs) {
-            getLogger().severe("StormItemy configs loaded < expected: " + stormConfigs + "/" + expectedStormConfigs);
-        }
-        int missingEventConfigs = customItemsConfigInstaller.getMissingEventConfigCount();
-        if (missingEventConfigs == 4) {
-            getLogger().severe("StormItemy event configs missing: " + missingEventConfigs + "/4");
-        }
+        initializeStormItemy();
 
         try {
             combatLogManager.start();
@@ -142,9 +115,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (statsManager != null) {
             statsManager.stop();
         }
-        if (stormItemyMain != null) {
-            stormItemyMain.onDisable();
-        }
+        shutdownStormItemy();
         if (dataStore != null) {
             dataStore.close();
         }
@@ -200,8 +171,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     }
 
     private void reloadAll(CommandSender sender) {
-        if (stormItemyConfigInstaller != null) {
-            stormItemyConfigInstaller.installMissing();
+        if (customItemsConfigInstaller != null) {
+            customItemsConfigInstaller.installMissing();
         }
         configManager.reload();
         dataStore.reload();
@@ -234,14 +205,134 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (stormItemyMain == null) {
             return;
         }
-        if (stormItemyMain.getConfigManager() != null) {
-            stormItemyMain.getConfigManager().A();
+        invokeStormItemyReload(sender);
+    }
+
+    private void initializeStormItemy() {
+        int stormListeners = 0;
+        int stormCommands = 0;
+        int stormConfigs = 0;
+        int expectedStormConfigs = 4;
+        String stormSource = customItemsConfigInstaller.isResourceSourceDirectory() ? "source" : "jar";
+        try {
+            Class<?> mainClass = Class.forName("me.anarchiacore.customitems.stormitemy.Main");
+            Constructor<?> constructor = mainClass.getConstructor(JavaPlugin.class);
+            stormItemyMain = constructor.newInstance(this);
+            Method onEnable = mainClass.getMethod("onEnable");
+            onEnable.invoke(stormItemyMain);
+            Method getInitializer = mainClass.getMethod("getInitializer");
+            stormItemyInitializer = getInitializer.invoke(stormItemyMain);
+
+            stormListeners = registerStormItemyListeners();
+            stormCommands = registerStormItemyCommands();
+            stormConfigs = getStormItemyConfigCount();
+
+            if (stormItemyMain instanceof CommandExecutor) {
+                Objects.requireNonNull(getCommand("stormitemy")).setExecutor((CommandExecutor) stormItemyMain);
+            }
+            if (stormItemyMain instanceof TabCompleter) {
+                Objects.requireNonNull(getCommand("stormitemy")).setTabCompleter((TabCompleter) stormItemyMain);
+            }
+
+            getLogger().info("StormItemy integrated: " + stormSource + "; registered listeners: " + stormListeners
+                + "; commands: " + stormCommands + "; configs loaded: " + stormConfigs);
+            if (stormConfigs < expectedStormConfigs) {
+                getLogger().severe("StormItemy configs loaded < expected: " + stormConfigs + "/" + expectedStormConfigs);
+            }
+            int missingEventConfigs = customItemsConfigInstaller.getMissingEventConfigCount();
+            if (missingEventConfigs == expectedStormConfigs) {
+                getLogger().severe("StormItemy event configs missing: " + missingEventConfigs + "/" + expectedStormConfigs);
+            }
+        } catch (ClassNotFoundException ex) {
+            getLogger().warning("StormItemy classes not found; skipping integration.");
+        } catch (Exception ex) {
+            getLogger().severe("StormItemy failed to initialize: " + ex.getMessage());
+            ex.printStackTrace();
         }
-        if (stormItemyMain.getActionbarManager() != null) {
-            stormItemyMain.getActionbarManager().loadConfig();
+    }
+
+    private int registerStormItemyListeners() throws Exception {
+        if (stormItemyInitializer == null) {
+            return 0;
         }
-        if (stormItemyInitializer != null && stormItemyInitializer.Z != null) {
-            stormItemyInitializer.Z.B(sender);
+        Method getListeners = stormItemyInitializer.getClass().getMethod("getListeners");
+        Object listenerList = getListeners.invoke(stormItemyInitializer);
+        if (!(listenerList instanceof List<?> listeners)) {
+            return 0;
+        }
+        for (Object listener : listeners) {
+            if (listener instanceof Listener) {
+                getServer().getPluginManager().registerEvents((Listener) listener, this);
+            }
+        }
+        return listeners.size();
+    }
+
+    private int registerStormItemyCommands() throws Exception {
+        if (stormItemyInitializer == null) {
+            return 1;
+        }
+        Method getMenuCommand = stormItemyInitializer.getClass().getMethod("getMenuCommand");
+        Object menuCommand = getMenuCommand.invoke(stormItemyInitializer);
+        if (menuCommand instanceof CommandExecutor) {
+            Objects.requireNonNull(getCommand("menuprzedmioty")).setExecutor((CommandExecutor) menuCommand);
+            return 2;
+        }
+        return 1;
+    }
+
+    private int getStormItemyConfigCount() throws Exception {
+        if (stormItemyInitializer == null) {
+            return 0;
+        }
+        Method getLoadedConfigCount = stormItemyInitializer.getClass().getMethod("getLoadedConfigCount");
+        Object count = getLoadedConfigCount.invoke(stormItemyInitializer);
+        if (count instanceof Number) {
+            return ((Number) count).intValue();
+        }
+        return 0;
+    }
+
+    private void invokeStormItemyReload(CommandSender sender) {
+        try {
+            Method getConfigManager = stormItemyMain.getClass().getMethod("getConfigManager");
+            Object configManager = getConfigManager.invoke(stormItemyMain);
+            if (configManager != null) {
+                Method reloadConfig = configManager.getClass().getMethod("A");
+                reloadConfig.invoke(configManager);
+            }
+            Method getActionbarManager = stormItemyMain.getClass().getMethod("getActionbarManager");
+            Object actionbarManager = getActionbarManager.invoke(stormItemyMain);
+            if (actionbarManager != null) {
+                Method loadConfig = actionbarManager.getClass().getMethod("loadConfig");
+                loadConfig.invoke(actionbarManager);
+            }
+            if (stormItemyInitializer != null) {
+                Field field = stormItemyInitializer.getClass().getField("Z");
+                Object reloadable = field.get(stormItemyInitializer);
+                if (reloadable != null) {
+                    Method reloadCommand = reloadable.getClass().getMethod("B", CommandSender.class);
+                    reloadCommand.invoke(reloadable, sender);
+                }
+            }
+        } catch (NoSuchFieldException | NoSuchMethodException ex) {
+            getLogger().warning("StormItemy reload hook missing: " + ex.getMessage());
+        } catch (Exception ex) {
+            getLogger().severe("StormItemy reload failed: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private void shutdownStormItemy() {
+        if (stormItemyMain == null) {
+            return;
+        }
+        try {
+            Method onDisable = stormItemyMain.getClass().getMethod("onDisable");
+            onDisable.invoke(stormItemyMain);
+        } catch (Exception ex) {
+            getLogger().severe("StormItemy shutdown failed: " + ex.getMessage());
+            ex.printStackTrace();
         }
     }
 
