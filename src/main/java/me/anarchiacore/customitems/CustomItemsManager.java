@@ -85,7 +85,6 @@ public class CustomItemsManager implements Listener {
     }
 
     public void reload() {
-        cooldowns.clear();
         cachedNoPlaceRegions.clear();
         cachedNoDestroyRegions.clear();
         schematicService.clear();
@@ -202,7 +201,7 @@ public class CustomItemsManager implements Listener {
             if (location.getWorld() != null) {
                 location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
                 int particles = Math.max(0, eventItem.explosionParticleCount());
-                location.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, location, particles, 1.0, 1.0, 1.0);
+                location.getWorld().spawnParticle(Particle.EXPLOSION, location, particles, 1.0, 1.0, 1.0);
             }
             explodeBombarda(location, eventItem);
             sendConsumerMessage(player, eventItem);
@@ -291,7 +290,7 @@ public class CustomItemsManager implements Listener {
         if (location.getWorld() != null) {
             location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
             int particles = Math.max(0, eventItem.explosionParticleCount());
-            location.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, location, particles, 1.0, 1.0, 1.0);
+            location.getWorld().spawnParticle(Particle.EXPLOSION, location, particles, 1.0, 1.0, 1.0);
         }
         explodeBombarda(location, eventItem);
         projectile.remove();
@@ -342,7 +341,7 @@ public class CustomItemsManager implements Listener {
                         continue;
                     }
                     if (!blockedRegions.isEmpty() && worldGuardIntegration.isInRegions(target, blockedRegions)) {
-                        location.getWorld().spawnParticle(Particle.EXPLOSION_LARGE, target, 1, 0.0, 0.0, 0.0, 0.0);
+                        location.getWorld().spawnParticle(Particle.EXPLOSION, target, 1, 0.0, 0.0, 0.0, 0.0);
                         continue;
                     }
                     if (block.hasMetadata("hydro_cage_block")) {
