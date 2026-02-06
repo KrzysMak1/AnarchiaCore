@@ -17,6 +17,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class StatsStorage {
     private final JavaPlugin plugin;
@@ -25,7 +28,8 @@ public class StatsStorage {
     private YamlConfiguration statsConfig;
     private StorageType storageType;
     private HikariDataSource dataSource;
-    private final Map<UUID, PlayerStats> statsByPlayer = new HashMap<>();
+    private final Map<UUID, PlayerStats> statsByPlayer = new ConcurrentHashMap<>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public StatsStorage(JavaPlugin plugin, DataStore dataStore) {
         this.plugin = plugin;
@@ -35,19 +39,24 @@ public class StatsStorage {
     }
 
     public void reload() {
-        this.storageType = dataStore.getStorageType();
-        this.dataSource = dataStore.getDataSource();
-        ensureStatsFile();
-        statsConfig = YamlConfiguration.loadConfiguration(statsFile);
-        statsByPlayer.clear();
-        if (storageType == StorageType.MYSQL) {
-            ensureMysqlSchema();
-            loadFromDatabase();
-        } else {
-            loadSection(dataStore.getSection("stats"));
-            loadSection(dataStore.getSection("stats.players"));
-            loadSection(statsConfig.getConfigurationSection("stats"));
-            loadSection(statsConfig.getConfigurationSection("players"));
+        lock.writeLock().lock();
+        try {
+            this.storageType = dataStore.getStorageType();
+            this.dataSource = dataStore.getDataSource();
+            ensureStatsFile();
+            statsConfig = YamlConfiguration.loadConfiguration(statsFile);
+            statsByPlayer.clear();
+            if (storageType == StorageType.MYSQL) {
+                ensureMysqlSchema();
+                loadFromDatabase();
+            } else {
+                loadSection(dataStore.getSection("stats"));
+                loadSection(dataStore.getSection("stats.players"));
+                loadSection(statsConfig.getConfigurationSection("stats"));
+                loadSection(statsConfig.getConfigurationSection("players"));
+            }
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
@@ -90,35 +99,36 @@ public class StatsStorage {
     }
 
     public PlayerStats getOrCreate(UUID uuid, String name) {
-        PlayerStats stats = statsByPlayer.get(uuid);
-        if (stats == null) {
-            stats = new PlayerStats(name, 0, 0, 0, 0);
-            statsByPlayer.put(uuid, stats);
-        }
-        if (name != null && !name.isBlank() && (stats.getName() == null || !stats.getName().equals(name))) {
-            stats.setName(name);
-        }
-        return stats;
+        return statsByPlayer.compute(uuid, (key, existing) -> {
+            PlayerStats stats = existing == null ? new PlayerStats(name, 0, 0, 0, 0) : existing;
+            if (name != null && !name.isBlank() && (stats.getName() == null || !stats.getName().equals(name))) {
+                stats.setName(name);
+            }
+            return stats;
+        });
     }
 
     public boolean updateName(UUID uuid, String name) {
         if (name == null || name.isBlank()) {
             return false;
         }
-        PlayerStats stats = statsByPlayer.get(uuid);
-        if (stats == null) {
-            statsByPlayer.put(uuid, new PlayerStats(name, 0, 0, 0, 0));
-            return true;
-        }
-        if (!name.equals(stats.getName())) {
-            stats.setName(name);
-            return true;
-        }
-        return false;
+        boolean[] changed = new boolean[] {false};
+        statsByPlayer.compute(uuid, (key, existing) -> {
+            if (existing == null) {
+                changed[0] = true;
+                return new PlayerStats(name, 0, 0, 0, 0);
+            }
+            if (!name.equals(existing.getName())) {
+                existing.setName(name);
+                changed[0] = true;
+            }
+            return existing;
+        });
+        return changed[0];
     }
 
     public Map<UUID, PlayerStats> getAllStats() {
-        return Collections.unmodifiableMap(statsByPlayer);
+        return Collections.unmodifiableMap(new HashMap<>(statsByPlayer));
     }
 
     public void savePlayer(UUID uuid) {
@@ -132,7 +142,12 @@ public class StatsStorage {
         if (storageType == StorageType.MYSQL) {
             savePlayerMysql(uuid, stats);
         } else {
-            savePlayerYaml(uuid, stats);
+            lock.writeLock().lock();
+            try {
+                savePlayerYaml(uuid, stats);
+            } finally {
+                lock.writeLock().unlock();
+            }
         }
     }
 
