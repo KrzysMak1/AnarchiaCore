@@ -14,6 +14,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class DataStore {
     private final JavaPlugin plugin;
@@ -21,6 +23,7 @@ public class DataStore {
     private YamlConfiguration config;
     private StorageType storageType = StorageType.YAML;
     private HikariDataSource dataSource;
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     public DataStore(JavaPlugin plugin) {
         this.plugin = plugin;
@@ -36,7 +39,12 @@ public class DataStore {
             ensureMysqlSchema();
         } else {
             closeDataSource();
-            loadYaml();
+            lock.writeLock().lock();
+            try {
+                loadYaml();
+            } finally {
+                lock.writeLock().unlock();
+            }
         }
     }
 
@@ -56,10 +64,13 @@ public class DataStore {
         if (storageType == StorageType.MYSQL) {
             return;
         }
+        lock.writeLock().lock();
         try {
             config.save(file);
         } catch (IOException e) {
             plugin.getLogger().severe("Nie można zapisać data.yml: " + e.getMessage());
+        } finally {
+            lock.writeLock().unlock();
         }
     }
 
@@ -82,7 +93,12 @@ public class DataStore {
             }
             return defaultHearts;
         }
-        return config.getInt("players." + uuid + ".hearts", defaultHearts);
+        lock.readLock().lock();
+        try {
+            return config.getInt("players." + uuid + ".hearts", defaultHearts);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public boolean hasHearts(UUID uuid) {
@@ -102,7 +118,12 @@ public class DataStore {
                 return false;
             }
         }
-        return config.contains("players." + uuid + ".hearts");
+        lock.readLock().lock();
+        try {
+            return config.contains("players." + uuid + ".hearts");
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public void setHearts(UUID uuid, int hearts) {
@@ -126,7 +147,12 @@ public class DataStore {
             }
             return;
         }
-        config.set("players." + uuid + ".hearts", hearts);
+        lock.writeLock().lock();
+        try {
+            config.set("players." + uuid + ".hearts", hearts);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public boolean getSpawnOnJoin(UUID uuid) {
@@ -148,7 +174,12 @@ public class DataStore {
             }
             return false;
         }
-        return config.getBoolean("players." + uuid + ".spawnOnJoin", false);
+        lock.readLock().lock();
+        try {
+            return config.getBoolean("players." + uuid + ".spawnOnJoin", false);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public void setSpawnOnJoin(UUID uuid, boolean value) {
@@ -172,7 +203,12 @@ public class DataStore {
             }
             return;
         }
-        config.set("players." + uuid + ".spawnOnJoin", value);
+        lock.writeLock().lock();
+        try {
+            config.set("players." + uuid + ".spawnOnJoin", value);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public void clearSpawnOnJoin(UUID uuid) {
@@ -180,35 +216,60 @@ public class DataStore {
             setSpawnOnJoin(uuid, false);
             return;
         }
-        config.set("players." + uuid + ".spawnOnJoin", null);
+        lock.writeLock().lock();
+        try {
+            config.set("players." + uuid + ".spawnOnJoin", null);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public void setValue(String path, Object value) {
         if (storageType == StorageType.MYSQL) {
             return;
         }
-        config.set(path, value);
+        lock.writeLock().lock();
+        try {
+            config.set(path, value);
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     public Object getValue(String path) {
         if (storageType == StorageType.MYSQL) {
             return null;
         }
-        return config.get(path);
+        lock.readLock().lock();
+        try {
+            return config.get(path);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public long getLong(String path, long defaultValue) {
         if (storageType == StorageType.MYSQL) {
             return defaultValue;
         }
-        return config.getLong(path, defaultValue);
+        lock.readLock().lock();
+        try {
+            return config.getLong(path, defaultValue);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public ConfigurationSection getSection(String path) {
         if (storageType == StorageType.MYSQL) {
             return null;
         }
-        return config.getConfigurationSection(path);
+        lock.readLock().lock();
+        try {
+            return config.getConfigurationSection(path);
+        } finally {
+            lock.readLock().unlock();
+        }
     }
 
     public StorageType getStorageType() {

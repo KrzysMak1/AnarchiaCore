@@ -11,14 +11,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class StatsManager implements Listener {
     private final ConfigManager configManager;
     private final StatsStorage storage;
-    private final Map<UUID, Map<UUID, Long>> killCreditCooldowns = new HashMap<>();
+    private final Map<UUID, Map<UUID, Long>> killCreditCooldowns = new ConcurrentHashMap<>();
     private final TopCacheManager topCacheManager;
 
     public StatsManager(JavaPlugin plugin, ConfigManager configManager, DataStore dataStore) {
@@ -91,7 +91,7 @@ public class StatsManager implements Listener {
             return true;
         }
         long now = System.currentTimeMillis();
-        Map<UUID, Long> killerMap = killCreditCooldowns.computeIfAbsent(killer, key -> new HashMap<>());
+        Map<UUID, Long> killerMap = killCreditCooldowns.computeIfAbsent(killer, key -> new ConcurrentHashMap<>());
         Long last = killerMap.get(victim);
         if (last != null && (now - last) < cooldownSeconds * 1000L) {
             return false;

@@ -39,13 +39,13 @@ import org.bukkit.util.Vector;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class CombatLogManager implements Listener {
     private static final String BYPASS_PERMISSION = "dream.antylogout.bypass";
@@ -58,10 +58,10 @@ public class CombatLogManager implements Listener {
     private CombatLogRegionService regionService;
     private final CustomItemsManager customItemsManager;
     private final DataStore dataStore;
-    private final Map<UUID, CombatState> combatStates = new HashMap<>();
-    private final Map<UUID, ProtectionState> protectionStates = new HashMap<>();
-    private final Map<UUID, Component> originalDisplayNames = new HashMap<>();
-    private final Map<UUID, Component> originalPlayerListNames = new HashMap<>();
+    private final Map<UUID, CombatState> combatStates = new ConcurrentHashMap<>();
+    private final Map<UUID, ProtectionState> protectionStates = new ConcurrentHashMap<>();
+    private final Map<UUID, Component> originalDisplayNames = new ConcurrentHashMap<>();
+    private final Map<UUID, Component> originalPlayerListNames = new ConcurrentHashMap<>();
     private BukkitTask task;
 
     public CombatLogManager(JavaPlugin plugin, String prefix, CustomItemsManager customItemsManager, DataStore dataStore) {
