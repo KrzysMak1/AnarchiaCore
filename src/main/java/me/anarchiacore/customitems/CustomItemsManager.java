@@ -499,7 +499,6 @@ public class CustomItemsManager implements Listener {
         applyBoskiToporPush(player, config);
         sendConsumerMessage(player, eventItem);
         sendBoskiToporTargetMessage(player, config);
-        consumeItemFromHand(player, event.getHand());
         event.setCancelled(true);
     }
 
@@ -1212,13 +1211,18 @@ public class CustomItemsManager implements Listener {
         }
         int radius = Math.max(1, config.radius);
         int thickness = Math.max(1, config.wallThickness);
-        int boundaryStart = radius - thickness + 1;
+        int innerRadius = Math.max(0, radius - thickness);
+        int outerRadiusSquared = radius * radius;
+        int innerRadiusSquared = innerRadius * innerRadius;
         List<ChangedBlock> changedBlocks = new ArrayList<>();
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
-                    boolean boundary = Math.abs(x) >= boundaryStart || Math.abs(y) >= boundaryStart || Math.abs(z) >= boundaryStart;
-                    Material targetMaterial = boundary ? config.wallMaterial : config.fillMaterial;
+                    int distanceSquared = x * x + y * y + z * z;
+                    if (distanceSquared > outerRadiusSquared || distanceSquared < innerRadiusSquared) {
+                        continue;
+                    }
+                    Material targetMaterial = config.wallMaterial;
                     Location target = center.clone().add(x, y, z);
                     Block block = target.getBlock();
                     if (!isReplaceable(block.getType())) {
