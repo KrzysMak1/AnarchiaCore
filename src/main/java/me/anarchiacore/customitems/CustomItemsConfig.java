@@ -88,6 +88,7 @@ public class CustomItemsConfig {
         List<String> protectedBlocks = section.getStringList("protectedBlocks");
         boolean spawnFire = section.getBoolean("spawnFire", false);
         double fireChance = section.getDouble("fireChance", 0.0);
+        List<EffectDefinition> effects = readEffects(section.getMapList("effects"));
         MessageDefinition message = readMessage(section.getConfigurationSection("messages"));
         AnimationDefinition animation = readAnimation(section.getConfigurationSection("animation"));
         List<String> noDestroyRegions = section.getStringList("noDestroyRegions");
@@ -96,7 +97,7 @@ public class CustomItemsConfig {
         List<AttributeModifierDefinition> attributes = readAttributes(section.getConfigurationSection("attributes"));
         return new EventItemDefinition(id, material, displayName, lore, enchants, flags, cmd, unbreakable, attributes,
                 cooldown, explosionRadius, explosionParticleCount, useProjectileMode, projectileSpeed, projectileLifeTimeTicks,
-                protectedBlocks, spawnFire, fireChance, message, animation, noDestroyRegions, noPlaceRegions, preventRegionDestruction);
+                protectedBlocks, spawnFire, fireChance, effects, message, animation, noDestroyRegions, noPlaceRegions, preventRegionDestruction);
     }
 
     private MessageDefinition readMessage(ConfigurationSection section) {
@@ -186,6 +187,59 @@ public class CustomItemsConfig {
         return result;
     }
 
+    private List<EffectDefinition> readEffects(List<Map<?, ?>> rawEffects) {
+        if (rawEffects == null || rawEffects.isEmpty()) {
+            return List.of();
+        }
+        List<EffectDefinition> effects = new ArrayList<>();
+        for (Map<?, ?> entry : rawEffects) {
+            if (entry == null || entry.isEmpty()) {
+                continue;
+            }
+            String type = stringValue(entry.get("type"));
+            if (type == null || type.isBlank()) {
+                continue;
+            }
+            int duration = intValue(entry.get("duration"), 40);
+            int amplifier = intValue(entry.get("amplifier"), 0);
+            boolean ambient = booleanValue(entry.get("ambient"), false);
+            boolean particles = booleanValue(entry.get("particles"), true);
+            effects.add(new EffectDefinition(type, duration, amplifier, ambient, particles));
+        }
+        return effects;
+    }
+
+    private String stringValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        return String.valueOf(value);
+    }
+
+    private int intValue(Object value, int fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        try {
+            return Integer.parseInt(value.toString());
+        } catch (NumberFormatException ignored) {
+            return fallback;
+        }
+    }
+
+    private boolean booleanValue(Object value, boolean fallback) {
+        if (value == null) {
+            return fallback;
+        }
+        if (value instanceof Boolean bool) {
+            return bool;
+        }
+        return Boolean.parseBoolean(value.toString());
+    }
+
     public CustomItemDefinition getItemDefinition(String id) {
         if (id == null) {
             return null;
@@ -248,11 +302,21 @@ public class CustomItemsConfig {
             List<String> protectedBlocks,
             boolean spawnFire,
             double fireChance,
+            List<EffectDefinition> effects,
             MessageDefinition messages,
             AnimationDefinition animation,
             List<String> noDestroyRegions,
             List<String> noPlaceRegions,
             boolean preventRegionDestruction
+    ) {
+    }
+
+    public record EffectDefinition(
+            String type,
+            int duration,
+            int amplifier,
+            boolean ambient,
+            boolean particles
     ) {
     }
 

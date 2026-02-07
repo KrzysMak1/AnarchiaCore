@@ -5,6 +5,7 @@ import me.anarchiacore.config.MessageService;
 import me.anarchiacore.util.ItemUtil;
 import me.anarchiacore.util.MiniMessageUtil;
 import net.kyori.adventure.title.Title;
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -29,6 +30,8 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.time.Duration;
 import java.util.HashSet;
@@ -58,6 +61,7 @@ public class CustomItemsManager implements Listener {
         this.bombardaProjectileKey = new NamespacedKey(plugin, "bombarda_maxima_projectile");
         this.worldGuardIntegration = new WorldGuardIntegration(plugin);
         this.schematicService = new SchematicService(plugin);
+        startEventItemEffectTask();
     }
 
     public ItemStack createItem(String id) {
@@ -88,6 +92,40 @@ public class CustomItemsManager implements Listener {
         cachedNoPlaceRegions.clear();
         cachedNoDestroyRegions.clear();
         schematicService.clear();
+    }
+
+    private void startEventItemEffectTask() {
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            CustomItemsConfig config = configManager.getCustomItemsConfig();
+            if (config == null) {
+                return;
+            }
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                applyEffectsForHeldItem(player, player.getInventory().getItemInMainHand());
+                applyEffectsForHeldItem(player, player.getInventory().getItemInOffHand());
+            }
+        }, 0L, 20L);
+    }
+
+    private void applyEffectsForHeldItem(Player player, ItemStack item) {
+        String itemId = getCustomItemId(item);
+        if (itemId == null) {
+            return;
+        }
+        CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(itemId);
+        if (eventItem == null || eventItem.effects() == null || eventItem.effects().isEmpty()) {
+            return;
+        }
+        for (CustomItemsConfig.EffectDefinition effect : eventItem.effects()) {
+            if (effect == null || effect.type() == null || effect.type().isBlank()) {
+                continue;
+            }
+            PotionEffectType type = PotionEffectType.getByName(effect.type().toUpperCase(Locale.ROOT));
+            if (type == null) {
+                continue;
+            }
+            player.addPotionEffect(new PotionEffect(type, effect.duration(), effect.amplifier(), effect.ambient(), effect.particles()), true);
+        }
     }
 
     public boolean isCustomItem(ItemStack item, String id) {
@@ -535,6 +573,7 @@ public class CustomItemsManager implements Listener {
         if (meta.displayName() == null) {
             return null;
         }
+        String displayName = normalizeLegacyText(MiniMessageUtil.serializeLegacy(meta.displayName()));
         for (CustomItemsConfig.EventItemDefinition eventItem : configManager.getCustomItemsConfig().getEventItems()) {
             if (eventItem == null || eventItem.displayName() == null || eventItem.displayName().isBlank()) {
                 continue;
@@ -545,11 +584,23 @@ public class CustomItemsManager implements Listener {
             if (eventItem.customModelData() > 0 && (!meta.hasCustomModelData() || meta.getCustomModelData() != eventItem.customModelData())) {
                 continue;
             }
-            if (meta.displayName().equals(MiniMessageUtil.parseComponent(eventItem.displayName()))) {
+            String expected = normalizeLegacyText(MiniMessageUtil.parseLegacy(eventItem.displayName()));
+            if (!expected.isBlank() && expected.equals(displayName)) {
                 return eventItem.id();
             }
         }
         return null;
+    }
+
+    private String normalizeLegacyText(String value) {
+        if (value == null) {
+            return "";
+        }
+        String normalized = value;
+        while (normalized.startsWith("§r") || normalized.startsWith("§R")) {
+            normalized = normalized.substring(2);
+        }
+        return normalized;
     }
 
     private String normalizeItemId(String id) {
