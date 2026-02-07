@@ -22,5 +22,5 @@ kupaAnarchi:
   - duration: 40
     particles: false
     amplifier: 1
-    type: INCREASE_DAMAGE
+    type: STRENGTH
     ambient: false
