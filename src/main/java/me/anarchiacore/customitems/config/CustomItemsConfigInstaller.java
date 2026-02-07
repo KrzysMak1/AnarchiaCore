@@ -190,6 +190,7 @@ public class CustomItemsConfigInstaller {
         String normalized = fileName.toLowerCase(Locale.ROOT);
         return "bombardamaxima.yml".equals(normalized)
             || "turbotrap.yml".equals(normalized)
+            || "turbodomek.yml".equals(normalized)
             || "dynamit.yml".equals(normalized);
     }
 
