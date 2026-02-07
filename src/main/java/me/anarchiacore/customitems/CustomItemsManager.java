@@ -63,6 +63,7 @@ public class CustomItemsManager implements Listener {
     private int actionbarMaxLength;
     private final Map<String, String> actionbarColors = new HashMap<>();
     private final Map<String, String> actionbarDisplayNames = new HashMap<>();
+    private final Map<java.util.UUID, Map<String, Long>> actionbarCooldowns = new ConcurrentHashMap<>();
 
     public CustomItemsManager(Plugin plugin, ConfigManager configManager, MessageService messageService) {
         this.plugin = plugin;
@@ -74,6 +75,7 @@ public class CustomItemsManager implements Listener {
         this.schematicService = new SchematicService(plugin);
         loadActionbarConfig();
         startEventItemEffectTask();
+        startCooldownActionbarTask();
     }
 
     public ItemStack createItem(String id) {
@@ -105,6 +107,7 @@ public class CustomItemsManager implements Listener {
         cachedNoDestroyRegions.clear();
         schematicService.clear();
         loadActionbarConfig();
+        actionbarCooldowns.clear();
     }
 
     private void startEventItemEffectTask() {
@@ -117,6 +120,26 @@ public class CustomItemsManager implements Listener {
                 applyEffectsForItem(player, player.getInventory().getItemInMainHand(), EquipmentSlot.HAND);
                 applyEffectsForItem(player, player.getInventory().getItemInOffHand(), EquipmentSlot.OFF_HAND);
                 applyEffectsForItem(player, player.getInventory().getHelmet(), EquipmentSlot.HEAD);
+            }
+        }, 0L, 20L);
+    }
+
+    private void startCooldownActionbarTask() {
+        Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+            if (!actionbarEnabled) {
+                return;
+            }
+            long now = System.currentTimeMillis();
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                Map<String, Long> cooldowns = actionbarCooldowns.get(player.getUniqueId());
+                if (cooldowns == null || cooldowns.isEmpty()) {
+                    continue;
+                }
+                String actionbar = buildCooldownActionbar(cooldowns, now);
+                if (actionbar == null || actionbar.isBlank()) {
+                    continue;
+                }
+                player.sendActionBar(MiniMessageUtil.parseComponent(actionbar));
             }
         }, 0L, 20L);
     }
@@ -276,6 +299,7 @@ public class CustomItemsManager implements Listener {
         int cooldownSeconds = Math.max(0, eventItem.cooldown());
         if (cooldownSeconds > 0) {
             player.setCooldown(item.getType(), cooldownSeconds * 20);
+            trackCooldown(player, eventItem, cooldownSeconds);
         }
         if (eventItem.useProjectileMode()) {
             launchBombarda(player, eventItem);
@@ -306,6 +330,7 @@ public class CustomItemsManager implements Listener {
         int cooldownSeconds = Math.max(0, eventItem.cooldown());
         if (cooldownSeconds > 0) {
             player.setCooldown(item.getType(), cooldownSeconds * 20);
+            trackCooldown(player, eventItem, cooldownSeconds);
         }
         consumeItemFromHand(player, event.getHand());
         Egg egg = player.launchProjectile(Egg.class);
@@ -324,6 +349,7 @@ public class CustomItemsManager implements Listener {
         int cooldownSeconds = Math.max(0, eventItem.cooldown());
         if (cooldownSeconds > 0) {
             player.setCooldown(item.getType(), cooldownSeconds * 20);
+            trackCooldown(player, eventItem, cooldownSeconds);
         }
         spawnDynamite(player, eventItem);
         sendConsumerMessage(player, eventItem);
@@ -342,6 +368,7 @@ public class CustomItemsManager implements Listener {
         int cooldownSeconds = Math.max(0, eventItem.cooldown());
         if (cooldownSeconds > 0) {
             player.setCooldown(item.getType(), cooldownSeconds * 20);
+            trackCooldown(player, eventItem, cooldownSeconds);
         }
         EnderPearl pearl = player.launchProjectile(EnderPearl.class);
         pearl.setVelocity(player.getLocation().getDirection().multiply(1.5));
@@ -736,6 +763,53 @@ public class CustomItemsManager implements Listener {
             raw = raw.substring(0, actionbarMaxLength);
         }
         player.sendActionBar(MiniMessageUtil.parseComponent(raw));
+    }
+
+    private void trackCooldown(Player player, CustomItemsConfig.EventItemDefinition eventItem, int cooldownSeconds) {
+        if (!actionbarEnabled || player == null || eventItem == null || cooldownSeconds <= 0) {
+            return;
+        }
+        long expiresAt = System.currentTimeMillis() + (cooldownSeconds * 1000L);
+        actionbarCooldowns
+            .computeIfAbsent(player.getUniqueId(), key -> new ConcurrentHashMap<>())
+            .put(normalizeItemId(eventItem.id()), expiresAt);
+    }
+
+    private String buildCooldownActionbar(Map<String, Long> cooldowns, long now) {
+        if (cooldowns == null || cooldowns.isEmpty()) {
+            return "";
+        }
+        java.util.List<String> parts = new java.util.ArrayList<>();
+        cooldowns.entrySet().removeIf(entry -> entry.getValue() == null || entry.getValue() <= now);
+        for (Map.Entry<String, Long> entry : cooldowns.entrySet()) {
+            long remainingMs = entry.getValue() - now;
+            if (remainingMs <= 0) {
+                continue;
+            }
+            int seconds = Math.max(1, (int) Math.ceil(remainingMs / 1000.0));
+            String itemId = entry.getKey();
+            CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(itemId);
+            String name = actionbarDisplayNames.get(itemId);
+            if (name == null || name.isBlank()) {
+                name = eventItem != null && eventItem.displayName() != null && !eventItem.displayName().isBlank()
+                    ? eventItem.displayName()
+                    : itemId;
+            }
+            String color = actionbarColors.getOrDefault(itemId, "&f");
+            String timePart = actionbarTimeFormat
+                .replace("{time}", String.valueOf(seconds))
+                .replace("{color}", color);
+            String part = color + name + " " + timePart;
+            parts.add(part);
+        }
+        if (parts.isEmpty()) {
+            return "";
+        }
+        String raw = String.join(actionbarSeparator, parts);
+        if (actionbarMaxLength > 0 && raw.length() > actionbarMaxLength) {
+            raw = raw.substring(0, actionbarMaxLength);
+        }
+        return raw;
     }
 
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGH, ignoreCancelled = true)

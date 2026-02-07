@@ -6,6 +6,7 @@ import me.anarchiacore.config.MessageService;
 import me.anarchiacore.customitems.CustomItemsManager;
 import me.anarchiacore.customitems.config.CustomItemsConfigInstaller;
 import me.anarchiacore.customhits.CustomHitManager;
+import me.anarchiacore.customhits.StormItemyCommandRouter;
 import me.anarchiacore.dripstone.DripstoneDamageManager;
 import me.anarchiacore.hearts.HeartsManager;
 import me.anarchiacore.papi.AnarchiaCorePlaceholderExpansion;
@@ -234,10 +235,19 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             stormCommands = registerStormItemyCommands();
             stormConfigs = getStormItemyConfigCount();
 
-            if (stormItemyMain instanceof CommandExecutor) {
-                registerCommand("stormitemy", List.of("stormitems"), (CommandExecutor) stormItemyMain,
-                    stormItemyMain instanceof TabCompleter ? (TabCompleter) stormItemyMain : null);
-            }
+            CommandExecutor stormItemyExecutor = stormItemyMain instanceof CommandExecutor
+                ? (CommandExecutor) stormItemyMain
+                : null;
+            TabCompleter stormItemyCompleter = stormItemyMain instanceof TabCompleter
+                ? (TabCompleter) stormItemyMain
+                : null;
+            StormItemyCommandRouter stormItemyRouter = new StormItemyCommandRouter(
+                this,
+                customHitManager,
+                stormItemyExecutor,
+                stormItemyCompleter
+            );
+            registerCommand("stormitemy", List.of("stormitems"), stormItemyRouter, stormItemyRouter);
 
             getLogger().info("StormItemy integrated: " + stormSource + "; registered listeners: " + stormListeners
                 + "; commands: " + stormCommands + "; configs loaded: " + stormConfigs);
