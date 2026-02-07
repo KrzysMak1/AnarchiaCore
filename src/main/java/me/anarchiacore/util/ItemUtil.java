@@ -17,6 +17,22 @@ import org.bukkit.plugin.Plugin;
 import java.util.*;
 
 public final class ItemUtil {
+    private static final Map<String, String> LEGACY_ENCHANTMENT_KEYS = Map.ofEntries(
+        Map.entry("PROTECTION_ENVIRONMENTAL", "minecraft:protection"),
+        Map.entry("PROTECTION_FALL", "minecraft:feather_falling"),
+        Map.entry("PROJECTILE_PROTECTION", "minecraft:projectile_protection"),
+        Map.entry("DAMAGE_ALL", "minecraft:sharpness"),
+        Map.entry("DIG_SPEED", "minecraft:efficiency"),
+        Map.entry("LOOT_BONUS_BLOCKS", "minecraft:fortune"),
+        Map.entry("ARROW_DAMAGE", "minecraft:power"),
+        Map.entry("ARROW_FIRE", "minecraft:flame"),
+        Map.entry("ARROW_INFINITE", "minecraft:infinity"),
+        Map.entry("ARROW_KNOCKBACK", "minecraft:punch"),
+        Map.entry("CURSE_OF_VANISHING", "minecraft:vanishing_curse"),
+        Map.entry("DURABILITY", "minecraft:unbreaking"),
+        Map.entry("UNBREAKING", "minecraft:unbreaking")
+    );
+
     private ItemUtil() {
     }
 
@@ -149,15 +165,9 @@ public final class ItemUtil {
             return null;
         }
         String legacy = trimmed.toUpperCase(Locale.ROOT);
-        switch (legacy) {
-            case "PROTECTION_ENVIRONMENTAL":
-                trimmed = "minecraft:protection";
-                break;
-            case "DURABILITY":
-                trimmed = "minecraft:unbreaking";
-                break;
-            default:
-                break;
+        String mapped = LEGACY_ENCHANTMENT_KEYS.get(legacy);
+        if (mapped != null) {
+            trimmed = mapped;
         }
         String namespaced = trimmed.toLowerCase(Locale.ROOT);
         NamespacedKey nsKey;

@@ -5,6 +5,7 @@ import me.anarchiacore.config.ConfigManager;
 import me.anarchiacore.config.MessageService;
 import me.anarchiacore.customitems.CustomItemsManager;
 import me.anarchiacore.customitems.config.CustomItemsConfigInstaller;
+import me.anarchiacore.customhits.CustomHitManager;
 import me.anarchiacore.dripstone.DripstoneDamageManager;
 import me.anarchiacore.hearts.HeartsManager;
 import me.anarchiacore.papi.AnarchiaCorePlaceholderExpansion;
@@ -43,6 +44,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private CombatLogManager combatLogManager;
     private StatsManager statsManager;
     private DripstoneDamageManager dripstoneDamageManager;
+    private CustomHitManager customHitManager;
     private Object stormItemyMain;
     private Object stormItemyInitializer;
     private CustomItemsConfigInstaller customItemsConfigInstaller;
@@ -75,6 +77,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         combatLogManager = new CombatLogManager(this, configManager.getPrefix(), customItemsManager, dataStore);
         statsManager = new StatsManager(this, configManager, dataStore);
         dripstoneDamageManager = new DripstoneDamageManager(this, messageService);
+        customHitManager = new CustomHitManager(this);
         int customItemsCount = configManager.getCustomItemsConfig().getAllItemIds().size();
         if (customItemsCount == 0) {
             getLogger().severe("CustomItems configs are empty: " + new java.io.File(getDataFolder(), "configs/customitems").getAbsolutePath());
@@ -86,6 +89,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         getServer().getPluginManager().registerEvents(combatLogManager, this);
         getServer().getPluginManager().registerEvents(statsManager, this);
         getServer().getPluginManager().registerEvents(dripstoneDamageManager, this);
+        getServer().getPluginManager().registerEvents(customHitManager, this);
         getServer().getPluginManager().registerEvents(new EndCrystalBlocker(this, configManager, messageService), this);
 
         registerCommand("anarchiacore", List.of("acore", "anarchia"), this, this);
@@ -190,6 +194,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         }
         if (dripstoneDamageManager != null) {
             dripstoneDamageManager.reload();
+        }
+        if (customHitManager != null) {
+            customHitManager.reload();
         }
         if (combatLogManager != null) {
             combatLogManager.reload();

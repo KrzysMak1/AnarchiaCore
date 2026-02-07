@@ -15,6 +15,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Egg;
+import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.SmallFireball;
@@ -22,6 +23,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -32,8 +34,11 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
@@ -52,6 +57,12 @@ public class CustomItemsManager implements Listener {
     private final Map<String, Set<String>> cachedNoPlaceRegions = new ConcurrentHashMap<>();
     private final Map<String, Set<String>> cachedNoDestroyRegions = new ConcurrentHashMap<>();
     private final Random random = new Random();
+    private boolean actionbarEnabled;
+    private String actionbarSeparator;
+    private String actionbarTimeFormat;
+    private int actionbarMaxLength;
+    private final Map<String, String> actionbarColors = new HashMap<>();
+    private final Map<String, String> actionbarDisplayNames = new HashMap<>();
 
     public CustomItemsManager(Plugin plugin, ConfigManager configManager, MessageService messageService) {
         this.plugin = plugin;
@@ -61,6 +72,7 @@ public class CustomItemsManager implements Listener {
         this.bombardaProjectileKey = new NamespacedKey(plugin, "bombarda_maxima_projectile");
         this.worldGuardIntegration = new WorldGuardIntegration(plugin);
         this.schematicService = new SchematicService(plugin);
+        loadActionbarConfig();
         startEventItemEffectTask();
     }
 
@@ -92,6 +104,7 @@ public class CustomItemsManager implements Listener {
         cachedNoPlaceRegions.clear();
         cachedNoDestroyRegions.clear();
         schematicService.clear();
+        loadActionbarConfig();
     }
 
     private void startEventItemEffectTask() {
@@ -217,6 +230,9 @@ public class CustomItemsManager implements Listener {
             case "bombarda", "bombardamaxima" -> {
                 handleBombarda(event, item, eventItem);
             }
+            case "smoczymiecz" -> {
+                handleSmoczyMiecz(event, item, eventItem);
+            }
             case "turbotrap" -> {
                 handleTurboTrap(event, item, eventItem);
             }
@@ -312,6 +328,24 @@ public class CustomItemsManager implements Listener {
         spawnDynamite(player, eventItem);
         sendConsumerMessage(player, eventItem);
         consumeItemFromHand(player, event.getHand());
+        event.setCancelled(true);
+    }
+
+    private void handleSmoczyMiecz(PlayerInteractEvent event, ItemStack item, CustomItemsConfig.EventItemDefinition eventItem) {
+        Player player = event.getPlayer();
+        int remaining = player.getCooldown(item.getType());
+        if (remaining > 0) {
+            sendCooldownMessage(player, eventItem, remaining, "&cSmoczy miecz jest na cooldownie! {TIME}s pozostało.");
+            event.setCancelled(true);
+            return;
+        }
+        int cooldownSeconds = Math.max(0, eventItem.cooldown());
+        if (cooldownSeconds > 0) {
+            player.setCooldown(item.getType(), cooldownSeconds * 20);
+        }
+        EnderPearl pearl = player.launchProjectile(EnderPearl.class);
+        pearl.setVelocity(player.getLocation().getDirection().multiply(1.5));
+        sendConsumerMessage(player, eventItem);
         event.setCancelled(true);
     }
 
@@ -548,6 +582,11 @@ public class CustomItemsManager implements Listener {
     }
 
     private void sendCooldownMessage(Player player, CustomItemsConfig.EventItemDefinition eventItem, int remainingTicks, String fallback) {
+        int seconds = Math.max(1, remainingTicks / 20);
+        if (actionbarEnabled && (eventItem.messages().cooldown() == null || eventItem.messages().cooldown().isBlank())) {
+            sendActionbarCooldown(player, eventItem, seconds);
+            return;
+        }
         String message = eventItem.messages().cooldown();
         if (message == null || message.isBlank()) {
             message = fallback;
@@ -555,7 +594,6 @@ public class CustomItemsManager implements Listener {
         if (message == null || message.isBlank()) {
             return;
         }
-        int seconds = Math.max(1, remainingTicks / 20);
         message = message.replace("{TIME}", String.valueOf(seconds));
         messageService.send(player, message);
     }
@@ -586,6 +624,7 @@ public class CustomItemsManager implements Listener {
     private boolean isHandledEventItem(String itemId) {
         return "bombarda".equals(itemId)
             || "bombardamaxima".equals(itemId)
+            || "smoczymiecz".equals(itemId)
             || "turbotrap".equals(itemId)
             || "dynamit".equals(itemId);
     }
@@ -639,5 +678,81 @@ public class CustomItemsManager implements Listener {
             return "";
         }
         return id.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
+    }
+
+    private void loadActionbarConfig() {
+        actionbarEnabled = false;
+        actionbarSeparator = "&8|";
+        actionbarTimeFormat = "&8({color}{time}s&8)";
+        actionbarMaxLength = 0;
+        actionbarColors.clear();
+        actionbarDisplayNames.clear();
+        File stormConfig = new File(plugin.getDataFolder(), "configs/STORMITEMY/config.yml");
+        if (!stormConfig.exists()) {
+            return;
+        }
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(stormConfig);
+        actionbarEnabled = yaml.getBoolean("actionbar.enabled", false);
+        actionbarSeparator = yaml.getString("actionbar.separator", "&8|");
+        actionbarTimeFormat = yaml.getString("actionbar.time_format", "&8({color}{time}s&8)");
+        actionbarMaxLength = Math.max(0, yaml.getInt("actionbar.max_length", 0));
+        var colorsSection = yaml.getConfigurationSection("actionbar.colors");
+        if (colorsSection != null) {
+            for (String key : colorsSection.getKeys(false)) {
+                String value = colorsSection.getString(key, "");
+                if (key != null && value != null && !value.isBlank()) {
+                    actionbarColors.put(key.toLowerCase(Locale.ROOT), value);
+                }
+            }
+        }
+        var namesSection = yaml.getConfigurationSection("actionbar.display_names");
+        if (namesSection != null) {
+            for (String key : namesSection.getKeys(false)) {
+                String value = namesSection.getString(key, "");
+                if (key != null && value != null && !value.isBlank()) {
+                    actionbarDisplayNames.put(key.toLowerCase(Locale.ROOT), value);
+                }
+            }
+        }
+    }
+
+    private void sendActionbarCooldown(Player player, CustomItemsConfig.EventItemDefinition eventItem, int seconds) {
+        if (!actionbarEnabled || player == null || eventItem == null) {
+            return;
+        }
+        String itemId = normalizeItemId(eventItem.id());
+        String color = actionbarColors.getOrDefault(itemId, "&f");
+        String name = actionbarDisplayNames.get(itemId);
+        if (name == null || name.isBlank()) {
+            name = eventItem.displayName() != null && !eventItem.displayName().isBlank()
+                ? eventItem.displayName()
+                : itemId;
+        }
+        String timePart = actionbarTimeFormat
+            .replace("{time}", String.valueOf(seconds))
+            .replace("{color}", color);
+        String raw = color + name + " " + timePart;
+        if (actionbarMaxLength > 0 && raw.length() > actionbarMaxLength) {
+            raw = raw.substring(0, actionbarMaxLength);
+        }
+        player.sendActionBar(MiniMessageUtil.parseComponent(raw));
+    }
+
+    @EventHandler(priority = org.bukkit.event.EventPriority.HIGH, ignoreCancelled = true)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        ItemStack item = event.getItemInHand();
+        String customId = getCustomItemId(item);
+        if (customId == null) {
+            return;
+        }
+        String normalized = normalizeItemId(customId);
+        CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(customId);
+        if (eventItem == null) {
+            eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(normalized);
+        }
+        if (eventItem == null) {
+            return;
+        }
+        event.setCancelled(true);
     }
 }
