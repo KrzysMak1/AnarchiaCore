@@ -76,4 +76,8 @@ public class CustomHitManager implements Listener {
         }
         return null;
     }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
 }
