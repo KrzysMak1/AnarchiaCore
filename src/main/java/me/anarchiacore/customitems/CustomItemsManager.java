@@ -236,6 +236,9 @@ public class CustomItemsManager implements Listener {
             case "turbotrap" -> {
                 handleTurboTrap(event, item, eventItem);
             }
+            case "turbodomek" -> {
+                handleTurboDomek(event, item, eventItem);
+            }
             case "dynamit" -> {
                 handleDynamit(event, item, eventItem);
             }
@@ -313,6 +316,24 @@ public class CustomItemsManager implements Listener {
         event.setCancelled(true);
     }
 
+    private void handleTurboDomek(PlayerInteractEvent event, ItemStack item, CustomItemsConfig.EventItemDefinition eventItem) {
+        Player player = event.getPlayer();
+        int remaining = player.getCooldown(item.getType());
+        if (remaining > 0) {
+            sendCooldownMessage(player, eventItem, remaining, "");
+            event.setCancelled(true);
+            return;
+        }
+        int cooldownSeconds = Math.max(0, eventItem.cooldown());
+        if (cooldownSeconds > 0) {
+            player.setCooldown(item.getType(), cooldownSeconds * 20);
+        }
+        consumeItemFromHand(player, event.getHand());
+        Egg egg = player.launchProjectile(Egg.class);
+        egg.setMetadata("turboDomek", new FixedMetadataValue(plugin, true));
+        event.setCancelled(true);
+    }
+
     private void handleDynamit(PlayerInteractEvent event, ItemStack item, CustomItemsConfig.EventItemDefinition eventItem) {
         Player player = event.getPlayer();
         int remaining = player.getCooldown(item.getType());
@@ -368,6 +389,10 @@ public class CustomItemsManager implements Listener {
             handleTurboTrapProjectileHit(projectile, event);
             return;
         }
+        if (projectile instanceof Egg && projectile.hasMetadata("turboDomek")) {
+            handleTurboDomekProjectileHit(projectile, event);
+            return;
+        }
         String value = projectile.getPersistentDataContainer().get(bombardaProjectileKey, PersistentDataType.STRING);
         if (value == null) {
             return;
@@ -420,6 +445,30 @@ public class CustomItemsManager implements Listener {
         }
         sendConsumerMessage(player, eventItem);
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_PLACE, 1.0f, 0.5f);
+        event.setCancelled(true);
+    }
+
+    private void handleTurboDomekProjectileHit(Projectile projectile, ProjectileHitEvent event) {
+        if (!(projectile.getShooter() instanceof Player player)) {
+            return;
+        }
+        CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition("turbodomek");
+        if (eventItem == null) {
+            return;
+        }
+        Location location = projectile.getLocation();
+        if (eventItem.noPlaceRegions() != null && !eventItem.noPlaceRegions().isEmpty()) {
+            Set<String> blocked = getCachedRegions(eventItem.id(), eventItem.noPlaceRegions(), cachedNoPlaceRegions);
+            if (!blocked.isEmpty() && worldGuardIntegration.isInRegions(location, blocked)) {
+                messageService.send(player, plugin.getConfig().getString("messages.customItems.regionBlocked"));
+                return;
+            }
+        }
+        if (!placeTurboDomek(player, location, eventItem)) {
+            return;
+        }
+        sendConsumerMessage(player, eventItem);
+        player.playSound(player.getLocation(), Sound.BLOCK_WOOD_PLACE, 1.0f, 0.5f);
         event.setCancelled(true);
     }
 
@@ -482,6 +531,37 @@ public class CustomItemsManager implements Listener {
 
     private boolean placeTurboTrap(Player player, Location location, CustomItemsConfig.EventItemDefinition eventItem) {
         String schematic = "configs/customitems/trapanarchia.schem";
+        if (schematicService.getSchematicData(schematic) == null) {
+            messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
+            return false;
+        }
+        CustomItemsConfig.AnimationDefinition animation = eventItem.animation();
+        boolean enabled = animation != null && animation.enabled();
+        SchematicService.AnimationOptions options = new SchematicService.AnimationOptions(
+            animation != null ? animation.minDelayMs() : 100,
+            animation != null ? animation.maxDelayMs() : 250,
+            animation != null && animation.particles(),
+            animation != null && animation.sound() != null && animation.sound().enabled(),
+            animation != null && animation.sound() != null ? animation.sound().sound() : "",
+            animation != null && animation.sound() != null ? animation.sound().volume() : 1.0f,
+            animation != null && animation.sound() != null ? animation.sound().pitch() : 0.8f
+        );
+        if (enabled) {
+            boolean placed = schematicService.pasteAnimated(schematic, location, options, this::isTurboTrapBlocked);
+            if (!placed) {
+                messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
+            }
+            return placed;
+        }
+        boolean placed = schematicService.pasteIgnoringAir(schematic, location, this::isTurboTrapBlocked);
+        if (!placed) {
+            messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
+        }
+        return placed;
+    }
+
+    private boolean placeTurboDomek(Player player, Location location, CustomItemsConfig.EventItemDefinition eventItem) {
+        String schematic = "configs/customitems/turbodomek.schem";
         if (schematicService.getSchematicData(schematic) == null) {
             messageService.send(player, plugin.getConfig().getString("messages.customItems.noSpace"));
             return false;
@@ -626,6 +706,7 @@ public class CustomItemsManager implements Listener {
             || "bombardamaxima".equals(itemId)
             || "smoczymiecz".equals(itemId)
             || "turbotrap".equals(itemId)
+            || "turbodomek".equals(itemId)
             || "dynamit".equals(itemId);
     }
 
