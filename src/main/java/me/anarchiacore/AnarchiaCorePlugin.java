@@ -3,6 +3,7 @@ package me.anarchiacore;
 import me.anarchiacore.combatlog.CombatLogManager;
 import me.anarchiacore.config.ConfigManager;
 import me.anarchiacore.config.MessageService;
+import me.anarchiacore.customitems.CustomItemsConfig;
 import me.anarchiacore.customitems.CustomItemsManager;
 import me.anarchiacore.customitems.config.CustomItemsConfigInstaller;
 import me.anarchiacore.customhits.CustomHitManager;
@@ -504,6 +505,16 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             }
             if (target == null) {
                 messageService.send(sender, getConfig().getString("messages.customItems.invalidPlayer"));
+                return true;
+            }
+            CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(itemId);
+            if (eventItem != null && stormItemyMain != null) {
+                String command = "stormitemy give " + eventItem.id() + " " + target.getName();
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                Map<String, String> placeholders = new HashMap<>();
+                placeholders.put("item", itemId);
+                placeholders.put("player", target.getName());
+                messageService.send(sender, getConfig().getString("messages.customItems.give"), placeholders);
                 return true;
             }
             ItemStack item = customItemsManager.createItem(itemId);
