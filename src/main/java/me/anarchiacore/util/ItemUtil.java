@@ -1,6 +1,7 @@
 package me.anarchiacore.util;
 
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextDecoration;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
@@ -49,13 +50,13 @@ public final class ItemUtil {
             return item;
         }
         if (displayName != null && !displayName.isBlank()) {
-            Component nameComponent = MiniMessageUtil.parseComponent(displayName, placeholders);
+            Component nameComponent = ensureNotItalic(MiniMessageUtil.parseComponent(displayName, placeholders));
             meta.displayName(nameComponent);
         }
         if (lore != null && !lore.isEmpty()) {
             List<Component> loreComponents = new ArrayList<>();
             for (String line : lore) {
-                loreComponents.add(MiniMessageUtil.parseComponent(line, placeholders));
+                loreComponents.add(ensureNotItalic(MiniMessageUtil.parseComponent(line, placeholders)));
             }
             meta.lore(loreComponents);
         }
@@ -174,5 +175,15 @@ public final class ItemUtil {
 
     public static ItemStack createItem(Material material) {
         return new ItemStack(material);
+    }
+
+    private static Component ensureNotItalic(Component component) {
+        if (component == null) {
+            return Component.empty();
+        }
+        if (component.decoration(TextDecoration.ITALIC) == TextDecoration.State.NOT_SET) {
+            return component.decoration(TextDecoration.ITALIC, false);
+        }
+        return component;
     }
 }
