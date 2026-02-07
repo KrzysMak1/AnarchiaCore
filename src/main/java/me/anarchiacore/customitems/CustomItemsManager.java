@@ -101,19 +101,23 @@ public class CustomItemsManager implements Listener {
                 return;
             }
             for (Player player : Bukkit.getOnlinePlayers()) {
-                applyEffectsForHeldItem(player, player.getInventory().getItemInMainHand());
-                applyEffectsForHeldItem(player, player.getInventory().getItemInOffHand());
+                applyEffectsForItem(player, player.getInventory().getItemInMainHand(), EquipmentSlot.HAND);
+                applyEffectsForItem(player, player.getInventory().getItemInOffHand(), EquipmentSlot.OFF_HAND);
+                applyEffectsForItem(player, player.getInventory().getHelmet(), EquipmentSlot.HEAD);
             }
         }, 0L, 20L);
     }
 
-    private void applyEffectsForHeldItem(Player player, ItemStack item) {
+    private void applyEffectsForItem(Player player, ItemStack item, EquipmentSlot slot) {
         String itemId = getCustomItemId(item);
         if (itemId == null) {
             return;
         }
         CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(itemId);
         if (eventItem == null || eventItem.effects() == null || eventItem.effects().isEmpty()) {
+            return;
+        }
+        if (!shouldApplyEffectsForSlot(item, slot)) {
             return;
         }
         for (CustomItemsConfig.EffectDefinition effect : eventItem.effects()) {
@@ -126,6 +130,33 @@ public class CustomItemsManager implements Listener {
             }
             player.addPotionEffect(new PotionEffect(type, effect.duration(), effect.amplifier(), effect.ambient(), effect.particles()), true);
         }
+    }
+
+    private boolean shouldApplyEffectsForSlot(ItemStack item, EquipmentSlot slot) {
+        if (item == null) {
+            return false;
+        }
+        Material material = item.getType();
+        if (isHelmetMaterial(material)) {
+            return slot == EquipmentSlot.HEAD;
+        }
+        return slot == EquipmentSlot.HAND || slot == EquipmentSlot.OFF_HAND;
+    }
+
+    private boolean isHelmetMaterial(Material material) {
+        if (material == null) {
+            return false;
+        }
+        return switch (material) {
+            case LEATHER_HELMET,
+                 CHAINMAIL_HELMET,
+                 IRON_HELMET,
+                 GOLDEN_HELMET,
+                 DIAMOND_HELMET,
+                 NETHERITE_HELMET,
+                 TURTLE_HELMET -> true;
+            default -> false;
+        };
     }
 
     public boolean isCustomItem(ItemStack item, String id) {
