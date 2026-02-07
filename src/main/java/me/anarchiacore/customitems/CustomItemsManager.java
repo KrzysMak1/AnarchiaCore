@@ -14,6 +14,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
@@ -23,6 +24,7 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -35,11 +37,15 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
@@ -52,6 +58,7 @@ public class CustomItemsManager implements Listener {
     private final MessageService messageService;
     private final NamespacedKey itemKey;
     private final NamespacedKey bombardaProjectileKey;
+    private final NamespacedKey hydroCageProjectileKey;
     private final WorldGuardIntegration worldGuardIntegration;
     private final SchematicService schematicService;
     private final Map<String, Set<String>> cachedNoPlaceRegions = new ConcurrentHashMap<>();
@@ -71,6 +78,7 @@ public class CustomItemsManager implements Listener {
         this.messageService = messageService;
         this.itemKey = new NamespacedKey(plugin, "custom_item");
         this.bombardaProjectileKey = new NamespacedKey(plugin, "bombarda_maxima_projectile");
+        this.hydroCageProjectileKey = new NamespacedKey(plugin, "hydro_cage_projectile");
         this.worldGuardIntegration = new WorldGuardIntegration(plugin);
         this.schematicService = new SchematicService(plugin);
         loadActionbarConfig();
@@ -265,6 +273,12 @@ public class CustomItemsManager implements Listener {
             case "dynamit" -> {
                 handleDynamit(event, item, eventItem);
             }
+            case "wyrzutniahydroklatki" -> {
+                handleHydroCage(event, item, eventItem);
+            }
+            case "boskitopor" -> {
+                handleBoskiTopor(event, item, eventItem);
+            }
             default -> {
             }
         }
@@ -397,6 +411,98 @@ public class CustomItemsManager implements Listener {
         event.setCancelled(true);
     }
 
+    private void handleHydroCage(PlayerInteractEvent event, ItemStack item, CustomItemsConfig.EventItemDefinition eventItem) {
+        Player player = event.getPlayer();
+        HydroCageConfig config = loadHydroCageConfig();
+        if (config == null) {
+            return;
+        }
+        if (!config.allowedInWorld(player.getWorld())) {
+            if (player.getWorld().getEnvironment() == org.bukkit.World.Environment.NETHER) {
+                sendHydroMessage(player, config.cannotUseNetherMessage);
+            } else if (player.getWorld().getEnvironment() == org.bukkit.World.Environment.THE_END) {
+                sendHydroMessage(player, config.cannotUseEndMessage);
+            }
+            event.setCancelled(true);
+            return;
+        }
+        int remaining = player.getCooldown(item.getType());
+        if (remaining > 0) {
+            sendCooldownMessage(player, eventItem, remaining, "");
+            event.setCancelled(true);
+            return;
+        }
+        int cooldownSeconds = Math.max(0, eventItem.cooldown());
+        if (cooldownSeconds > 0) {
+            player.setCooldown(item.getType(), cooldownSeconds * 20);
+            trackCooldown(player, eventItem, cooldownSeconds);
+        }
+        Projectile projectile = player.launchProjectile(org.bukkit.entity.Snowball.class);
+        projectile.getPersistentDataContainer().set(hydroCageProjectileKey, PersistentDataType.STRING, eventItem.id());
+        projectile.setVelocity(player.getLocation().getDirection().multiply(config.projectileSpeed));
+        projectile.setGravity(config.projectileGravity);
+        playHydroSound(player.getLocation(), config.shootSound);
+        sendHydroTitle(player, config.shootTitle, config.shootSubtitle);
+        consumeItemFromHand(player, event.getHand());
+        event.setCancelled(true);
+    }
+
+    private void handleHydroCageProjectileHit(Projectile projectile, ProjectileHitEvent event, String eventId) {
+        if (!(projectile.getShooter() instanceof Player player)) {
+            projectile.remove();
+            return;
+        }
+        HydroCageConfig config = loadHydroCageConfig();
+        if (config == null) {
+            projectile.remove();
+            return;
+        }
+        Location location = event.getHitBlock() != null
+            ? event.getHitBlock().getLocation().add(0.5, 0.5, 0.5)
+            : projectile.getLocation();
+        List<ChangedBlock> changedBlocks = createHydroCage(location, config);
+        if (!changedBlocks.isEmpty()) {
+            playHydroSound(location, config.cageCreateSound);
+            sendHydroTitle(player, config.cageCreatedTitle, config.cageCreatedSubtitle);
+            scheduleHydroCageRemoval(changedBlocks, config);
+        }
+        projectile.remove();
+    }
+
+    private void handleBoskiTopor(PlayerInteractEvent event, ItemStack item, CustomItemsConfig.EventItemDefinition eventItem) {
+        Player player = event.getPlayer();
+        BoskiToporConfig config = loadBoskiToporConfig();
+        if (config == null) {
+            return;
+        }
+        int remaining = player.getCooldown(item.getType());
+        if (remaining > 0) {
+            sendCooldownMessage(player, eventItem, remaining, "");
+            event.setCancelled(true);
+            return;
+        }
+        int cooldownSeconds = Math.max(0, eventItem.cooldown());
+        if (cooldownSeconds > 0) {
+            player.setCooldown(item.getType(), cooldownSeconds * 20);
+            trackCooldown(player, eventItem, cooldownSeconds);
+        }
+        boolean wasInvulnerable = player.isInvulnerable();
+        player.setInvulnerable(true);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.setInvulnerable(wasInvulnerable);
+            }
+        }.runTaskLater(plugin, Math.max(1, config.invulnerabilitySeconds) * 20L);
+        playBoskiToporSound(player.getLocation(), config.sound);
+        spawnBoskiToporParticles(player.getLocation(), config);
+        applyBoskiToporPush(player, config);
+        sendConsumerMessage(player, eventItem);
+        sendBoskiToporTargetMessage(player, config);
+        consumeItemFromHand(player, event.getHand());
+        event.setCancelled(true);
+    }
+
     private void launchBombarda(Player player, CustomItemsConfig.EventItemDefinition eventItem) {
         SmallFireball projectile = player.launchProjectile(SmallFireball.class);
         projectile.setMetadata("bombardaMaxima", new FixedMetadataValue(plugin, true));
@@ -420,6 +526,11 @@ public class CustomItemsManager implements Listener {
             handleTurboDomekProjectileHit(projectile, event);
             return;
         }
+        String hydroValue = projectile.getPersistentDataContainer().get(hydroCageProjectileKey, PersistentDataType.STRING);
+        if (hydroValue != null) {
+            handleHydroCageProjectileHit(projectile, event, hydroValue);
+            return;
+        }
         String value = projectile.getPersistentDataContainer().get(bombardaProjectileKey, PersistentDataType.STRING);
         if (value == null) {
             return;
@@ -431,6 +542,34 @@ public class CustomItemsManager implements Listener {
         Location location = event.getHitBlock() != null ? event.getHitBlock().getLocation().add(0.5, 0.5, 0.5) : projectile.getLocation();
         explodeBombarda(location, eventItem);
         projectile.remove();
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHydroCageBreak(BlockBreakEvent event) {
+        Block block = event.getBlock();
+        if (!block.hasMetadata("hydro_cage_block")) {
+            return;
+        }
+        HydroCageConfig config = loadHydroCageConfig();
+        if (config == null || config.allowBreaking) {
+            return;
+        }
+        event.setCancelled(true);
+        sendHydroMessage(event.getPlayer(), config.cannotBreakMessage);
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHydroCagePlace(BlockPlaceEvent event) {
+        Block block = event.getBlock();
+        if (!block.hasMetadata("hydro_cage_block")) {
+            return;
+        }
+        HydroCageConfig config = loadHydroCageConfig();
+        if (config == null || config.allowBlockPlacing) {
+            return;
+        }
+        event.setCancelled(true);
+        sendHydroMessage(event.getPlayer(), config.cannotPlaceMessage);
     }
 
     private void handleBombardaProjectileHit(Projectile projectile, ProjectileHitEvent event) {
@@ -891,6 +1030,389 @@ public class CustomItemsManager implements Listener {
             raw = raw.substring(0, actionbarMaxLength);
         }
         return raw;
+    }
+
+    private void applyBoskiToporPush(Player player, BoskiToporConfig config) {
+        double radius = Math.max(0.0, config.pushRadius);
+        for (Player target : player.getWorld().getPlayers()) {
+            if (target.getUniqueId().equals(player.getUniqueId())) {
+                continue;
+            }
+            if (target.getLocation().distanceSquared(player.getLocation()) > radius * radius) {
+                continue;
+            }
+            Vector direction = target.getLocation().toVector().subtract(player.getLocation().toVector());
+            if (direction.lengthSquared() == 0) {
+                continue;
+            }
+            direction.normalize();
+            double force = config.pushMinForce + (random.nextDouble() * Math.max(0.0, config.pushMaxForce - config.pushMinForce));
+            Vector velocity = direction.multiply(force).setY(config.pushVerticalBoost);
+            target.setVelocity(velocity);
+        }
+    }
+
+    private void spawnBoskiToporParticles(Location location, BoskiToporConfig config) {
+        if (location.getWorld() == null) {
+            return;
+        }
+        if (config.explosionParticle != null && config.explosionCount > 0) {
+            location.getWorld().spawnParticle(config.explosionParticle, location, config.explosionCount, 0.0, 0.0, 0.0, 0.0);
+        }
+        if (config.flameParticle != null && config.flameCount > 0) {
+            location.getWorld().spawnParticle(config.flameParticle, location, config.flameCount,
+                config.flameOffsetX, config.flameOffsetY, config.flameOffsetZ, 0.0);
+        }
+        if (config.circleParticle != null && config.circleDurationSeconds > 0) {
+            new BukkitRunnable() {
+                int elapsed = 0;
+                @Override
+                public void run() {
+                    if (elapsed >= config.circleDurationSeconds * 20) {
+                        cancel();
+                        return;
+                    }
+                    double radius = config.circleRadius;
+                    for (int angle = 0; angle < 360; angle += config.circleAngleStep) {
+                        double radians = Math.toRadians(angle);
+                        double x = Math.cos(radians) * radius;
+                        double z = Math.sin(radians) * radius;
+                        Location particleLocation = location.clone().add(x, 0.1, z);
+                        location.getWorld().spawnParticle(config.circleParticle, particleLocation, 1, 0.0, 0.0, 0.0, 0.0);
+                    }
+                    elapsed += config.circleDelayTicks;
+                }
+            }.runTaskTimer(plugin, 0L, Math.max(1, config.circleDelayTicks));
+        }
+    }
+
+    private void playBoskiToporSound(Location location, SoundConfig sound) {
+        if (location.getWorld() == null || sound == null || sound.sound == null) {
+            return;
+        }
+        location.getWorld().playSound(location, sound.sound, sound.volume, sound.pitch);
+    }
+
+    private void sendBoskiToporTargetMessage(Player player, BoskiToporConfig config) {
+        if ((config.targetTitle == null || config.targetTitle.isBlank())
+            && (config.targetSubtitle == null || config.targetSubtitle.isBlank())
+            && (config.targetChatMessage == null || config.targetChatMessage.isBlank())) {
+            return;
+        }
+        Map<String, String> placeholders = Map.of("PLAYER", player.getName());
+        double radius = Math.max(0.0, config.pushRadius);
+        for (Player target : player.getWorld().getPlayers()) {
+            if (target.getUniqueId().equals(player.getUniqueId())) {
+                continue;
+            }
+            if (target.getLocation().distanceSquared(player.getLocation()) > radius * radius) {
+                continue;
+            }
+            if ((config.targetTitle != null && !config.targetTitle.isBlank())
+                || (config.targetSubtitle != null && !config.targetSubtitle.isBlank())) {
+                Title title = Title.title(
+                    MiniMessageUtil.parseComponent(defaultString(config.targetTitle), placeholders),
+                    MiniMessageUtil.parseComponent(defaultString(config.targetSubtitle), placeholders)
+                );
+                target.showTitle(title);
+            }
+            if (config.targetChatMessage != null && !config.targetChatMessage.isBlank()) {
+                target.sendMessage(MiniMessageUtil.parseComponent(config.targetChatMessage, placeholders));
+            }
+        }
+    }
+
+    private String defaultString(String value) {
+        return value == null ? "" : value;
+    }
+
+    private HydroCageConfig loadHydroCageConfig() {
+        org.bukkit.configuration.ConfigurationSection section = loadEventItemSection("wyrzutniahydroklatki");
+        if (section == null) {
+            return null;
+        }
+        org.bukkit.configuration.ConfigurationSection cageSection = section.getConfigurationSection("cage");
+        int radius = cageSection != null ? cageSection.getInt("radius", 8) : 8;
+        int duration = cageSection != null ? cageSection.getInt("duration", 15) : 15;
+        int thickness = cageSection != null ? cageSection.getInt("wall_thickness", 1) : 1;
+        org.bukkit.configuration.ConfigurationSection mapping = cageSection != null ? cageSection.getConfigurationSection("block_mappings") : null;
+        Material wallMaterial = parseMaterial(mapping != null ? mapping.getString("external_wall") : null, Material.BLUE_GLAZED_TERRACOTTA);
+        Material defaultMaterial = parseMaterial(mapping != null ? mapping.getString("default") : null, Material.LIGHT_BLUE_TERRACOTTA);
+        Material fillMaterial = defaultMaterial;
+        org.bukkit.configuration.ConfigurationSection projectileSection = section.getConfigurationSection("projectile");
+        double projectileSpeed = projectileSection != null ? projectileSection.getDouble("speed", 1.5) : 1.5;
+        boolean gravity = projectileSection == null || projectileSection.getBoolean("gravity", true);
+        org.bukkit.configuration.ConfigurationSection messages = section.getConfigurationSection("messages");
+        String shootTitle = messages != null ? messages.getString("shoot.title") : "";
+        String shootSubtitle = messages != null ? messages.getString("shoot.subtitle") : "";
+        String cageCreatedTitle = messages != null ? messages.getString("cage_created.title") : "";
+        String cageCreatedSubtitle = messages != null ? messages.getString("cage_created.subtitle") : "";
+        String cageExpiredTitle = messages != null ? messages.getString("cage_expired.title") : "";
+        String cageExpiredSubtitle = messages != null ? messages.getString("cage_expired.subtitle") : "";
+        String cannotBreak = messages != null ? messages.getString("cannot_break_cage.chatMessage") : "";
+        String cannotPlace = messages != null ? messages.getString("cannot_place_block.subtitle") : "";
+        String cannotUseNether = messages != null ? messages.getString("cannot_use_nether") : "";
+        String cannotUseEnd = messages != null ? messages.getString("cannot_use_end") : "";
+        org.bukkit.configuration.ConfigurationSection dimensions = section.getConfigurationSection("dimensions");
+        boolean allowNether = dimensions == null || dimensions.getBoolean("allow_nether", true);
+        boolean allowEnd = dimensions == null || dimensions.getBoolean("allow_end", true);
+        boolean allowBlockPlacing = cageSection != null && cageSection.getBoolean("allow_block_placing", false);
+        boolean allowBreaking = false;
+        org.bukkit.configuration.ConfigurationSection sounds = section.getConfigurationSection("sounds");
+        SoundConfig shootSound = readSoundConfig(sounds != null ? sounds.getConfigurationSection("shoot") : null, Sound.ENTITY_BLAZE_SHOOT, 1.0f, 0.8f);
+        SoundConfig cageCreateSound = readSoundConfig(sounds != null ? sounds.getConfigurationSection("cage_create") : null, Sound.BLOCK_CONDUIT_ACTIVATE, 1.0f, 1.0f);
+        SoundConfig cageExpireSound = readSoundConfig(sounds != null ? sounds.getConfigurationSection("cage_expire") : null, Sound.BLOCK_CONDUIT_DEACTIVATE, 1.0f, 1.0f);
+        return new HydroCageConfig(radius, duration, thickness, wallMaterial, defaultMaterial, fillMaterial,
+            projectileSpeed, gravity, shootTitle, shootSubtitle, cageCreatedTitle, cageCreatedSubtitle, cageExpiredTitle,
+            cageExpiredSubtitle, cannotBreak, cannotPlace,
+            cannotUseNether, cannotUseEnd, allowNether, allowEnd, allowBlockPlacing, allowBreaking,
+            shootSound, cageCreateSound, cageExpireSound);
+    }
+
+    private BoskiToporConfig loadBoskiToporConfig() {
+        org.bukkit.configuration.ConfigurationSection section = loadEventItemSection("boskitopor");
+        if (section == null) {
+            return null;
+        }
+        int invulnerability = section.getInt("invulnerability.duration", 3);
+        org.bukkit.configuration.ConfigurationSection particleSection = section.getConfigurationSection("particleEffects");
+        Particle explosionParticle = parseParticle(particleSection != null ? particleSection.getString("explosion.type") : null);
+        int explosionCount = particleSection != null ? particleSection.getInt("explosion.count", 0) : 0;
+        Particle flameParticle = parseParticle(particleSection != null ? particleSection.getString("flame.type") : null);
+        int flameCount = particleSection != null ? particleSection.getInt("flame.count", 0) : 0;
+        double flameOffsetX = particleSection != null ? particleSection.getDouble("flame.offset.x", 0.0) : 0.0;
+        double flameOffsetY = particleSection != null ? particleSection.getDouble("flame.offset.y", 0.0) : 0.0;
+        double flameOffsetZ = particleSection != null ? particleSection.getDouble("flame.offset.z", 0.0) : 0.0;
+        Particle circleParticle = parseParticle(particleSection != null ? particleSection.getString("circle.type") : null);
+        int circleDelayTicks = particleSection != null ? particleSection.getInt("circle.delay", 5) : 5;
+        int circleDuration = particleSection != null ? particleSection.getInt("circle.duration", 3) : 3;
+        double circleRadius = particleSection != null ? particleSection.getDouble("circle.radius", 1.5) : 1.5;
+        int circleAngleStep = particleSection != null ? particleSection.getInt("circle.angleStep", 20) : 20;
+        org.bukkit.configuration.ConfigurationSection pushSection = section.getConfigurationSection("pushEffect");
+        double pushRadius = pushSection != null ? pushSection.getDouble("radius", 5.0) : 5.0;
+        double verticalBoost = pushSection != null ? pushSection.getDouble("verticalBoost", 0.2) : 0.2;
+        double minForce = pushSection != null ? pushSection.getDouble("minForce", 1.0) : 1.0;
+        double maxForce = pushSection != null ? pushSection.getDouble("maxForce", 3.0) : 3.0;
+        SoundConfig sound = readSoundConfig(section.getConfigurationSection("sound"), Sound.ENTITY_ENDER_DRAGON_AMBIENT, 1.0f, 0.5f);
+        org.bukkit.configuration.ConfigurationSection messages = section.getConfigurationSection("messages");
+        String targetTitle = messages != null ? messages.getString("target.title") : "";
+        String targetSubtitle = messages != null ? messages.getString("target.subtitle") : "";
+        String targetChat = messages != null ? messages.getString("target.chatMessage") : "";
+        return new BoskiToporConfig(invulnerability, explosionParticle, explosionCount, flameParticle, flameCount,
+            flameOffsetX, flameOffsetY, flameOffsetZ, circleParticle, circleDelayTicks, circleDuration,
+            circleRadius, circleAngleStep, pushRadius, verticalBoost, minForce, maxForce, sound,
+            targetTitle, targetSubtitle, targetChat);
+    }
+
+    private List<ChangedBlock> createHydroCage(Location center, HydroCageConfig config) {
+        if (center.getWorld() == null) {
+            return List.of();
+        }
+        int radius = Math.max(1, config.radius);
+        int thickness = Math.max(1, config.wallThickness);
+        int boundaryStart = radius - thickness + 1;
+        List<ChangedBlock> changedBlocks = new ArrayList<>();
+        for (int x = -radius; x <= radius; x++) {
+            for (int y = -radius; y <= radius; y++) {
+                for (int z = -radius; z <= radius; z++) {
+                    boolean boundary = Math.abs(x) >= boundaryStart || Math.abs(y) >= boundaryStart || Math.abs(z) >= boundaryStart;
+                    Material targetMaterial = boundary ? config.wallMaterial : config.fillMaterial;
+                    Location target = center.clone().add(x, y, z);
+                    Block block = target.getBlock();
+                    if (!isReplaceable(block.getType())) {
+                        continue;
+                    }
+                    BlockData previous = block.getBlockData();
+                    block.setType(targetMaterial, false);
+                    block.setMetadata("hydro_cage_block", new FixedMetadataValue(plugin, true));
+                    changedBlocks.add(new ChangedBlock(block, previous));
+                }
+            }
+        }
+        return changedBlocks;
+    }
+
+    private void scheduleHydroCageRemoval(List<ChangedBlock> blocks, HydroCageConfig config) {
+        if (blocks.isEmpty()) {
+            return;
+        }
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (ChangedBlock changed : blocks) {
+                    Block block = changed.block;
+                    block.setBlockData(changed.previousData, false);
+                    block.removeMetadata("hydro_cage_block", plugin);
+                }
+                Location location = blocks.get(0).block.getLocation();
+                playHydroSound(location, config.cageExpireSound);
+            }
+        }.runTaskLater(plugin, Math.max(1, config.durationSeconds) * 20L);
+    }
+
+    private boolean isReplaceable(Material material) {
+        return material == Material.AIR
+            || material == Material.CAVE_AIR
+            || material == Material.VOID_AIR
+            || material == Material.WATER;
+    }
+
+    private void sendHydroMessage(Player player, String raw) {
+        if (player == null || raw == null || raw.isBlank()) {
+            return;
+        }
+        player.sendMessage(MiniMessageUtil.parseComponent(raw));
+    }
+
+    private void sendHydroTitle(Player player, String titleRaw, String subtitleRaw) {
+        if (player == null) {
+            return;
+        }
+        if ((titleRaw == null || titleRaw.isBlank()) && (subtitleRaw == null || subtitleRaw.isBlank())) {
+            return;
+        }
+        Title title = Title.title(
+            MiniMessageUtil.parseComponent(defaultString(titleRaw)),
+            MiniMessageUtil.parseComponent(defaultString(subtitleRaw))
+        );
+        player.showTitle(title);
+    }
+
+    private void playHydroSound(Location location, SoundConfig sound) {
+        if (location.getWorld() == null || sound == null || sound.sound == null) {
+            return;
+        }
+        location.getWorld().playSound(location, sound.sound, sound.volume, sound.pitch);
+    }
+
+    private org.bukkit.configuration.ConfigurationSection loadEventItemSection(String id) {
+        String normalized = normalizeItemId(id);
+        File file = new File(plugin.getDataFolder(), "configs/customitems/" + normalized + ".yml");
+        if (!file.exists()) {
+            return null;
+        }
+        YamlConfiguration yaml = YamlConfiguration.loadConfiguration(file);
+        if (yaml.getKeys(false).isEmpty()) {
+            return null;
+        }
+        String root = yaml.getKeys(false).iterator().next();
+        return yaml.getConfigurationSection(root);
+    }
+
+    private Material parseMaterial(String raw, Material fallback) {
+        if (raw == null || raw.isBlank()) {
+            return fallback;
+        }
+        Material material = Material.matchMaterial(raw);
+        return material != null ? material : fallback;
+    }
+
+    private Particle parseParticle(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return Particle.valueOf(raw.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+    }
+
+    private SoundConfig readSoundConfig(org.bukkit.configuration.ConfigurationSection section, Sound fallback, float fallbackVolume, float fallbackPitch) {
+        if (section == null) {
+            return new SoundConfig(fallback, fallbackVolume, fallbackPitch);
+        }
+        boolean enabled = section.getBoolean("enabled", true);
+        if (!enabled) {
+            return null;
+        }
+        Sound sound = fallback;
+        String raw = section.getString("sound");
+        if (raw == null || raw.isBlank()) {
+            raw = section.getString("type");
+        }
+        if (raw != null && !raw.isBlank()) {
+            try {
+                sound = Sound.valueOf(raw.toUpperCase(Locale.ROOT));
+            } catch (IllegalArgumentException ex) {
+                sound = fallback;
+            }
+        }
+        float volume = (float) section.getDouble("volume", fallbackVolume);
+        float pitch = (float) section.getDouble("pitch", fallbackPitch);
+        return new SoundConfig(sound, volume, pitch);
+    }
+
+    private record ChangedBlock(Block block, BlockData previousData) {
+    }
+
+    private record SoundConfig(Sound sound, float volume, float pitch) {
+    }
+
+    private record HydroCageConfig(
+        int radius,
+        int durationSeconds,
+        int wallThickness,
+        Material wallMaterial,
+        Material defaultMaterial,
+        Material fillMaterial,
+        double projectileSpeed,
+        boolean projectileGravity,
+        String shootTitle,
+        String shootSubtitle,
+        String cageCreatedTitle,
+        String cageCreatedSubtitle,
+        String cageExpiredTitle,
+        String cageExpiredSubtitle,
+        String cannotBreakMessage,
+        String cannotPlaceMessage,
+        String cannotUseNetherMessage,
+        String cannotUseEndMessage,
+        boolean allowNether,
+        boolean allowEnd,
+        boolean allowBlockPlacing,
+        boolean allowBreaking,
+        SoundConfig shootSound,
+        SoundConfig cageCreateSound,
+        SoundConfig cageExpireSound
+    ) {
+        boolean allowedInWorld(org.bukkit.World world) {
+            if (world == null) {
+                return false;
+            }
+            if (world.getEnvironment() == org.bukkit.World.Environment.NETHER) {
+                return allowNether;
+            }
+            if (world.getEnvironment() == org.bukkit.World.Environment.THE_END) {
+                return allowEnd;
+            }
+            return true;
+        }
+    }
+
+    private record BoskiToporConfig(
+        int invulnerabilitySeconds,
+        Particle explosionParticle,
+        int explosionCount,
+        Particle flameParticle,
+        int flameCount,
+        double flameOffsetX,
+        double flameOffsetY,
+        double flameOffsetZ,
+        Particle circleParticle,
+        int circleDelayTicks,
+        int circleDurationSeconds,
+        double circleRadius,
+        int circleAngleStep,
+        double pushRadius,
+        double pushVerticalBoost,
+        double pushMinForce,
+        double pushMaxForce,
+        SoundConfig sound,
+        String targetTitle,
+        String targetSubtitle,
+        String targetChatMessage
+    ) {
     }
 
     @EventHandler(priority = org.bukkit.event.EventPriority.HIGH, ignoreCancelled = true)

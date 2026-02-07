@@ -42,7 +42,7 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length > 0 && args[0].equalsIgnoreCase("customhit")) {
-            return handleCustomHit(sender, args);
+            return handleCustomHitCommand(sender, args);
         }
         if (delegateExecutor != null) {
             return delegateExecutor.onCommand(sender, command, label, args);
@@ -76,7 +76,7 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
         return Collections.emptyList();
     }
 
-    private boolean handleCustomHit(CommandSender sender, String[] args) {
+    public boolean handleCustomHitCommand(CommandSender sender, String[] args) {
         LangContext lang = loadLangContext();
         if (!sender.hasPermission("stormitemy.admin")) {
             sendMessage(sender, lang, "messages.noPermission", "&cBrak uprawnień.", null);

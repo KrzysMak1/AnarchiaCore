@@ -48,6 +48,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private CustomHitManager customHitManager;
     private Object stormItemyMain;
     private Object stormItemyInitializer;
+    private StormItemyCommandRouter stormItemyRouter;
     private CustomItemsConfigInstaller customItemsConfigInstaller;
     private AnarchiaCorePlaceholderExpansion placeholderExpansion;
 
@@ -139,6 +140,12 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         }
         if (args[0].equalsIgnoreCase("combatlog")) {
             return handleCombatlogCommand(sender, Arrays.copyOfRange(args, 1, args.length));
+        }
+        if (args[0].equalsIgnoreCase("customhit")) {
+            if (stormItemyRouter != null) {
+                return stormItemyRouter.handleCustomHitCommand(sender, args);
+            }
+            return false;
         }
         if (!sender.hasPermission("anarchiacore.admin")) {
             messageService.send(sender, getConfig().getString("messages.noPermission"));
@@ -241,7 +248,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             TabCompleter stormItemyCompleter = stormItemyMain instanceof TabCompleter
                 ? (TabCompleter) stormItemyMain
                 : null;
-            StormItemyCommandRouter stormItemyRouter = new StormItemyCommandRouter(
+            stormItemyRouter = new StormItemyCommandRouter(
                 this,
                 customHitManager,
                 stormItemyExecutor,
@@ -532,7 +539,11 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return Collections.emptyList();
         }
         if (args.length == 1) {
-            return List.of("reload", "heart", "combatlog", "customitems", "dripstone");
+            return List.of("reload", "heart", "combatlog", "customitems", "dripstone", "customhit");
+        }
+        if (args.length >= 2 && args[0].equalsIgnoreCase("customhit") && stormItemyRouter != null) {
+            List<String> results = stormItemyRouter.onTabComplete(sender, command, alias, args);
+            return results != null ? results : Collections.emptyList();
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("heart")) {
             return List.of("give", "setitem");
