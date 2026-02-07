@@ -82,13 +82,15 @@ messages:
 
   # Custom Hit messages
   customhit_usage_set: "&8[&x&B&3&0&0&F&F🪓&8] &7Usage: &f/stormitemy &x&D&0&6&0&F&Fcustomhit&f set <&x&D&0&6&0&F&Fmultiplier&f>"
+  customhit_usage_main: "&8[&x&B&3&0&0&F&F🪓&8] &7Usage: &f/stormitemy &x&D&0&6&0&F&Fcustomhit&f <&x&D&0&6&0&F&Fget&f|&x&D&0&6&0&F&Fset&f>"
+  customhit_usage_get: "&8[&x&B&3&0&0&F&F🪓&8] &7Usage: &f/stormitemy &x&D&0&6&0&F&Fcustomhit&f get"
   customhit_invalid_range: "&8[&x&B&3&0&0&F&F🪓&8] &cMultiplier must be between &x&D&0&6&0&F&F0.1&c and &x&D&0&6&0&F&F10.0&c!"
   customhit_set_success: "&8[&x&B&3&0&0&F&F🪓&8] &aDamage &x&D&0&6&0&F&Fmultiplier&a set to: &f{MULTIPLIER}"
   customhit_invalid_number: "&8[&x&B&3&0&0&F&F🪓&8] &cProvided value is not a valid &x&D&0&6&0&F&Fnumber&c!"
   customhit_info: "&8[&x&B&3&0&0&F&F🪓&8] &7Current damage &x&D&0&6&0&F&Fmultiplier&7: &f{MULTIPLIER}"
   customhit_help_header: "&8[&x&B&3&0&0&F&F🪓&8] &7&x&D&0&6&0&F&FCustom Hit&7 Commands:"
   customhit_help_set: "&f/stormitemy &x&D&0&6&0&F&Fcustomhit&f set <&x&D&0&6&0&F&Fmultiplier&f> &8- &7Set damage &x&D&0&6&0&F&Fmultiplier&7 (0.1-10.0)"
-  customhit_help_info: "&f/stormitemy &x&D&0&6&0&F&Fcustomhit&f info &8- &7Display current &x&D&0&6&0&F&Fmultiplier&7"
+  customhit_help_info: "&f/stormitemy &x&D&0&6&0&F&Fcustomhit&f get &8- &7Display current &x&D&0&6&0&F&Fmultiplier&7"
   
   # Complex message examples
   # These messages show how to use the new system
