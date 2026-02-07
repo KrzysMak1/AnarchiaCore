@@ -46,12 +46,12 @@ korona:
   - duration: 140
     particles: false
     amplifier: 1
-    type: INCREASE_DAMAGE
+    type: STRENGTH
     ambient: false
   - duration: 140
     particles: false
     amplifier: 2
-    type: DAMAGE_RESISTANCE
+    type: RESISTANCE
     ambient: false
   - duration: 140
     particles: false
