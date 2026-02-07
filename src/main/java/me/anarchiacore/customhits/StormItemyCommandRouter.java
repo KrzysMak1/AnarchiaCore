@@ -64,7 +64,7 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
             return suggestions;
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("customhit")) {
-            return List.of("set", "info");
+            return List.of("get", "set");
         }
         if (args.length > 1 && args[0].equalsIgnoreCase("customhit")) {
             return Collections.emptyList();
@@ -83,10 +83,14 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args.length == 1) {
-            sendCustomHitHelp(sender, lang);
+            sendCustomHitUsageMain(sender, lang);
             return true;
         }
-        if (args[1].equalsIgnoreCase("info")) {
+        if (args[1].equalsIgnoreCase("get") || args[1].equalsIgnoreCase("info")) {
+            if (args.length != 2) {
+                sendCustomHitUsageGet(sender, lang);
+                return true;
+            }
             double multiplier = resolveMultiplier(lang);
             sendMessage(sender, lang, "messages.customhit_info",
                 "&7Aktualny mnożnik damage: &f{MULTIPLIER}",
@@ -94,7 +98,7 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args[1].equalsIgnoreCase("set")) {
-            if (args.length < 3) {
+            if (args.length != 3) {
                 sendMessage(sender, lang, "messages.customhit_usage_set",
                     "&7Użycie: &f/stormitemy customhit set <mnożnik>", null);
                 return true;
@@ -123,17 +127,18 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
                 Map.of("MULTIPLIER", formatMultiplier(parsed)));
             return true;
         }
-        sendCustomHitHelp(sender, lang);
+        sendCustomHitUsageMain(sender, lang);
         return true;
     }
 
-    private void sendCustomHitHelp(CommandSender sender, LangContext lang) {
-        sendMessage(sender, lang, "messages.customhit_help_header",
-            "&7Komendy Custom Hit:", null);
-        sendMessage(sender, lang, "messages.customhit_help_set",
-            "&f/stormitemy customhit set <mnożnik> &8- &7Ustaw mnożnik damage (0.1-10.0)", null);
-        sendMessage(sender, lang, "messages.customhit_help_info",
-            "&f/stormitemy customhit info &8- &7Wyświetl aktualny mnożnik", null);
+    private void sendCustomHitUsageMain(CommandSender sender, LangContext lang) {
+        sendMessage(sender, lang, "messages.customhit_usage_main",
+            "&7Użycie: &f/stormitemy customhit <get|set>", null);
+    }
+
+    private void sendCustomHitUsageGet(CommandSender sender, LangContext lang) {
+        sendMessage(sender, lang, "messages.customhit_usage_get",
+            "&7Użycie: &f/stormitemy customhit get", null);
     }
 
     private Double parseMultiplier(String raw) {
