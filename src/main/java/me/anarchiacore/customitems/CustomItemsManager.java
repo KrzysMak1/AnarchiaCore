@@ -873,7 +873,9 @@ public class CustomItemsManager implements Listener {
             || "smoczymiecz".equals(itemId)
             || "turbotrap".equals(itemId)
             || "turbodomek".equals(itemId)
-            || "dynamit".equals(itemId);
+            || "dynamit".equals(itemId)
+            || "wyrzutniahydroklatki".equals(itemId)
+            || "boskitopor".equals(itemId);
     }
 
     private Set<String> getCachedRegions(String itemId, java.util.List<String> regions, Map<String, Set<String>> cache) {
