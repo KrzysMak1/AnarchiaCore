@@ -12,11 +12,21 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarFlag;
+import org.bukkit.boss.BarStyle;
+import org.bukkit.boss.BossBar;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Container;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Egg;
 import org.bukkit.entity.EnderPearl;
+import org.bukkit.entity.Fireball;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.SmallFireball;
@@ -24,14 +34,20 @@ import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.metadata.MetadataValue;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffect;
@@ -71,6 +87,8 @@ public class CustomItemsManager implements Listener {
     private final Map<String, String> actionbarColors = new HashMap<>();
     private final Map<String, String> actionbarDisplayNames = new HashMap<>();
     private final Map<java.util.UUID, Map<String, Long>> actionbarCooldowns = new ConcurrentHashMap<>();
+    private final Map<String, HydroCageInstance> hydroCages = new ConcurrentHashMap<>();
+    private final Map<String, Map<Location, HydroCageBlock>> hydroCageBlocks = new ConcurrentHashMap<>();
 
     public CustomItemsManager(Plugin plugin, ConfigManager configManager, MessageService messageService) {
         this.plugin = plugin;
@@ -407,6 +425,7 @@ public class CustomItemsManager implements Listener {
         }
         EnderPearl pearl = player.launchProjectile(EnderPearl.class);
         pearl.setVelocity(player.getLocation().getDirection().multiply(1.5));
+        pearl.setMetadata("SmoczaMieczPearl", new FixedMetadataValue(plugin, true));
         sendConsumerMessage(player, eventItem);
         event.setCancelled(true);
     }
@@ -437,12 +456,15 @@ public class CustomItemsManager implements Listener {
             player.setCooldown(item.getType(), cooldownSeconds * 20);
             trackCooldown(player, eventItem, cooldownSeconds);
         }
-        Projectile projectile = player.launchProjectile(org.bukkit.entity.Snowball.class);
+        Fireball projectile = player.launchProjectile(Fireball.class);
         projectile.getPersistentDataContainer().set(hydroCageProjectileKey, PersistentDataType.STRING, eventItem.id());
+        projectile.setYield(0.0f);
+        projectile.setIsIncendiary(false);
         projectile.setVelocity(player.getLocation().getDirection().multiply(config.projectileSpeed));
         projectile.setGravity(config.projectileGravity);
         playHydroSound(player.getLocation(), config.shootSound);
         sendHydroTitle(player, config.shootTitle, config.shootSubtitle);
+        sendHydroMessage(player, config.shootMessage);
         consumeItemFromHand(player, event.getHand());
         event.setCancelled(true);
     }
@@ -457,14 +479,24 @@ public class CustomItemsManager implements Listener {
             projectile.remove();
             return;
         }
+        CustomItemsConfig.EventItemDefinition eventItem = configManager.getCustomItemsConfig().getEventItemDefinition(eventId);
         Location location = event.getHitBlock() != null
             ? event.getHitBlock().getLocation().add(0.5, 0.5, 0.5)
             : projectile.getLocation();
-        List<ChangedBlock> changedBlocks = createHydroCage(location, config);
-        if (!changedBlocks.isEmpty()) {
+        if (eventItem != null && isHydroCageRegionBlocked(location, config, eventItem, player)) {
+            projectile.remove();
+            return;
+        }
+        if (!canCreateHydroCage(location, config, player)) {
+            projectile.remove();
+            return;
+        }
+        HydroCageInstance instance = createHydroCage(location, config, player);
+        if (instance != null) {
             playHydroSound(location, config.cageCreateSound);
             sendHydroTitle(player, config.cageCreatedTitle, config.cageCreatedSubtitle);
-            scheduleHydroCageRemoval(changedBlocks, config);
+            sendHydroMessage(player, config.cageCreatedMessage);
+            scheduleHydroCageRemoval(instance, config);
         }
         projectile.remove();
     }
@@ -546,29 +578,153 @@ public class CustomItemsManager implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void onHydroCageBreak(BlockBreakEvent event) {
         Block block = event.getBlock();
-        if (!block.hasMetadata("hydro_cage_block")) {
-            return;
-        }
         HydroCageConfig config = loadHydroCageConfig();
-        if (config == null || config.allowBreaking) {
+        if (config == null) {
             return;
         }
-        event.setCancelled(true);
-        sendHydroMessage(event.getPlayer(), config.cannotBreakMessage);
+        Player player = event.getPlayer();
+        boolean inside = isPlayerInsideHydroCage(player, config);
+        if (block.hasMetadata("hydro_cage_block")) {
+            if (inside) {
+                if (block.getType() == config.wallMaterial && !config.allowBreaking) {
+                    event.setCancelled(true);
+                    sendHydroTitle(player, config.cannotBreakTitle, config.cannotBreakSubtitle);
+                    sendHydroMessage(player, config.cannotBreakMessage);
+                    return;
+                }
+                event.setDropItems(false);
+                block.setMetadata("destroyed_in_cage", new FixedMetadataValue(plugin, true));
+                return;
+            }
+            event.setCancelled(true);
+            sendHydroTitle(player, config.cannotBreakOutsideTitle, config.cannotBreakOutsideSubtitle);
+            sendHydroMessage(player, config.cannotBreakOutsideMessage);
+            return;
+        }
     }
 
     @EventHandler(ignoreCancelled = true)
     public void onHydroCagePlace(BlockPlaceEvent event) {
+        HydroCageConfig config = loadHydroCageConfig();
+        if (config == null) {
+            return;
+        }
+        Player player = event.getPlayer();
+        if (isPlayerInsideHydroCage(player, config)) {
+            if (config.allowBlockPlacing) {
+                event.getBlock().setMetadata("player_placed_in_cage", new FixedMetadataValue(plugin, player.getUniqueId().toString()));
+                return;
+            }
+            event.setCancelled(true);
+            sendHydroTitle(player, config.cannotPlaceTitle, config.cannotPlaceSubtitle);
+            sendHydroMessage(player, config.cannotPlaceMessage);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHydroCageBlockFade(BlockFadeEvent event) {
         Block block = event.getBlock();
         if (!block.hasMetadata("hydro_cage_block")) {
             return;
         }
+        Material type = block.getType();
+        if (type == Material.BUBBLE_CORAL_BLOCK || type.name().contains("CORAL")) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onHydroCageMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
         HydroCageConfig config = loadHydroCageConfig();
-        if (config == null || config.allowBlockPlacing) {
+        if (config == null) {
             return;
         }
-        event.setCancelled(true);
-        sendHydroMessage(event.getPlayer(), config.cannotPlaceMessage);
+        Location from = event.getFrom();
+        Location to = event.getTo();
+        if (to == null || from.getWorld() != to.getWorld()) {
+            return;
+        }
+        boolean inside = isPlayerInsideHydroCage(player, config);
+        if (inside && player.isGliding() && !config.allowElytra) {
+            player.setGliding(false);
+            sendHydroTitle(player, config.elytraBlockedTitle, config.elytraBlockedSubtitle);
+            sendHydroMessage(player, config.elytraBlockedMessage);
+        }
+        for (HydroCageInstance instance : hydroCages.values()) {
+            if (instance.center.getWorld() != to.getWorld() || instance.bossBar == null) {
+                continue;
+            }
+            double fromDistance = from.distance(instance.center);
+            double toDistance = to.distance(instance.center);
+            if (fromDistance > instance.radius && toDistance <= instance.radius) {
+                if (!instance.bossBar.getPlayers().contains(player)) {
+                    instance.bossBar.addPlayer(player);
+                    if (config.blockTeleport) {
+                        sendHydroTitle(player, "", config.noTeleportSubtitle);
+                    }
+                }
+            } else if (fromDistance <= instance.radius && toDistance > instance.radius) {
+                instance.bossBar.removePlayer(player);
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHydroCageTeleport(PlayerTeleportEvent event) {
+        HydroCageConfig config = loadHydroCageConfig();
+        if (config == null || !config.blockTeleport) {
+            return;
+        }
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL
+            && event.getCause() != PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT) {
+            return;
+        }
+        Player player = event.getPlayer();
+        if (isPlayerInsideHydroCage(player, config)) {
+            event.setCancelled(true);
+            sendHydroMessage(player, event.getCause() == PlayerTeleportEvent.TeleportCause.CHORUS_FRUIT
+                ? config.chorusFruitBlockedMessage
+                : config.teleportBlockedMessage);
+            return;
+        }
+        Location to = event.getTo();
+        if (to == null) {
+            return;
+        }
+        if (isLocationWithinHydroCage(to)) {
+            event.setCancelled(true);
+            sendHydroMessage(player, config.teleportIntoCageBlockedMessage);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHydroCageDragonSwordLaunch(ProjectileLaunchEvent event) {
+        HydroCageConfig config = loadHydroCageConfig();
+        if (config == null || !config.blockTeleport) {
+            return;
+        }
+        if (!(event.getEntity() instanceof EnderPearl enderPearl)) {
+            return;
+        }
+        if (!(event.getEntity().getShooter() instanceof Player player)) {
+            return;
+        }
+        if (!enderPearl.hasMetadata("SmoczaMieczPearl")) {
+            return;
+        }
+        if (isPlayerInsideHydroCage(player, config)) {
+            event.setCancelled(true);
+            sendHydroMessage(player, config.dragonSwordBlockedMessage);
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    public void onHydroCageExplode(EntityExplodeEvent event) {
+        if (hydroCages.isEmpty()) {
+            return;
+        }
+        event.blockList().removeIf(block -> isLocationWithinHydroCage(block.getLocation()));
     }
 
     private void handleBombardaProjectileHit(Projectile projectile, ProjectileHitEvent event) {
@@ -1139,34 +1295,64 @@ public class CustomItemsManager implements Listener {
         org.bukkit.configuration.ConfigurationSection mapping = cageSection != null ? cageSection.getConfigurationSection("block_mappings") : null;
         Material wallMaterial = parseMaterial(mapping != null ? mapping.getString("external_wall") : null, Material.BLUE_GLAZED_TERRACOTTA);
         Material defaultMaterial = parseMaterial(mapping != null ? mapping.getString("default") : null, Material.LIGHT_BLUE_TERRACOTTA);
-        Material fillMaterial = defaultMaterial;
+        Material leavesMaterial = parseMaterial(mapping != null ? mapping.getString("leaves") : null, Material.BLUE_TERRACOTTA);
+        Material woodMaterial = parseMaterial(mapping != null ? mapping.getString("wood") : null, Material.BUBBLE_CORAL_BLOCK);
         org.bukkit.configuration.ConfigurationSection projectileSection = section.getConfigurationSection("projectile");
         double projectileSpeed = projectileSection != null ? projectileSection.getDouble("speed", 1.5) : 1.5;
         boolean gravity = projectileSection == null || projectileSection.getBoolean("gravity", true);
         org.bukkit.configuration.ConfigurationSection messages = section.getConfigurationSection("messages");
         String shootTitle = messages != null ? messages.getString("shoot.title") : "";
         String shootSubtitle = messages != null ? messages.getString("shoot.subtitle") : "";
+        String shootMessage = messages != null ? messages.getString("shoot.chatMessage") : "";
         String cageCreatedTitle = messages != null ? messages.getString("cage_created.title") : "";
         String cageCreatedSubtitle = messages != null ? messages.getString("cage_created.subtitle") : "";
+        String cageCreatedMessage = messages != null ? messages.getString("cage_created.chatMessage") : "";
         String cageExpiredTitle = messages != null ? messages.getString("cage_expired.title") : "";
         String cageExpiredSubtitle = messages != null ? messages.getString("cage_expired.subtitle") : "";
+        String cageExpiredMessage = messages != null ? messages.getString("cage_expired.chatMessage") : "";
+        String cannotBreakTitle = messages != null ? messages.getString("cannot_break_cage.title") : "";
+        String cannotBreakSubtitle = messages != null ? messages.getString("cannot_break_cage.subtitle") : "";
         String cannotBreak = messages != null ? messages.getString("cannot_break_cage.chatMessage") : "";
-        String cannotPlace = messages != null ? messages.getString("cannot_place_block.subtitle") : "";
+        String cannotBreakOutsideTitle = messages != null ? messages.getString("cannot_break_cage_outside.title") : "";
+        String cannotBreakOutsideSubtitle = messages != null ? messages.getString("cannot_break_cage_outside.subtitle") : "";
+        String cannotBreakOutside = messages != null ? messages.getString("cannot_break_cage_outside.chatMessage") : "";
+        String cannotPlaceTitle = messages != null ? messages.getString("cannot_place_block.title") : "";
+        String cannotPlaceSubtitle = messages != null ? messages.getString("cannot_place_block.subtitle") : "";
+        String cannotPlace = messages != null ? messages.getString("cannot_place_block.chatMessage") : "";
+        String elytraBlockedTitle = messages != null ? messages.getString("elytra_blocked.title") : "";
+        String elytraBlockedSubtitle = messages != null ? messages.getString("elytra_blocked.subtitle") : "";
+        String elytraBlockedMessage = messages != null ? messages.getString("elytra_blocked.chatMessage") : "";
         String cannotUseNether = messages != null ? messages.getString("cannot_use_nether") : "";
         String cannotUseEnd = messages != null ? messages.getString("cannot_use_end") : "";
+        String teleportBlocked = messages != null ? messages.getString("teleport_blocked") : "";
+        String teleportIntoCageBlocked = messages != null ? messages.getString("teleport_into_cage_blocked") : "";
+        String chorusFruitBlocked = messages != null ? messages.getString("chorus_fruit_blocked") : "";
+        String dragonSwordBlocked = messages != null ? messages.getString("dragon_sword_blocked") : "";
+        String noTeleportSubtitle = messages != null ? messages.getString("no_teleport_subtitle") : "";
+        String cageCollisionMessage = messages != null ? messages.getString("cage_collision") : "";
         org.bukkit.configuration.ConfigurationSection dimensions = section.getConfigurationSection("dimensions");
         boolean allowNether = dimensions == null || dimensions.getBoolean("allow_nether", true);
         boolean allowEnd = dimensions == null || dimensions.getBoolean("allow_end", true);
         boolean allowBlockPlacing = cageSection != null && cageSection.getBoolean("allow_block_placing", false);
         boolean allowBreaking = false;
+        boolean allowElytra = cageSection != null && cageSection.getBoolean("allow_elytra", false);
+        boolean blockTeleport = cageSection != null && cageSection.getBoolean("block_teleport", false);
+        org.bukkit.configuration.ConfigurationSection bossbar = section.getConfigurationSection("bossbar");
+        String bossbarTitle = bossbar != null ? bossbar.getString("title") : "&bHydro Klatka";
+        String bossbarColor = bossbar != null ? bossbar.getString("color") : "AQUA";
+        String bossbarStyle = bossbar != null ? bossbar.getString("style") : "SOLID";
         org.bukkit.configuration.ConfigurationSection sounds = section.getConfigurationSection("sounds");
         SoundConfig shootSound = readSoundConfig(sounds != null ? sounds.getConfigurationSection("shoot") : null, Sound.ENTITY_BLAZE_SHOOT, 1.0f, 0.8f);
         SoundConfig cageCreateSound = readSoundConfig(sounds != null ? sounds.getConfigurationSection("cage_create") : null, Sound.BLOCK_CONDUIT_ACTIVATE, 1.0f, 1.0f);
         SoundConfig cageExpireSound = readSoundConfig(sounds != null ? sounds.getConfigurationSection("cage_expire") : null, Sound.BLOCK_CONDUIT_DEACTIVATE, 1.0f, 1.0f);
-        return new HydroCageConfig(radius, duration, thickness, wallMaterial, defaultMaterial, fillMaterial,
-            projectileSpeed, gravity, shootTitle, shootSubtitle, cageCreatedTitle, cageCreatedSubtitle, cageExpiredTitle,
-            cageExpiredSubtitle, cannotBreak, cannotPlace,
-            cannotUseNether, cannotUseEnd, allowNether, allowEnd, allowBlockPlacing, allowBreaking,
+        return new HydroCageConfig(radius, duration, thickness, wallMaterial, defaultMaterial, leavesMaterial, woodMaterial,
+            projectileSpeed, gravity, shootTitle, shootSubtitle, shootMessage, cageCreatedTitle, cageCreatedSubtitle, cageCreatedMessage,
+            cageExpiredTitle, cageExpiredSubtitle, cageExpiredMessage, cannotBreakTitle, cannotBreakSubtitle, cannotBreak, cannotBreakOutsideTitle,
+            cannotBreakOutsideSubtitle, cannotBreakOutside, cannotPlaceTitle, cannotPlaceSubtitle, cannotPlace,
+            elytraBlockedTitle, elytraBlockedSubtitle, elytraBlockedMessage,
+            cannotUseNether, cannotUseEnd, teleportBlocked, teleportIntoCageBlocked, chorusFruitBlocked,
+            dragonSwordBlocked, noTeleportSubtitle, cageCollisionMessage, allowNether, allowEnd, allowBlockPlacing, allowBreaking, allowElytra,
+            blockTeleport, bossbarTitle, bossbarColor, bossbarStyle,
             shootSound, cageCreateSound, cageExpireSound);
     }
 
@@ -1205,55 +1391,95 @@ public class CustomItemsManager implements Listener {
             targetTitle, targetSubtitle, targetChat);
     }
 
-    private List<ChangedBlock> createHydroCage(Location center, HydroCageConfig config) {
-        if (center.getWorld() == null) {
-            return List.of();
+    private HydroCageInstance createHydroCage(Location center, HydroCageConfig config, Player owner) {
+        World world = center.getWorld();
+        if (world == null) {
+            return null;
         }
         int radius = Math.max(1, config.radius);
         int thickness = Math.max(1, config.wallThickness);
-        int innerRadius = Math.max(0, radius - thickness);
-        int outerRadiusSquared = radius * radius;
-        int innerRadiusSquared = innerRadius * innerRadius;
-        List<ChangedBlock> changedBlocks = new ArrayList<>();
+        String id = java.util.UUID.randomUUID().toString();
+        Map<Location, HydroCageBlock> blocks = new HashMap<>();
+        Map<Integer, List<HydroCagePlacement>> layers = new HashMap<>();
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
-                    int distanceSquared = x * x + y * y + z * z;
-                    if (distanceSquared > outerRadiusSquared || distanceSquared < innerRadiusSquared) {
+                    double distance = Math.sqrt(x * x + y * y + z * z);
+                    if (distance > radius) {
                         continue;
                     }
-                    Material targetMaterial = config.wallMaterial;
                     Location target = center.clone().add(x, y, z);
                     Block block = target.getBlock();
-                    if (!isReplaceable(block.getType())) {
-                        continue;
+                    Material current = block.getType();
+                    if (block.hasMetadata("hydro_cage_block")) {
+                        String existingId = block.getMetadata("hydro_cage_block").get(0).asString();
+                        if (!existingId.equals(id)) {
+                            continue;
+                        }
                     }
-                    BlockData previous = block.getBlockData();
-                    block.setType(targetMaterial, false);
-                    block.setMetadata("hydro_cage_block", new FixedMetadataValue(plugin, true));
-                    changedBlocks.add(new ChangedBlock(block, previous));
+                    Material replacement;
+                    boolean isWall = distance > radius - thickness;
+                    if (isWall) {
+                        if (isHydroProtectedMaterial(current)) {
+                            continue;
+                        }
+                        replacement = config.wallMaterial;
+                    } else {
+                        replacement = mapHydroMaterial(current, config);
+                        if (replacement == current) {
+                            continue;
+                        }
+                    }
+                    BlockData previousData = block.getBlockData() != null ? block.getBlockData().clone() : null;
+                    BlockState previousState = block.getState();
+                    blocks.put(target.clone(), new HydroCageBlock(current, previousData, previousState));
+                    int layerIndex = y + radius;
+                    layers.computeIfAbsent(layerIndex, key -> new ArrayList<>())
+                        .add(new HydroCagePlacement(target.clone(), current, replacement, id));
                 }
             }
         }
-        return changedBlocks;
+        if (blocks.isEmpty()) {
+            return null;
+        }
+        hydroCageBlocks.put(id, blocks);
+        BossBar bossBar = createHydroBossbar(config);
+        int duration = Math.max(1, config.durationSeconds);
+        HydroCageInstance instance = new HydroCageInstance(id, center.clone(), radius, duration, bossBar, owner);
+        hydroCages.put(id, instance);
+        startHydroCagePlacement(world, center, radius, layers);
+        addInitialHydroBossbarPlayers(instance);
+        removeItemsInsideCage(center, radius);
+        playHydroSpawnParticles(center, radius);
+        return instance;
     }
 
-    private void scheduleHydroCageRemoval(List<ChangedBlock> blocks, HydroCageConfig config) {
-        if (blocks.isEmpty()) {
+    private void scheduleHydroCageRemoval(HydroCageInstance instance, HydroCageConfig config) {
+        if (instance == null) {
             return;
         }
-        new BukkitRunnable() {
+        BukkitRunnable task = new BukkitRunnable() {
+            int timeLeft = instance.durationSeconds;
+
             @Override
             public void run() {
-                for (ChangedBlock changed : blocks) {
-                    Block block = changed.block;
-                    block.setBlockData(changed.previousData, false);
-                    block.removeMetadata("hydro_cage_block", plugin);
+                if (timeLeft <= 0) {
+                    cancel();
+                    removeHydroCage(instance, config);
+                    return;
                 }
-                Location location = blocks.get(0).block.getLocation();
-                playHydroSound(location, config.cageExpireSound);
+                if (instance.bossBar != null) {
+                    double progress = (double) timeLeft / (double) instance.durationSeconds;
+                    instance.bossBar.setProgress(Math.max(0.0, progress));
+                }
+                if (timeLeft <= 3 && instance.center.getWorld() != null) {
+                    instance.center.getWorld().playSound(instance.center, Sound.BLOCK_NOTE_BLOCK_PLING, 1.0f, 1.0f + (3 - timeLeft) * 0.2f);
+                }
+                timeLeft--;
             }
-        }.runTaskLater(plugin, Math.max(1, config.durationSeconds) * 20L);
+        };
+        instance.removalTask = task;
+        task.runTaskTimer(plugin, 0L, 20L);
     }
 
     private boolean isReplaceable(Material material) {
@@ -1261,6 +1487,301 @@ public class CustomItemsManager implements Listener {
             || material == Material.CAVE_AIR
             || material == Material.VOID_AIR
             || material == Material.WATER;
+    }
+
+    private boolean canCreateHydroCage(Location location, HydroCageConfig config, Player player) {
+        int radius = Math.max(1, config.radius);
+        for (HydroCageInstance instance : hydroCages.values()) {
+            if (instance.center.getWorld() != location.getWorld()) {
+                continue;
+            }
+            double distance = instance.center.distance(location);
+            if (distance < instance.radius + radius) {
+                String message = config.cageCollisionMessage;
+                if (message == null || message.isBlank()) {
+                    message = "&cNie można utworzyć hydroklatki - koliduje z istniejącą klatką!";
+                }
+                sendHydroMessage(player, message);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isHydroCageRegionBlocked(Location location, HydroCageConfig config, CustomItemsConfig.EventItemDefinition eventItem, Player player) {
+        if (eventItem == null || !eventItem.preventRegionDestruction()) {
+            return false;
+        }
+        Set<String> blocked = getCachedRegions(eventItem.id(), eventItem.noDestroyRegions(), cachedNoDestroyRegions);
+        if (blocked.isEmpty()) {
+            return false;
+        }
+        int radius = Math.max(1, config.radius);
+        int step = Math.max(1, radius / 2);
+        for (int x = -radius; x <= radius; x += step) {
+            for (int y = -radius; y <= radius; y += step) {
+                for (int z = -radius; z <= radius; z += step) {
+                    Location target = location.clone().add(x, y, z);
+                    if (target.distance(location) > radius) {
+                        continue;
+                    }
+                    if (worldGuardIntegration.isInRegions(target, blocked)) {
+                        messageService.send(player, plugin.getConfig().getString("messages.customItems.regionBlocked"));
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void startHydroCagePlacement(World world, Location center, int radius, Map<Integer, List<HydroCagePlacement>> layers) {
+        int maxLayer = radius * 2;
+        new BukkitRunnable() {
+            int currentLayer = maxLayer;
+
+            @Override
+            public void run() {
+                if (currentLayer < 0) {
+                    cancel();
+                    return;
+                }
+                List<HydroCagePlacement> placements = layers.get(currentLayer);
+                if (placements != null) {
+                    for (HydroCagePlacement placement : placements) {
+                        if (placement.from != placement.to) {
+                            placement.location.getBlock().setType(placement.to, false);
+                        }
+                        placement.location.getBlock().setMetadata("hydro_cage_block", new FixedMetadataValue(plugin, placement.cageId));
+                    }
+                    if (currentLayer % 3 == 0) {
+                        world.playSound(center, Sound.BLOCK_WATER_AMBIENT, 0.3f, 1.2f + (float) (maxLayer - currentLayer) * 0.02f);
+                    }
+                }
+                currentLayer--;
+            }
+        }.runTaskTimer(plugin, 0L, 1L);
+    }
+
+    private void removeHydroCage(HydroCageInstance instance, HydroCageConfig config) {
+        if (instance.removalTask != null && !instance.removalTask.isCancelled()) {
+            instance.removalTask.cancel();
+        }
+        if (instance.bossBar != null) {
+            instance.bossBar.removeAll();
+        }
+        Map<Location, HydroCageBlock> blocks = hydroCageBlocks.remove(instance.id);
+        if (blocks != null) {
+            for (Map.Entry<Location, HydroCageBlock> entry : blocks.entrySet()) {
+                Location location = entry.getKey();
+                HydroCageBlock previous = entry.getValue();
+                Block block = location.getBlock();
+                if (block.hasMetadata("destroyed_in_cage")) {
+                    block.removeMetadata("destroyed_in_cage", plugin);
+                    block.removeMetadata("hydro_cage_block", plugin);
+                    continue;
+                }
+                if (block.hasMetadata("hydro_cage_block")) {
+                    String metadataId = block.getMetadata("hydro_cage_block").get(0).asString();
+                    if (!metadataId.equals(instance.id)) {
+                        continue;
+                    }
+                }
+                try {
+                    block.setType(previous.material, false);
+                    if (previous.blockData != null) {
+                        block.setBlockData(previous.blockData, false);
+                    }
+                    if (previous.containerContents != null && block.getState() instanceof Container container) {
+                        container.getSnapshotInventory().setContents(previous.containerContents);
+                        container.update(true, false);
+                    }
+                } catch (Exception ex) {
+                    block.setType(previous.material, false);
+                    if (previous.blockData != null) {
+                        block.setBlockData(previous.blockData, false);
+                    }
+                }
+                block.removeMetadata("hydro_cage_block", plugin);
+            }
+        }
+        hydroCages.remove(instance.id);
+        playHydroSound(instance.center, config.cageExpireSound);
+        if (instance.owner != null && instance.owner.isOnline()) {
+            sendHydroTitle(instance.owner, config.cageExpiredTitle, config.cageExpiredSubtitle);
+            sendHydroMessage(instance.owner, config.cageExpiredMessage);
+        }
+    }
+
+    private BossBar createHydroBossbar(HydroCageConfig config) {
+        String title = MiniMessageUtil.parseLegacy(defaultString(config.bossbarTitle));
+        BarColor color;
+        try {
+            color = BarColor.valueOf(config.bossbarColor.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            color = BarColor.AQUA;
+        }
+        BarStyle style;
+        try {
+            style = BarStyle.valueOf(config.bossbarStyle.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ex) {
+            style = BarStyle.SOLID;
+        }
+        return Bukkit.createBossBar(title, color, style, new BarFlag[0]);
+    }
+
+    private void addInitialHydroBossbarPlayers(HydroCageInstance instance) {
+        if (instance.bossBar == null || instance.center.getWorld() == null) {
+            return;
+        }
+        for (Entity entity : instance.center.getWorld().getNearbyEntities(instance.center, instance.radius, instance.radius, instance.radius)) {
+            if (entity instanceof Player player) {
+                if (player.getLocation().distance(instance.center) <= instance.radius) {
+                    instance.bossBar.addPlayer(player);
+                }
+            }
+        }
+        instance.bossBar.setProgress(1.0);
+        instance.bossBar.setVisible(true);
+    }
+
+    private void removeItemsInsideCage(Location center, int radius) {
+        if (center.getWorld() == null) {
+            return;
+        }
+        for (Entity entity : center.getWorld().getNearbyEntities(center, radius, radius, radius)) {
+            if (entity instanceof Item item) {
+                if (item.getLocation().distance(center) <= radius) {
+                    item.remove();
+                }
+            }
+        }
+    }
+
+    private void playHydroSpawnParticles(Location center, int radius) {
+        if (center.getWorld() == null) {
+            return;
+        }
+        center.getWorld().playSound(center, Sound.BLOCK_WATER_AMBIENT, 2.0f, 1.0f);
+        center.getWorld().playSound(center, Sound.ENTITY_PLAYER_SPLASH, 2.0f, 0.8f);
+        center.getWorld().spawnParticle(Particle.WATER_SPLASH, center, 100, radius, radius / 2.0, radius, 0.1);
+        center.getWorld().spawnParticle(Particle.BUBBLE_POP, center, 50, radius, radius / 2.0, radius, 0.05);
+    }
+
+    private boolean isPlayerInsideHydroCage(Player player, HydroCageConfig config) {
+        return getHydroCageContaining(player.getLocation(), config != null ? config.wallThickness : 1) != null;
+    }
+
+    private boolean isLocationInsideHydroCage(Location location, HydroCageConfig config) {
+        return getHydroCageContaining(location, config != null ? config.wallThickness : 1) != null;
+    }
+
+    private boolean isLocationWithinHydroCage(Location location) {
+        for (HydroCageInstance instance : hydroCages.values()) {
+            if (instance.center.getWorld() != location.getWorld()) {
+                continue;
+            }
+            if (instance.center.distance(location) <= instance.radius) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private HydroCageInstance getHydroCageContaining(Location location, int thickness) {
+        for (HydroCageInstance instance : hydroCages.values()) {
+            if (instance.center.getWorld() != location.getWorld()) {
+                continue;
+            }
+            double distance = instance.center.distance(location);
+            if (distance < instance.radius - thickness) {
+                return instance;
+            }
+        }
+        return null;
+    }
+
+    private Material mapHydroMaterial(Material material, HydroCageConfig config) {
+        if (material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR) {
+            return material;
+        }
+        if (isHydroProtectedMaterial(material)) {
+            return material;
+        }
+        String name = material.name();
+        if (isHydroFoliage(name, material)) {
+            return Material.AIR;
+        }
+        if (name.contains("LEAVES")) {
+            return config.leavesMaterial;
+        }
+        if (name.contains("LOG") || name.contains("WOOD") || name.contains("PLANKS")) {
+            return config.woodMaterial;
+        }
+        return config.defaultMaterial;
+    }
+
+    private boolean isHydroFoliage(String name, Material material) {
+        return name.equals("GRASS")
+            || name.equals("TALL_GRASS")
+            || name.equals("FERN")
+            || name.equals("LARGE_FERN")
+            || name.equals("DEAD_BUSH")
+            || name.equals("VINE")
+            || name.contains("FLOWER")
+            || name.contains("ROSE")
+            || name.contains("TULIP")
+            || name.contains("ORCHID")
+            || name.contains("ALLIUM")
+            || name.contains("BLUET")
+            || name.contains("OXEYE")
+            || name.contains("CORNFLOWER")
+            || name.contains("LILY")
+            || name.contains("WITHER_ROSE")
+            || name.contains("SUNFLOWER")
+            || name.contains("LILAC")
+            || name.contains("PEONY")
+            || name.contains("ROSE_BUSH")
+            || (name.contains("MUSHROOM") && !name.contains("BLOCK"))
+            || name.contains("SAPLING")
+            || name.contains("KELP")
+            || name.contains("SEAGRASS")
+            || name.contains("SEA_PICKLE")
+            || material == Material.DANDELION
+            || material == Material.POPPY
+            || material == Material.BLUE_ORCHID
+            || material == Material.ALLIUM
+            || material == Material.AZURE_BLUET
+            || material == Material.RED_TULIP
+            || material == Material.ORANGE_TULIP
+            || material == Material.WHITE_TULIP
+            || material == Material.PINK_TULIP
+            || material == Material.OXEYE_DAISY
+            || material == Material.CORNFLOWER
+            || material == Material.LILY_OF_THE_VALLEY
+            || material == Material.WITHER_ROSE;
+    }
+
+    private boolean isHydroProtectedMaterial(Material material) {
+        return material == Material.BEDROCK
+            || material == Material.BARRIER
+            || material == Material.COMMAND_BLOCK
+            || material == Material.CHAIN_COMMAND_BLOCK
+            || material == Material.REPEATING_COMMAND_BLOCK
+            || material == Material.SPAWNER
+            || material == Material.END_PORTAL
+            || material == Material.END_PORTAL_FRAME
+            || material == Material.NETHER_PORTAL
+            || material == Material.END_GATEWAY
+            || material == Material.STRUCTURE_VOID
+            || material == Material.STRUCTURE_BLOCK
+            || material == Material.JIGSAW
+            || material == Material.LIGHT
+            || material.name().contains("PORTAL")
+            || material.name().contains("COMMAND_BLOCK")
+            || material == Material.MOVING_PISTON
+            || material.name().contains("SHULKER_BOX")
+            || material.getHardness() < 0.0f;
     }
 
     private void sendHydroMessage(Player player, String raw) {
@@ -1355,29 +1876,100 @@ public class CustomItemsManager implements Listener {
     private record SoundConfig(Sound sound, float volume, float pitch) {
     }
 
+    private static class HydroCageInstance {
+        private final String id;
+        private final Location center;
+        private final int radius;
+        private final int durationSeconds;
+        private final BossBar bossBar;
+        private final Player owner;
+        private BukkitRunnable removalTask;
+
+        private HydroCageInstance(String id, Location center, int radius, int durationSeconds, BossBar bossBar, Player owner) {
+            this.id = id;
+            this.center = center;
+            this.radius = radius;
+            this.durationSeconds = durationSeconds;
+            this.bossBar = bossBar;
+            this.owner = owner;
+        }
+    }
+
+    private record HydroCageBlock(Material material, BlockData blockData, ItemStack[] containerContents) {
+        private HydroCageBlock(Material material, BlockData blockData, BlockState state) {
+            this(material, blockData, snapshotContents(state));
+        }
+
+        private static ItemStack[] snapshotContents(BlockState state) {
+            if (!(state instanceof Container container)) {
+                return null;
+            }
+            try {
+                ItemStack[] contents = container.getSnapshotInventory().getContents();
+                ItemStack[] snapshot = new ItemStack[contents.length];
+                for (int i = 0; i < contents.length; i++) {
+                    if (contents[i] != null) {
+                        snapshot[i] = contents[i].clone();
+                    }
+                }
+                return snapshot;
+            } catch (Exception ex) {
+                return null;
+            }
+        }
+    }
+
+    private record HydroCagePlacement(Location location, Material from, Material to, String cageId) {
+    }
+
     private record HydroCageConfig(
         int radius,
         int durationSeconds,
         int wallThickness,
         Material wallMaterial,
         Material defaultMaterial,
-        Material fillMaterial,
+        Material leavesMaterial,
+        Material woodMaterial,
         double projectileSpeed,
         boolean projectileGravity,
         String shootTitle,
         String shootSubtitle,
+        String shootMessage,
         String cageCreatedTitle,
         String cageCreatedSubtitle,
+        String cageCreatedMessage,
         String cageExpiredTitle,
         String cageExpiredSubtitle,
+        String cageExpiredMessage,
+        String cannotBreakTitle,
+        String cannotBreakSubtitle,
         String cannotBreakMessage,
+        String cannotBreakOutsideTitle,
+        String cannotBreakOutsideSubtitle,
+        String cannotBreakOutsideMessage,
+        String cannotPlaceTitle,
+        String cannotPlaceSubtitle,
         String cannotPlaceMessage,
+        String elytraBlockedTitle,
+        String elytraBlockedSubtitle,
+        String elytraBlockedMessage,
         String cannotUseNetherMessage,
         String cannotUseEndMessage,
+        String teleportBlockedMessage,
+        String teleportIntoCageBlockedMessage,
+        String chorusFruitBlockedMessage,
+        String dragonSwordBlockedMessage,
+        String noTeleportSubtitle,
+        String cageCollisionMessage,
         boolean allowNether,
         boolean allowEnd,
         boolean allowBlockPlacing,
         boolean allowBreaking,
+        boolean allowElytra,
+        boolean blockTeleport,
+        String bossbarTitle,
+        String bossbarColor,
+        String bossbarStyle,
         SoundConfig shootSound,
         SoundConfig cageCreateSound,
         SoundConfig cageExpireSound
