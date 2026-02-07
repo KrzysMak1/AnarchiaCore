@@ -1339,7 +1339,7 @@ public class CustomItemsManager implements Listener {
         boolean blockTeleport = cageSection != null && cageSection.getBoolean("block_teleport", false);
         org.bukkit.configuration.ConfigurationSection bossbar = section.getConfigurationSection("bossbar");
         String bossbarTitle = bossbar != null ? bossbar.getString("title") : "&bHydro Klatka";
-        String bossbarColor = bossbar != null ? bossbar.getString("color") : "AQUA";
+        String bossbarColor = bossbar != null ? bossbar.getString("color") : "BLUE";
         String bossbarStyle = bossbar != null ? bossbar.getString("style") : "SOLID";
         org.bukkit.configuration.ConfigurationSection sounds = section.getConfigurationSection("sounds");
         SoundConfig shootSound = readSoundConfig(sounds != null ? sounds.getConfigurationSection("shoot") : null, Sound.ENTITY_BLAZE_SHOOT, 1.0f, 0.8f);
@@ -1617,9 +1617,10 @@ public class CustomItemsManager implements Listener {
         String title = MiniMessageUtil.parseLegacy(defaultString(config.bossbarTitle));
         BarColor color;
         try {
-            color = BarColor.valueOf(config.bossbarColor.toUpperCase(Locale.ROOT));
+            String rawColor = config.bossbarColor.toUpperCase(Locale.ROOT);
+            color = rawColor.equals("AQUA") ? BarColor.BLUE : BarColor.valueOf(rawColor);
         } catch (IllegalArgumentException ex) {
-            color = BarColor.AQUA;
+            color = BarColor.BLUE;
         }
         BarStyle style;
         try {
@@ -1664,7 +1665,7 @@ public class CustomItemsManager implements Listener {
         }
         center.getWorld().playSound(center, Sound.BLOCK_WATER_AMBIENT, 2.0f, 1.0f);
         center.getWorld().playSound(center, Sound.ENTITY_PLAYER_SPLASH, 2.0f, 0.8f);
-        center.getWorld().spawnParticle(Particle.WATER_SPLASH, center, 100, radius, radius / 2.0, radius, 0.1);
+        center.getWorld().spawnParticle(Particle.SPLASH, center, 100, radius, radius / 2.0, radius, 0.1);
         center.getWorld().spawnParticle(Particle.BUBBLE_POP, center, 50, radius, radius / 2.0, radius, 0.05);
     }
 
