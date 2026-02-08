@@ -92,12 +92,29 @@ public class DripstoneDamageManager implements Listener {
 
     public java.util.List<String> tabComplete(String[] args) {
         if (args.length == 1) {
-            return java.util.List.of("get", "multiplier", "reload");
+            return filterByPrefix(java.util.List.of("get", "multiplier", "reload"), args[0]);
         }
-        if (args.length == 2 && args[0].equalsIgnoreCase("multiplier")) {
-            return java.util.List.of("0.0", "0.5", "1.0", "1.5", "2.0");
+        if (args.length == 2 && (args[0].equalsIgnoreCase("multiplier") || args[0].equalsIgnoreCase("set"))) {
+            return filterByPrefix(java.util.List.of("0.0", "0.5", "1.0", "1.5", "2.0"), args[1]);
         }
         return java.util.List.of();
+    }
+
+    private java.util.List<String> filterByPrefix(java.util.List<String> options, String prefix) {
+        if (options == null || options.isEmpty()) {
+            return java.util.List.of();
+        }
+        if (prefix == null || prefix.isBlank()) {
+            return new java.util.ArrayList<>(options);
+        }
+        String lower = prefix.toLowerCase(Locale.ROOT);
+        java.util.List<String> results = new java.util.ArrayList<>();
+        for (String option : options) {
+            if (option.toLowerCase(Locale.ROOT).startsWith(lower)) {
+                results.add(option);
+            }
+        }
+        return results;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)

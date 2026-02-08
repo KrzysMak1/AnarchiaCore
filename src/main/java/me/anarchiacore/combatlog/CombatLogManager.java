@@ -39,6 +39,7 @@ import org.bukkit.util.Vector;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -224,12 +225,29 @@ public class CombatLogManager implements Listener {
 
     public List<String> tabComplete(String[] args) {
         if (args.length == 1) {
-            return List.of("reload", "pvp", "autorespawn", "protection-off");
+            return filterByPrefix(List.of("reload", "pvp", "autorespawn", "protection-off"), args[0]);
         }
         if (args.length == 2 && (args[0].equalsIgnoreCase("pvp") || args[0].equalsIgnoreCase("autorespawn"))) {
-            return List.of("on", "off");
+            return filterByPrefix(List.of("on", "off"), args[1]);
         }
         return List.of();
+    }
+
+    private List<String> filterByPrefix(List<String> options, String prefix) {
+        if (options == null || options.isEmpty()) {
+            return List.of();
+        }
+        if (prefix == null || prefix.isBlank()) {
+            return new ArrayList<>(options);
+        }
+        String lower = prefix.toLowerCase(Locale.ROOT);
+        List<String> results = new ArrayList<>();
+        for (String option : options) {
+            if (option.toLowerCase(Locale.ROOT).startsWith(lower)) {
+                results.add(option);
+            }
+        }
+        return results;
     }
 
     public int getActiveTaskCount() {
