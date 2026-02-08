@@ -692,7 +692,7 @@ public class CustomItemsManager implements Listener {
         if (to == null) {
             return;
         }
-        if (isLocationWithinHydroCage(to)) {
+        if (event.getCause() != PlayerTeleportEvent.TeleportCause.ENDER_PEARL && isLocationWithinHydroCage(to)) {
             event.setCancelled(true);
             sendHydroMessage(player, config.teleportIntoCageBlockedMessage);
         }
@@ -735,7 +735,10 @@ public class CustomItemsManager implements Listener {
         if (eventItem == null) {
             return;
         }
-        Location location = event.getHitBlock() != null ? event.getHitBlock().getLocation().add(0.5, 0.5, 0.5) : projectile.getLocation();
+        if (event.getHitBlock() == null) {
+            return;
+        }
+        Location location = event.getHitBlock().getLocation().add(0.5, 0.5, 0.5);
         if (location.getWorld() != null) {
             location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
             int particles = Math.max(0, eventItem.explosionParticleCount());
