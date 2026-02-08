@@ -24,7 +24,7 @@ bombarda:
   cooldown: 60
   explosionRadius: 5
   explosionParticleCount: 10
-  useProjectileMode: false
+  useProjectileMode: true
   projectileSpeed: 1.5
   protectedBlocks:
   - BEDROCK
