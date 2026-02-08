@@ -55,6 +55,8 @@ trash:
 messages:
   prefix: "<dark_gray>[</dark_gray><red>Anarchia</red><dark_gray>] </dark_gray><gray>"
   noPermission: "{prefix}<red>Brak uprawnień.</red>"
+  usage: "{prefix}<red>Użycie: /anarchiacore <reload|heart|combatlog|customitems|dripstone|customhit></red>"
+  heartUsage: "{prefix}<red>Użycie: /anarchiacore heart <give|setitem></red>"
   dripstone:
     usage: "{prefix}<red>Użycie: /anarchiacore dripstone <get|multiplier|reload> [value]</red>"
     get: "{prefix}<gray>Aktualny mnożnik: </gray><yellow>{value}</yellow>"
@@ -73,6 +75,7 @@ messages:
   trashOpened: "{prefix}<gray>Otworzono kosz. Itemy zostaną usunięte po zamknięciu.</gray>"
   trashCleared: "{prefix}<red>Usunięto itemy z kosza.</red>"
   customItems:
+    usage: "{prefix}<red>Użycie: /anarchiacore customitems <give|list></red>"
     giveUsage: "{prefix}<red>Użycie: /anarchiacore customitems give <item> [player]</red>"
     invalidPlayer: "{prefix}<red>Nie znaleziono gracza.</red>"
     notFound: "{prefix}<red>Nie znaleziono itemu: </red><yellow>{item}</yellow>"

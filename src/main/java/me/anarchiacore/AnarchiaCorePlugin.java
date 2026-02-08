@@ -136,7 +136,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return true;
         }
         if (args.length == 0) {
-            return false;
+            messageService.send(sender, getConfig().getString("messages.usage"));
+            return true;
         }
         if (args[0].equalsIgnoreCase("combatlog")) {
             return handleCombatlogCommand(sender, Arrays.copyOfRange(args, 1, args.length));
@@ -164,7 +165,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         if (args[0].equalsIgnoreCase("dripstone")) {
             return handleDripstoneCommand(sender, Arrays.copyOfRange(args, 1, args.length));
         }
-        return false;
+        messageService.send(sender, getConfig().getString("messages.usage"));
+        return true;
     }
 
     private void registerPlaceholders() {
@@ -401,7 +403,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
     private boolean handleHeartCommand(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            return false;
+            messageService.send(sender, getConfig().getString("messages.heartUsage"));
+            return true;
         }
         if (args[0].equalsIgnoreCase("give")) {
             if (args.length < 2) {
@@ -441,7 +444,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             messageService.send(sender, getConfig().getString("messages.setItemDone"));
             return true;
         }
-        return false;
+        messageService.send(sender, getConfig().getString("messages.heartUsage"));
+        return true;
     }
 
     private void saveHeartDefinition(ItemStack item) {
@@ -488,7 +492,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
 
     private boolean handleCustomItemsCommand(CommandSender sender, String[] args) {
         if (args.length == 0) {
-            return false;
+            messageService.send(sender, getConfig().getString("messages.customItems.usage"));
+            return true;
         }
         if (args[0].equalsIgnoreCase("give")) {
             if (args.length < 2) {
@@ -527,7 +532,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             messageService.send(sender, getConfig().getString("messages.customItems.list"), placeholders);
             return true;
         }
-        return false;
+        messageService.send(sender, getConfig().getString("messages.customItems.usage"));
+        return true;
     }
 
     @Override
@@ -539,34 +545,37 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return Collections.emptyList();
         }
         if (args.length == 1) {
-            return List.of("reload", "heart", "combatlog", "customitems", "dripstone", "customhit");
+            return filterByPrefix(List.of("reload", "heart", "combatlog", "customitems", "dripstone", "customhit"), args[0]);
         }
         if (args.length >= 2 && args[0].equalsIgnoreCase("customhit") && stormItemyRouter != null) {
             List<String> results = stormItemyRouter.onTabComplete(sender, command, alias, args);
-            return results != null ? results : Collections.emptyList();
+            if (results == null) {
+                return Collections.emptyList();
+            }
+            return filterByPrefix(results, args[args.length - 1]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("heart")) {
-            return List.of("give", "setitem");
+            return filterByPrefix(List.of("give", "setitem"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("heart") && args[1].equalsIgnoreCase("give")) {
             List<String> names = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 names.add(player.getName());
             }
-            return names;
+            return filterByPrefix(names, args[2]);
         }
         if (args.length == 2 && args[0].equalsIgnoreCase("customitems")) {
-            return List.of("give", "list");
+            return filterByPrefix(List.of("give", "list"), args[1]);
         }
         if (args.length == 3 && args[0].equalsIgnoreCase("customitems") && args[1].equalsIgnoreCase("give")) {
-            return new ArrayList<>(configManager.getCustomItemsConfig().getAllItemIds());
+            return filterByPrefix(new ArrayList<>(configManager.getCustomItemsConfig().getAllItemIds()), args[2]);
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("customitems") && args[1].equalsIgnoreCase("give")) {
             List<String> names = new ArrayList<>();
             for (Player player : Bukkit.getOnlinePlayers()) {
                 names.add(player.getName());
             }
-            return names;
+            return filterByPrefix(names, args[3]);
         }
         if (args.length >= 2 && args[0].equalsIgnoreCase("combatlog") && combatLogManager != null) {
             return combatLogManager.tabComplete(Arrays.copyOfRange(args, 1, args.length));
@@ -575,5 +584,22 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             return dripstoneDamageManager.tabComplete(Arrays.copyOfRange(args, 1, args.length));
         }
         return Collections.emptyList();
+    }
+
+    private List<String> filterByPrefix(Collection<String> options, String prefix) {
+        if (options == null || options.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (prefix == null || prefix.isBlank()) {
+            return new ArrayList<>(options);
+        }
+        String lower = prefix.toLowerCase(Locale.ROOT);
+        List<String> results = new ArrayList<>();
+        for (String option : options) {
+            if (option.toLowerCase(Locale.ROOT).startsWith(lower)) {
+                results.add(option);
+            }
+        }
+        return results;
     }
 }

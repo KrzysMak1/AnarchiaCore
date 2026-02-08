@@ -117,7 +117,7 @@ actionbar:
   # Włącz/wyłącz pasek akcji / Enable/disable action bar
   enabled: true
   # Separator używany w pasku akcji / Separator used in action bar
-  separator: '&8|'
+  separator: '&8 | '
   # Format wyświetlania czasu odnowienia / Cooldown time display format
   # Dostępne zmienne / Available variables:
   # {time} - czas w sekundach / time in seconds
@@ -297,4 +297,3 @@ texturepack:
   # Opóźnienie w tickach przed pokazaniem GUI pytania (20 ticków = 1 sekunda)
   # Delay in ticks before showing the prompt GUI (20 ticks = 1 second)
   prompt_delay: 60
-
