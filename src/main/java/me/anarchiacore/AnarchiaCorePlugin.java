@@ -146,7 +146,8 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
             if (stormItemyRouter != null) {
                 return stormItemyRouter.handleCustomHitCommand(sender, args);
             }
-            return false;
+            messageService.send(sender, getConfig().getString("messages.customHitUnavailable"));
+            return true;
         }
         if (!sender.hasPermission("anarchiacore.admin")) {
             messageService.send(sender, getConfig().getString("messages.noPermission"));
@@ -543,6 +544,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         }
         if (!command.getName().equalsIgnoreCase("anarchiacore")) {
             return Collections.emptyList();
+        }
+        if (args.length == 0) {
+            return List.of("reload", "heart", "combatlog", "customitems", "dripstone", "customhit");
         }
         if (args.length == 1) {
             return filterByPrefix(List.of("reload", "heart", "combatlog", "customitems", "dripstone", "customhit"), args[0]);
