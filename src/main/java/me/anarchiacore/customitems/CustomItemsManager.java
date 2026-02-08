@@ -66,6 +66,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class CustomItemsManager implements Listener {
@@ -738,6 +739,7 @@ public class CustomItemsManager implements Listener {
         if (event.getHitBlock() == null) {
             return;
         }
+        Player owner = resolveBombardaOwner(projectile);
         Location location = event.getHitBlock().getLocation().add(0.5, 0.5, 0.5);
         if (location.getWorld() != null) {
             location.getWorld().playSound(location, Sound.ENTITY_GENERIC_EXPLODE, 1.0f, 1.0f);
@@ -745,6 +747,9 @@ public class CustomItemsManager implements Listener {
             location.getWorld().spawnParticle(Particle.EXPLOSION, location, particles, 1.0, 1.0, 1.0);
         }
         explodeBombarda(location, eventItem);
+        if (owner != null) {
+            sendConsumerMessage(owner, eventItem);
+        }
         projectile.remove();
     }
 
@@ -1018,6 +1023,27 @@ public class CustomItemsManager implements Listener {
                     Title.Times.times(Duration.ofMillis(500), Duration.ofMillis(3500), Duration.ofMillis(1000))
             );
             player.showTitle(title);
+        }
+    }
+
+    private Player resolveBombardaOwner(Projectile projectile) {
+        if (projectile.getShooter() instanceof Player player) {
+            return player;
+        }
+        if (!projectile.hasMetadata("bombardaPlayer")) {
+            return null;
+        }
+        String raw = projectile.getMetadata("bombardaPlayer").stream()
+            .findFirst()
+            .map(metadata -> metadata.asString())
+            .orElse(null);
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return Bukkit.getPlayer(UUID.fromString(raw));
+        } catch (IllegalArgumentException ex) {
+            return null;
         }
     }
 
