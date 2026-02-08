@@ -45,7 +45,11 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
             return handleCustomHitCommand(sender, args);
         }
         if (delegateExecutor != null) {
-            return delegateExecutor.onCommand(sender, command, label, args);
+            boolean result = delegateExecutor.onCommand(sender, command, label, args);
+            if (args.length > 0 && args[0].equalsIgnoreCase("reload") && customHitManager != null) {
+                customHitManager.reload();
+            }
+            return result;
         }
         return false;
     }
@@ -83,7 +87,7 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
             return true;
         }
         if (args.length == 1) {
-            sendCustomHitUsageMain(sender, lang);
+            sendCustomHitHelp(sender, lang);
             return true;
         }
         if (args[1].equalsIgnoreCase("get") || args[1].equalsIgnoreCase("info")) {
@@ -99,8 +103,7 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
         }
         if (args[1].equalsIgnoreCase("set")) {
             if (args.length != 3) {
-                sendMessage(sender, lang, "messages.customhit_usage_set",
-                    "&7Użycie: &f/stormitemy customhit set <mnożnik>", null);
+                sendCustomHitHelp(sender, lang);
                 return true;
             }
             Double parsed = parseMultiplier(args[2]);
@@ -139,6 +142,15 @@ public class StormItemyCommandRouter implements CommandExecutor, TabCompleter {
     private void sendCustomHitUsageGet(CommandSender sender, LangContext lang) {
         sendMessage(sender, lang, "messages.customhit_usage_get",
             "&7Użycie: &f/stormitemy customhit get", null);
+    }
+
+    private void sendCustomHitHelp(CommandSender sender, LangContext lang) {
+        sendMessage(sender, lang, "messages.customhit_help_header",
+            "&7Komendy Custom Hit:", null);
+        sendMessage(sender, lang, "messages.customhit_help_info",
+            "&f/stormitemy customhit get &8- &7Wyświetl aktualny mnożnik", null);
+        sendMessage(sender, lang, "messages.customhit_help_set",
+            "&f/stormitemy customhit set <mnożnik> &8- &7Ustaw mnożnik (0.1-10.0)", null);
     }
 
     private Double parseMultiplier(String raw) {
