@@ -18,6 +18,7 @@ import me.anarchiacore.util.EndCrystalBlocker;
 import me.anarchiacore.util.MiniMessageUtil;
 import me.anarchiacore.util.ResourceExporter;
 import me.anarchiacore.util.ZipExtractor;
+import me.anarchiacore.texturepack.TexturePackManager;
 import io.papermc.paper.command.brigadier.BasicCommand;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
@@ -46,6 +47,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
     private StatsManager statsManager;
     private DripstoneDamageManager dripstoneDamageManager;
     private CustomHitManager customHitManager;
+    private TexturePackManager texturePackManager;
     private Object stormItemyMain;
     private Object stormItemyInitializer;
     private StormItemyCommandRouter stormItemyRouter;
@@ -80,6 +82,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         statsManager = new StatsManager(this, configManager, dataStore);
         dripstoneDamageManager = new DripstoneDamageManager(this, messageService);
         customHitManager = new CustomHitManager(this);
+        texturePackManager = new TexturePackManager(this);
         int customItemsCount = configManager.getCustomItemsConfig().getAllItemIds().size();
         if (customItemsCount == 0) {
             getLogger().severe("CustomItems configs are empty: " + new java.io.File(getDataFolder(), "configs/customitems").getAbsolutePath());
@@ -92,6 +95,7 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         getServer().getPluginManager().registerEvents(statsManager, this);
         getServer().getPluginManager().registerEvents(dripstoneDamageManager, this);
         getServer().getPluginManager().registerEvents(customHitManager, this);
+        getServer().getPluginManager().registerEvents(texturePackManager, this);
         getServer().getPluginManager().registerEvents(new EndCrystalBlocker(this, configManager, messageService), this);
 
         registerCommand("anarchiacore", List.of("acore", "anarchia"), this, this);
@@ -208,6 +212,9 @@ public class AnarchiaCorePlugin extends JavaPlugin implements CommandExecutor, T
         }
         if (customHitManager != null) {
             customHitManager.reload();
+        }
+        if (texturePackManager != null) {
+            texturePackManager.reload();
         }
         if (combatLogManager != null) {
             combatLogManager.reload();

@@ -28,6 +28,10 @@ customHits:
   stormItemyConfigPath: "configs/STORMITEMY/config.yml"
   fallbackMultiplier: 1.0
 
+texturepack:
+  enabled: true
+  stormItemyConfigPath: "configs/STORMITEMY/config.yml"
+
 stats:
   topCacheSeconds: 60
   topLimit: 10
